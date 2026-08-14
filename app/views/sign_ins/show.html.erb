@@ -1,0 +1,16 @@
+<% content_for :title, "Confirm sign in · Campdoc" %>
+
+<section class="auth-card" data-controller="secret-fragment">
+  <div class="auth-brand">
+    <span class="wordmark-mark wordmark-mark--large" aria-hidden="true">C</span>
+    <span>Campdoc</span>
+  </div>
+  <div class="auth-copy">
+    <h1>Sign in as <%= @login_token.user.email_address %>?</h1>
+    <p>Continue only if you requested this link.</p>
+  </div>
+  <%= form_with url: consume_sign_in_path(public_id: @login_token.public_id), class: "auth-form" do |form| %>
+    <%= form.hidden_field :token, data: { secret_fragment_target: "input" } %>
+    <%= form.submit "Continue to Campdoc", class: "button button--primary button--wide", disabled: true, data: { secret_fragment_target: "submit" } %>
+  <% end %>
+</section>
