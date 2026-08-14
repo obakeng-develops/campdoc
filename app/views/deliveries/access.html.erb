@@ -1,0 +1,16 @@
+<% content_for :title, "Private delivery · Campdoc" %>
+
+<section class="auth-card" data-controller="secret-fragment">
+  <div class="auth-brand">
+    <span class="wordmark-mark wordmark-mark--large" aria-hidden="true">C</span>
+    <span>Campdoc</span>
+  </div>
+  <div class="auth-copy">
+    <h1>You have a private delivery.</h1>
+    <p>Confirm your private link to open the files.</p>
+  </div>
+  <%= form_with url: delivery_access_path(public_id: @send.public_id), class: "auth-form" do |form| %>
+    <%= form.hidden_field :token, data: { secret_fragment_target: "input" } %>
+    <%= form.submit "View files", class: "button button--primary button--wide", disabled: true, data: { secret_fragment_target: "submit" } %>
+  <% end %>
+</section>

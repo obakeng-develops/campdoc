@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= content_for(:title) || "Campdoc" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Campdoc">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="referrer" content="no-referrer">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <% app_shell = authenticated? && controller_name != "home" %>
+  <body class="<%= app_shell ? "app-body" : "guest-body" %>">
+    <% if flash.any? %>
+      <div class="flash-stack" aria-live="polite">
+        <% flash.each do |type, message| %>
+          <div class="flash flash--<%= type %>"><%= message %></div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if app_shell %>
+      <div class="app-shell">
+        <aside class="site-sidebar">
+          <%= link_to sends_path, class: "wordmark", aria: { label: "Campdoc home" } do %>
+            <span class="wordmark-mark" aria-hidden="true">C</span>
+            <span>Campdoc</span>
+          <% end %>
+
+          <%= link_to new_send_path, class: class_names("sidebar-compose", active: controller_name == "sends" && action_name == "new"), aria: { current: ("page" if controller_name == "sends" && action_name == "new") } do %>
+            <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M10 4v12M4 10h12"/></svg>
+            <span>New Send</span>
+          <% end %>
+
+          <nav class="sidebar-nav" aria-label="Main navigation">
+            <%= link_to sends_path, class: class_names("sidebar-link", active: controller_name == "sends" && action_name != "new"), aria: { current: ("page" if controller_name == "sends" && action_name != "new") } do %>
+              <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M3.5 5.5h13v10h-13zM3.5 8.5h13"/></svg>
+              <span>Sends</span>
+            <% end %>
+          </nav>
+
+          <div class="sidebar-account">
+            <span class="avatar" aria-hidden="true"><%= current_user.email_address.first %></span>
+            <span class="sidebar-account__email"><%= current_user.email_address %></span>
+            <%= button_to session_path, method: :delete, class: "sidebar-signout", aria: { label: "Sign out" }, title: "Sign out" do %>
+              <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M8 4H4.5v12H8M12 6l4 4-4 4M7 10h9"/></svg>
+            <% end %>
+          </div>
+        </aside>
+
+        <header class="mobile-header">
+          <%= link_to sends_path, class: "wordmark", aria: { label: "Campdoc home" } do %>
+            <span class="wordmark-mark" aria-hidden="true">C</span>
+            <span>Campdoc</span>
+          <% end %>
+          <nav class="mobile-nav" aria-label="Main navigation">
+            <%= link_to "Sends", sends_path %>
+            <%= link_to "New", new_send_path, class: "button button--primary" %>
+            <%= button_to "Sign out", session_path, method: :delete, class: "button button--quiet" %>
+          </nav>
+        </header>
+
+        <main class="app-main"><%= yield %></main>
+      </div>
+    <% else %>
+      <main class="guest-main"><%= yield %></main>
+    <% end %>
+  </body>
+</html>

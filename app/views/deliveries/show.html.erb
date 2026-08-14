@@ -1,0 +1,34 @@
+<% content_for :title, "Files from #{@send.user.email_address} · Campdoc" %>
+
+<div class="delivery-page" data-controller="delivery-open" data-delivery-open-url-value="<%= delivery_opened_path(public_id: @send.public_id) %>">
+  <header class="delivery-header">
+    <div class="auth-brand"><span class="wordmark-mark" aria-hidden="true">C</span><span>Campdoc</span></div>
+    <span>Private delivery</span>
+  </header>
+
+  <section class="delivery-intro">
+    <p class="eyebrow">A delivery for <%= @send.recipient_name %></p>
+    <h1><%= @send.user.email_address %> sent you <%= pluralize(@send.files.size, "file") %>.</h1>
+    <% if @send.message.present? %><blockquote>“<%= @send.message %>”</blockquote><% end %>
+  </section>
+
+  <div class="delivery-files <%= "delivery-files--grid" if @send.files.size > 1 %>">
+    <% @send.files.each do |file| %>
+      <article class="delivery-file">
+        <div class="delivery-file__preview">
+          <% if previewable_image?(file) %>
+            <%= image_tag delivery_file_path(public_id: @send.public_id, id: file.id), alt: file.filename.to_s %>
+          <% else %>
+            <div class="file-glyph file-glyph--hero"><span><%= file_kind(file) %></span></div>
+          <% end %>
+        </div>
+        <div class="delivery-file__footer">
+          <div><strong><%= file.filename %></strong><span><%= number_to_human_size(file.byte_size) %></span></div>
+          <%= button_to "Download", download_delivery_file_path(public_id: @send.public_id, id: file.id), class: "button button--primary" %>
+        </div>
+      </article>
+    <% end %>
+  </div>
+
+  <p class="delivery-footnote">This private link was made for <%= @send.recipient_email %>.</p>
+</div>

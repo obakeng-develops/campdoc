@@ -1,0 +1,6 @@
+<h1><%= @send.user.email_address %> sent you <%= pluralize(@send.files.count, "file") %>.</h1>
+<% if @send.message.present? %>
+  <p>“<%= @send.message %>”</p>
+<% end %>
+<p><%= link_to "See your files", delivery_url(public_id: @send.public_id, anchor: "token=#{@access_token}") %></p>
+<p>This is a private Campdoc delivery meant for <%= @send.recipient_email %>.</p>
