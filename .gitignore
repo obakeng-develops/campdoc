@@ -1,0 +1,13 @@
+/.bundle
+/.env*
+!/.env.example
+/.kamal/secrets
+/config/master.key
+/log/*
+/storage/*
+/tmp/*
+!/log/.keep
+!/storage/.keep
+!/tmp/.keep
+!/tmp/pids/.keep
+!/tmp/storage/.keep
