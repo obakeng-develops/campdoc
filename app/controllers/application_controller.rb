@@ -7,4 +7,9 @@ class ApplicationController < ActionController::Base
 
   # Changes to the importmap will invalidate the etag for HTML responses
   stale_when_importmap_changes
+
+  private
+    def managed_hosting?
+      Rails.configuration.x.managed_hosting
+    end
 end
