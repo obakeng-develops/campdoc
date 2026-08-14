@@ -12,6 +12,8 @@ Campdoc stores a SHA-256 digest of the token. The link expires after 15 minutes 
 
 Recipient links use the same fragment exchange pattern. A successful exchange stores the delivery public ID in the recipient's encrypted browser session. The browser can keep up to ten delivery grants.
 
+A signed-in user can also discover active deliveries addressed to their normalized account email in Shared with me. The matching account may open those deliveries without the bearer token. Recipients without accounts can continue using the private link, and a signed-in account with a different email gains no additional access.
+
 Delivery links expire after 30 days. A sender can revoke one or rotate it by emailing a fresh token. Rotation and email delivery happen in one locked database transaction, so an SMTP failure preserves the previous working link.
 
 Private pages send `Cache-Control: private, no-store` and use a `no-referrer` policy. The unauthenticated confirmation page does not reveal the recipient email address.
@@ -25,6 +27,8 @@ Direct uploads use short-lived signed storage requests. The bucket CORS policy s
 ## File Downloads
 
 Campdoc checks the sender or recipient session before every file request. After authorization it redirects to a five-minute Active Storage URL. The bucket remains private.
+
+Files in Shared with me remain attached to the sender's delivery. They are not copied into the recipient's library or counted as recipient-owned storage.
 
 Only Active Storage's web-safe image types can render inline for recipients. Other formats download as attachments or are rejected from recipient previews. This prevents an uploaded active document from running as Campdoc content.
 
