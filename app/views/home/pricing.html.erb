@@ -1,0 +1,81 @@
+<% content_for :title, "Pricing · Campdoc" %>
+<% content_for :head do %>
+  <meta name="description" content="Start with five free Sends each month. Pro and Studio plans are coming soon.">
+<% end %>
+
+<div class="landing-page pricing-page">
+  <%= render "marketing_header" %>
+
+  <main>
+    <header class="pricing-heading">
+      <p class="eyebrow">Pricing</p>
+      <h1>Choose how much you send.</h1>
+      <p>Start with five Sends each month. Move up when you need more.</p>
+    </header>
+
+    <div class="pricing-grid">
+      <article class="pricing-card">
+        <div class="plan-label plan-label--available">Available now</div>
+        <div class="pricing-card__heading">
+          <div>
+            <h2>Free</h2>
+            <p>For trying Campdoc with real work.</p>
+          </div>
+          <p class="plan-price"><strong>$0</strong><span>forever</span></p>
+        </div>
+        <ul class="plan-features">
+          <li>5 Sends each month</li>
+          <li>2 GB storage</li>
+          <li>Private delivery pages</li>
+          <li>Sent, opened, and downloaded status</li>
+        </ul>
+        <%= link_to "Start free", new_session_path, class: "button button--wide" %>
+      </article>
+
+      <article class="pricing-card pricing-card--featured">
+        <div class="plan-label">Coming soon</div>
+        <div class="pricing-card__heading">
+          <div>
+            <h2>Pro</h2>
+            <p>For people who send work often.</p>
+          </div>
+          <p class="plan-price"><strong>$9</strong><span>per month</span></p>
+        </div>
+        <ul class="plan-features">
+          <li>Unlimited Sends</li>
+          <li>100 GB storage</li>
+          <li>Your logo and colors on delivery pages</li>
+          <li>Detailed activity with exact timestamps</li>
+        </ul>
+        <p class="plan-availability">Pro will open after the free plan.</p>
+      </article>
+
+      <article class="pricing-card">
+        <div class="plan-label">Coming soon</div>
+        <div class="pricing-card__heading">
+          <div>
+            <h2>Studio</h2>
+            <p>For small teams that send together.</p>
+          </div>
+          <p class="plan-price"><strong>$10</strong><span>per member / month</span></p>
+        </div>
+        <ul class="plan-features">
+          <li>Everything in Pro</li>
+          <li>200 GB storage per member</li>
+          <li>A shared Send stream</li>
+          <li>Shared contacts</li>
+          <li>See what your team sent and to whom</li>
+        </ul>
+        <p class="plan-availability">Two-member minimum. Studio is planned for a later release.</p>
+      </article>
+    </div>
+
+    <section class="pricing-note">
+      <h2>Start free. Stay as long as it fits.</h2>
+      <p>Campdoc will tell you before a paid plan becomes available. Your free Sends will keep working.</p>
+      <%= link_to "Send your first file", new_session_path, class: "button button--primary landing-primary-action" %>
+    </section>
+  </main>
+
+  <%= render "marketing_footer" %>
+</div>

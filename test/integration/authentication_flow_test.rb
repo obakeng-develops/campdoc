@@ -19,10 +19,45 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
     follow_redirect!
     assert_response :success
-    assert_select "h1", text: "Your files, delivered personally."
+    assert_select "h1", text: "The simple way to send files."
 
     post consume_sign_in_path(public_id: login_token.public_id), params: { token: raw_token }
     assert_redirected_to new_session_path
+  end
+
+  test "landing page sends signed-in users to their home" do
+    get root_path
+    assert_response :success
+    assert_select ".handoff-scene"
+    assert_select ".mini-composer"
+    assert_select ".mini-delivery"
+    assert_select "[data-controller='handoff']"
+    assert_select ".manifesto-signature", text: /Obakeng Mosadi/
+    assert_select "a[href='mailto:mosadiobakeng7@gmail.com']"
+
+    user = User.create!(email_address: "sender@example.com")
+    sign_in_as(user)
+    get root_path
+    assert_redirected_to sends_path
+  end
+
+  test "pricing is public and stays in the marketing frame" do
+    get pricing_path
+
+    assert_response :success
+    assert_select ".pricing-card", count: 3
+    assert_select ".plan-price strong", text: "$9"
+    assert_select ".plan-label", text: "Coming soon", count: 2
+    assert_select ".plan-label--available", text: "Available now"
+    assert_select ".plan-features", text: /200 GB storage per member/
+
+    user = User.create!(email_address: "sender@example.com")
+    sign_in_as(user)
+    get pricing_path
+
+    assert_response :success
+    assert_select ".landing-header"
+    assert_select ".site-sidebar", count: 0
   end
 
   test "requesting a link creates a sender and queues email" do
