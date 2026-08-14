@@ -4,7 +4,7 @@ class SessionsController < ApplicationController
   rate_limit to: 5, within: 15.minutes, only: :create, name: "email", by: -> { params[:email_address].to_s.strip.downcase }
 
   def new
-    redirect_to sends_path if authenticated?
+    redirect_to files_path if authenticated?
   end
 
   def create

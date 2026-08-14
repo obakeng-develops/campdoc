@@ -6,6 +6,10 @@ Rails.application.routes.draw do
   get "sign-in/:public_id", to: "sign_ins#show", as: :sign_in
   post "sign-in/:public_id", to: "sign_ins#create", as: :consume_sign_in
 
+  resources :files, only: %i[index create show destroy] do
+    get :download, on: :member
+  end
+
   resources :sends, only: %i[index new create show] do
     post :revoke_access, on: :member
     post :rotate_access, on: :member
