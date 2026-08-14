@@ -19,7 +19,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
     follow_redirect!
     assert_response :success
-    assert_select "h1", text: "The simple way to send files."
+    assert_select "h1", text: "Your files, delivered personally."
 
     post consume_sign_in_path(public_id: login_token.public_id), params: { token: raw_token }
     assert_redirected_to new_session_path
