@@ -1,0 +1,11 @@
+<header class="landing-header">
+  <%= link_to root_path, class: "wordmark", aria: { label: "Campdoc home" } do %>
+    <span class="wordmark-mark" aria-hidden="true">C</span>
+    <span>Campdoc</span>
+  <% end %>
+  <nav class="landing-nav" aria-label="Main navigation">
+    <%= link_to "Pricing", pricing_path, class: class_names("landing-nav-link", active: current_page?(pricing_path)), aria: { current: ("page" if current_page?(pricing_path)) } %>
+    <%= link_to "Sign in", new_session_path, class: "landing-signin" %>
+    <%= link_to "Send a file", new_session_path, class: "button button--primary" %>
+  </nav>
+</header>

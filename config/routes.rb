@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
-  root "sessions#new"
+  root "home#show"
+  get "pricing", to: "home#pricing"
 
   resource :session, only: %i[new create destroy]
   get "sign-in/:public_id", to: "sign_ins#show", as: :sign_in
