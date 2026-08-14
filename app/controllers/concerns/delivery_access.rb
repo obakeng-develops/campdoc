@@ -12,7 +12,7 @@ module DeliveryAccess
 
     def require_delivery_access
       @send = find_delivery
-      head :not_found unless @send.access_active? && delivery_accesses.include?(@send.public_id)
+      head :not_found unless @send.access_active? && delivery_access_granted?(@send)
     end
 
     def grant_delivery_access(delivery)
@@ -21,6 +21,10 @@ module DeliveryAccess
 
     def delivery_accesses
       Array(session[:delivery_accesses])
+    end
+
+    def delivery_access_granted?(delivery)
+      delivery_accesses.include?(delivery.public_id) || authenticated? && current_user.email_address == delivery.recipient_email
     end
 
     def set_private_cache

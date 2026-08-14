@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   resources :files, only: %i[index create show destroy] do
     get :download, on: :member
   end
+  get "shared", to: "received_sends#index", as: :shared_files
 
   resources :sends, only: %i[index new create show] do
     post :revoke_access, on: :member
