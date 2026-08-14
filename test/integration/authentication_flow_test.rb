@@ -32,6 +32,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_select ".mini-composer"
     assert_select ".mini-delivery"
     assert_select "[data-controller='handoff']"
+    assert_select ".landing-ledger[data-controller='handoff']"
     assert_select ".manifesto-signature", text: /Obakeng Mosadi/
     assert_select "a[href='mailto:mosadiobakeng7@gmail.com']"
 
