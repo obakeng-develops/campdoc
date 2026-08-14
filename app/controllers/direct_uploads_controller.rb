@@ -5,7 +5,8 @@ class DirectUploadsController < ActiveStorage::DirectUploadsController
   def create
     return head :content_too_large if blob_args[:byte_size].to_i > Send::MAX_SEND_SIZE
 
-    blob = ActiveStorage::Blob.create_before_direct_upload!(**blob_args)
+    key = "users/#{current_user.id}/blobs/#{ActiveStorage::Blob.generate_unique_secure_token}"
+    blob = ActiveStorage::Blob.create_before_direct_upload!(key: key, **blob_args)
     blob.update!(uploader_id: current_user.id)
     render json: direct_upload_json(blob)
   end

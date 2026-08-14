@@ -97,6 +97,9 @@ class SendFlowTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_match %r{/rails/active_storage/disk/}, response.parsed_body.dig("direct_upload", "url")
+    blob = ActiveStorage::Blob.find_signed!(response.parsed_body.fetch("signed_id"))
+    assert_equal @user.id, blob.uploader_id
+    assert_match %r{\Ausers/#{@user.id}/blobs/[a-z0-9]{28}\z}, blob.key
   end
 
   test "unsafe image formats are downloaded instead of rendered inline" do
