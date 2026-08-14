@@ -8,6 +8,8 @@ Copy `.env.example` into your secret management system and set every required pr
 
 Generate a unique Rails master key for the installation. Do not commit secrets or a populated environment file.
 
+Campdoc defaults to self-hosted mode. Keep `CAMPDOC_MANAGED=false` so the root page opens sign-in and the pricing page remains unavailable. Campdoc's hosted deployment sets this value to `true` to serve the public landing and pricing pages.
+
 ## Choosing File Storage
 
 For files on the persistent application volume, set:

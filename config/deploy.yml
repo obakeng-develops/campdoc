@@ -46,6 +46,7 @@ env:
     - SMTP_PASSWORD
   clear:
     APP_HOST: app.example.com
+    CAMPDOC_MANAGED: false
     MAIL_FROM: Campdoc <hello@example.com>
     ACTIVE_STORAGE_SERVICE: s3
     STORAGE_ENDPOINT: https://ACCOUNT_ID.r2.cloudflarestorage.com

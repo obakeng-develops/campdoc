@@ -469,7 +469,30 @@
   .manifesto-signature strong { color: var(--text-primary); }
   .manifesto-signature a { color: var(--text-tertiary); width: fit-content; }
 
-  .landing-ledger { align-items: center; background: var(--gray-900); border-radius: 2rem; color: var(--gray-100); display: grid; gap: clamp(3rem, 8vw, 8rem); grid-template-columns: 0.8fr 1.2fr; padding: clamp(2rem, 6vw, 5rem); }
+  /*
+   * DELIVERY LEDGER STORYBOARD
+   *
+   *     0ms  waiting for the ledger to enter the viewport
+   *   120ms  activity card fades and lifts into place
+   *   520ms  Sent event appears
+   *  1020ms  Opened event appears
+   *  1520ms  Downloaded event appears
+   */
+  .landing-ledger {
+    --ledger-card-at: 120ms;
+    --ledger-sent-at: 520ms;
+    --ledger-opened-at: 1020ms;
+    --ledger-downloaded-at: 1520ms;
+
+    align-items: center;
+    background: var(--gray-900);
+    border-radius: 2rem;
+    color: var(--gray-100);
+    display: grid;
+    gap: clamp(3rem, 8vw, 8rem);
+    grid-template-columns: 0.8fr 1.2fr;
+    padding: clamp(2rem, 6vw, 5rem);
+  }
   .landing-ledger .eyebrow { color: var(--gray-400); }
   .landing-ledger__copy > p:last-child { color: var(--gray-400); font-size: 1rem; line-height: 1.55; margin-top: var(--space-5); max-width: 43ch; }
   .ledger-card { background: var(--gray-850); border: 1px solid rgb(255 255 255 / 10%); border-radius: var(--radius-xl); box-shadow: 0 24px 60px rgb(0 0 0 / 25%); padding: var(--space-5); }
@@ -481,6 +504,33 @@
   .landing-event-list li { align-items: center; color: var(--gray-400); display: grid; font-size: 0.75rem; gap: var(--space-3); grid-template-columns: auto 1fr auto; min-height: 2.6rem; }
   .landing-event-list i { background: var(--positive); border-radius: 50%; box-shadow: 0 0 0 3px rgb(22 163 74 / 14%); height: 0.5rem; width: 0.5rem; }
   .landing-event-list strong { color: var(--gray-200); }
+
+  .landing-ledger.is-pending .ledger-card,
+  .landing-ledger.is-pending .landing-event-list li { opacity: 0; }
+  .landing-ledger.is-pending .ledger-card { transform: translateY(0.75rem); }
+  .landing-ledger.is-pending .landing-event-list li { transform: translateY(0.4rem); }
+  .landing-ledger.is-pending .landing-event-list i { transform: scale(0.7); }
+
+  .landing-ledger.is-playing .ledger-card { animation: ledger-card-in 460ms var(--ease-out) var(--ledger-card-at) both; }
+  .landing-ledger.is-playing .landing-event-list li:nth-child(1) { animation: ledger-event-in 360ms var(--ease-out) var(--ledger-sent-at) both; }
+  .landing-ledger.is-playing .landing-event-list li:nth-child(2) { animation: ledger-event-in 360ms var(--ease-out) var(--ledger-opened-at) both; }
+  .landing-ledger.is-playing .landing-event-list li:nth-child(3) { animation: ledger-event-in 360ms var(--ease-out) var(--ledger-downloaded-at) both; }
+  .landing-ledger.is-playing .landing-event-list li:nth-child(1) i { animation: ledger-dot-in 320ms var(--ease-out) var(--ledger-sent-at) both; }
+  .landing-ledger.is-playing .landing-event-list li:nth-child(2) i { animation: ledger-dot-in 320ms var(--ease-out) var(--ledger-opened-at) both; }
+  .landing-ledger.is-playing .landing-event-list li:nth-child(3) i { animation: ledger-dot-in 320ms var(--ease-out) var(--ledger-downloaded-at) both; }
+
+  @keyframes ledger-card-in {
+    from { opacity: 0; transform: translateY(0.75rem); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes ledger-event-in {
+    from { opacity: 0; transform: translateY(0.4rem); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes ledger-dot-in {
+    from { transform: scale(0.7); }
+    to { transform: scale(1); }
+  }
 
   .landing-cta { align-items: center; border-bottom: 1px solid var(--border-secondary); display: flex; justify-content: space-between; padding: 9rem 0; }
   .landing-footer { color: var(--text-tertiary); display: flex; font-size: 0.75rem; justify-content: space-between; margin: 0 auto; max-width: 76rem; padding: var(--space-6); }

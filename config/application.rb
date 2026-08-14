@@ -13,6 +13,7 @@ module Campdoc
 
     # Files are only exposed through Campdoc's authorization and tracking endpoints.
     config.active_storage.draw_routes = false
+    config.x.managed_hosting = ENV["CAMPDOC_MANAGED"] == "true"
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.

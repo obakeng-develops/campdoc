@@ -7,6 +7,7 @@ Campdoc reads production configuration from environment variables. Production bo
 | Variable | Required | Description |
 | --- | --- | --- |
 | `APP_HOST` | Yes | Public hostname used in links and host authorization. Do not include the protocol. |
+| `CAMPDOC_MANAGED` | No | Shows the public landing and pricing pages when `true`. Defaults to `false`. |
 | `ACTIVE_STORAGE_SERVICE` | Yes | `local` or `s3`. |
 | `RAILS_MASTER_KEY` | For encrypted credentials | Decrypts `config/credentials.yml.enc`. |
 | `RAILS_LOG_LEVEL` | No | Rails log level. Defaults to `info`. |
