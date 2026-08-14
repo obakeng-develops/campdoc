@@ -1,0 +1,83 @@
+require "test_helper"
+
+class AuthenticationFlowTest < ActionDispatch::IntegrationTest
+  test "sender signs in with a single-use link" do
+    user = User.create!(email_address: "sender@example.com")
+    login_token, raw_token = LoginToken.issue_for(user)
+
+    get sign_in_path(public_id: login_token.public_id)
+    assert_response :success
+    assert_equal "private, no-store", response.headers["Cache-Control"]
+    assert login_token.reload.usable?
+
+    post consume_sign_in_path(public_id: login_token.public_id), params: { token: raw_token }
+    assert_redirected_to sends_path
+    follow_redirect!
+    assert_response :success
+
+    delete session_path
+    assert_redirected_to root_path
+    follow_redirect!
+    assert_response :success
+    assert_select "h1", text: "Your files, delivered personally."
+
+    post consume_sign_in_path(public_id: login_token.public_id), params: { token: raw_token }
+    assert_redirected_to new_session_path
+  end
+
+  test "requesting a link creates a sender and queues email" do
+    assert_enqueued_with(job: AuthenticationEmailJob) do
+      post session_path, params: { email_address: "New@Example.com" }
+    end
+
+    assert_redirected_to new_session_path
+    assert_equal "new@example.com", User.last.email_address
+  end
+
+  test "direct upload grants require a signed-in sender" do
+    post rails_direct_uploads_path, params: { blob: blob_params }, as: :json
+
+    assert_response :unauthorized
+    assert_not ActiveStorage::Blob.exists?
+  end
+
+  test "direct upload grants reject an expired sender session" do
+    user = User.create!(email_address: "sender@example.com")
+    sign_in_as(user)
+
+    travel Authentication::SESSION_LIFETIME + 1.minute do
+      post rails_direct_uploads_path, params: { blob: blob_params }, as: :json
+    end
+
+    assert_response :unauthorized
+    assert_not ActiveStorage::Blob.exists?
+  end
+
+  test "oversized direct uploads are rejected" do
+    user = User.create!(email_address: "sender@example.com")
+    sign_in_as(user)
+
+    post rails_direct_uploads_path, params: {
+      blob: blob_params.merge(byte_size: Send::MAX_SEND_SIZE + 1)
+    }, as: :json
+
+    assert_response :content_too_large
+    assert_not ActiveStorage::Blob.exists?
+  end
+
+  private
+    def sign_in_as(user)
+      login_token, raw_token = LoginToken.issue_for(user)
+      post consume_sign_in_path(public_id: login_token.public_id), params: { token: raw_token }
+    end
+
+    def blob_params
+      content = "hello"
+      {
+        filename: "hello.txt",
+        byte_size: content.bytesize,
+        checksum: Base64.strict_encode64(Digest::MD5.digest(content)),
+        content_type: "text/plain"
+      }
+    end
+end

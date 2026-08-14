@@ -1,0 +1,7 @@
+Here’s your way in.
+
+Use this private link to sign in to Campdoc. It expires in 15 minutes and works once:
+
+<%= sign_in_url(public_id: @login_token.public_id, anchor: "token=#{@token}") %>
+
+If you didn’t ask for this, you can safely ignore it.

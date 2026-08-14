@@ -1,0 +1,21 @@
+<% content_for :title, "Sign in · Campdoc" %>
+
+<section class="auth-card">
+  <div class="auth-brand">
+    <span class="wordmark-mark wordmark-mark--large" aria-hidden="true">C</span>
+    <span>Campdoc</span>
+  </div>
+  <div class="auth-copy">
+    <h1>Your files, delivered personally.</h1>
+    <p>Enter your email and we’ll send you a private sign-in link. No password to remember.</p>
+  </div>
+
+  <%= form_with url: session_path, class: "auth-form" do |form| %>
+    <div class="field">
+      <%= form.label :email_address, "Email address" %>
+      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "email", placeholder: "you@example.com" %>
+    </div>
+    <%= form.submit "Email me a sign-in link", class: "button button--primary button--wide" %>
+  <% end %>
+  <p class="fine-print">A quiet place to send work to people who matter.</p>
+</section>

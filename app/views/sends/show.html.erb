@@ -1,0 +1,52 @@
+<% content_for :title, "Send to #{@send.recipient_name} · Campdoc" %>
+
+<div class="detail-heading">
+  <%= link_to sends_path, class: "back-link" do %><span aria-hidden="true">←</span> Your sends<% end %>
+  <% status = @send.status || "sending" %>
+  <span class="status-pill status-pill--<%= status %>"><%= status.titleize %></span>
+</div>
+
+<section class="send-detail">
+  <div class="detail-files <%= "detail-files--grid" if @send.files.size > 1 %>">
+    <% @send.files.each do |file| %>
+      <div class="detail-file">
+        <% if previewable_image?(file) %>
+          <%= image_tag send_file_path(@send, file), alt: file.filename.to_s %>
+        <% else %>
+          <div class="file-glyph file-glyph--large"><span><%= file_kind(file) %></span></div>
+        <% end %>
+        <div class="file-meta">
+          <strong><%= file.filename %></strong>
+          <span><%= number_to_human_size(file.byte_size) %></span>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="detail-context">
+    <div class="recipient-line">
+      <span class="avatar avatar--large" aria-hidden="true"><%= @send.recipient_name.first %></span>
+      <div><span>Sent to</span><strong><%= @send.recipient_email %></strong></div>
+    </div>
+    <% if @send.message.present? %><blockquote>“<%= @send.message %>”</blockquote><% end %>
+
+    <ol class="event-ledger" aria-label="Send activity">
+      <% %w[sent opened downloaded].each do |event_type| %>
+        <% event = @send.send_events.find { |item| item.event_type == event_type } %>
+        <li class="<%= "event-ledger__done" if event %>">
+          <span class="event-marker" aria-hidden="true"></span>
+          <strong><%= event_type.titleize %></strong>
+          <span><%= event ? event.occurred_at.strftime("%b %-d at %-I:%M %p") : "Waiting" %></span>
+        </li>
+      <% end %>
+    </ol>
+    <div class="access-actions">
+      <% if @send.access_active? %>
+        <%= button_to "Revoke private link", revoke_access_send_path(@send), class: "button button--quiet" %>
+      <% else %>
+        <span class="fine-print">Recipient access is inactive.</span>
+      <% end %>
+      <%= button_to "Send a fresh link", rotate_access_send_path(@send), class: "button" %>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,48 @@
+<% content_for :title, "Send files · Campdoc" %>
+
+<div class="compose-heading">
+  <%= link_to sends_path, class: "back-link" do %><span aria-hidden="true">←</span> Back<% end %>
+  <div>
+    <p class="eyebrow">New send</p>
+    <h1>Start with the file.</h1>
+  </div>
+</div>
+
+<%= form_with model: @send, class: "send-form", data: { controller: "file-drop", action: "direct-upload:progress->file-drop#uploadProgress direct-upload:end->file-drop#uploadEnd" } do |form| %>
+  <% if @send.errors.any? %>
+    <div class="form-errors" role="alert">
+      <strong>Something needs a quick look.</strong>
+      <%= @send.errors.full_messages.to_sentence %>
+    </div>
+  <% end %>
+
+  <div class="drop-zone" role="button" tabindex="0" aria-label="Choose files to send" data-file-drop-target="zone" data-action="dragover->file-drop#dragOver dragleave->file-drop#dragLeave drop->file-drop#drop click->file-drop#choose keydown.enter->file-drop#choose keydown.space->file-drop#choose">
+    <%= form.file_field :files, multiple: true, required: true, direct_upload: true, class: "visually-hidden", data: { file_drop_target: "input", action: "change->file-drop#changed" } %>
+    <div class="drop-prompt" data-file-drop-target="prompt">
+      <div class="drop-icon" aria-hidden="true">↑</div>
+      <strong>Drop files here</strong>
+      <span>or choose from your computer</span>
+      <small>Any kind of file is welcome.</small>
+    </div>
+    <div class="selected-state" data-file-drop-target="state" hidden>
+      <div class="selected-files" data-file-drop-target="list" aria-live="polite"></div>
+      <button type="button" class="change-files" data-file-drop-target="change" data-action="file-drop#choose">Choose different files</button>
+    </div>
+  </div>
+
+  <div class="send-details">
+    <div class="field">
+      <%= form.label :recipient_email, "Who’s this for?" %>
+      <%= form.email_field :recipient_email, required: true, autocomplete: "email", placeholder: "sam@example.com" %>
+    </div>
+    <div class="field">
+      <div class="label-row">
+        <%= form.label :message, "Add a note" %>
+        <span>Optional</span>
+      </div>
+      <%= form.text_area :message, rows: 3, maxlength: 500, placeholder: "A little context goes a long way…" %>
+    </div>
+    <%= form.submit "Send files", class: "button button--primary button--wide button--send", data: { file_drop_target: "submit" } %>
+    <p class="privacy-note"><span aria-hidden="true">⌁</span> Private by default. Only your recipient gets the link.</p>
+  </div>
+<% end %>
