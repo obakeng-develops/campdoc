@@ -151,6 +151,14 @@
   .sidebar-account__email { color: var(--text-secondary); font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .sidebar-signout { align-items: center; background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--text-tertiary); cursor: pointer; display: flex; height: 2rem; justify-content: center; padding: 0; width: 2rem; }
   .mobile-header { display: none; }
+  .mobile-nav { align-items: center; display: flex; gap: var(--space-2); }
+  .mobile-menu { position: relative; }
+  .mobile-menu summary { align-items: center; border: 1px solid var(--border-primary); border-radius: var(--radius-sm); color: var(--text-secondary); cursor: pointer; display: flex; font-size: 0.75rem; height: 2rem; justify-content: center; list-style: none; width: 2.25rem; }
+  .mobile-menu summary::-webkit-details-marker { display: none; }
+  .mobile-menu__panel { background: var(--bg-elevated); border: 1px solid var(--border-primary); border-radius: var(--radius-md); box-shadow: var(--popover-shadow); display: grid; min-width: 13rem; padding: var(--space-2); position: absolute; right: 0; top: calc(100% + var(--space-2)); }
+  .mobile-menu__panel > a { border-radius: var(--radius-sm); color: var(--text-secondary); font-size: 0.8125rem; padding: 0.65rem 0.75rem; }
+  .mobile-menu__panel form { border-top: 1px solid var(--border-secondary); margin-top: var(--space-1); padding-top: var(--space-1); }
+  .mobile-menu__panel .button { justify-content: flex-start; width: 100%; }
   .app-main { margin: 0 auto; max-width: 52rem; padding: var(--space-12) var(--space-6) 6rem; width: 100%; }
   .guest-main { min-height: 100vh; }
   .guest-body:has(.auth-card) .guest-main { align-items: center; display: flex; justify-content: center; padding: var(--space-6); }
@@ -597,8 +605,6 @@
   .app-shell { display: block; }
   .site-sidebar { display: none; }
   .mobile-header { align-items: center; background: color-mix(in srgb, var(--bg-main) 90%, transparent); border-bottom: 1px solid var(--border-secondary); display: flex; height: 3.75rem; justify-content: space-between; padding: 0 var(--space-4); position: sticky; top: 0; z-index: 20; }
-  .mobile-nav { align-items: center; display: flex; gap: var(--space-2); }
-  .mobile-nav > a:not(.button) { color: var(--text-secondary); font-size: 0.8125rem; }
   .mobile-nav .button { font-size: 0.75rem; min-height: 2rem; padding: 0.3rem 0.6rem; }
   .app-main { padding: var(--space-8) var(--space-4) 4rem; }
   .send-form, .send-detail { grid-template-columns: 1fr; }
@@ -625,8 +631,6 @@
 }
 
 @media (max-width: 34rem) {
-  .mobile-nav > a:not(.button) { display: none; }
-  .mobile-nav .button--quiet { padding-inline: 0.25rem; }
   .page-heading { align-items: flex-start; gap: var(--space-4); }
   .page-heading .button { min-height: 2.25rem; padding-inline: 0.7rem; }
   .send-card { grid-template-columns: 6rem 1fr; min-height: 7.5rem; }

@@ -13,6 +13,10 @@ class FilesFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to files_path
     assert_equal [ blob.id ], @user.files.blobs.ids
 
+    get files_path
+    assert_select "details.mobile-menu"
+    assert_select ".mobile-menu__panel", text: /Shared with me/
+
     get download_file_path(@user.files.attachments.first)
     assert_response :redirect
   end

@@ -78,8 +78,9 @@ The container entrypoint prepares the database before the Rails server starts.
 
 1. Open `/up` and confirm it returns HTTP 200.
 2. Request a sign-in email and consume the link once.
-3. Send and download a small file.
-4. Confirm the sender dashboard records the events.
-5. Confirm database and file backups include the persistent storage volume.
+3. Send a small file and confirm it appears in My Files.
+4. Sign in as the recipient and confirm the delivery appears in Shared with me.
+5. Download the file and confirm Sent records the events.
+6. Confirm database and file backups include the persistent storage volume.
 
 Changing `ACTIVE_STORAGE_SERVICE` does not move existing files. Read the [security and storage explanation](../explanation/security-model.md) before migrating objects.
