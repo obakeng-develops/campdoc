@@ -11,7 +11,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert login_token.reload.usable?
 
     post consume_sign_in_path(public_id: login_token.public_id), params: { token: raw_token }
-    assert_redirected_to sends_path
+    assert_redirected_to files_path
     follow_redirect!
     assert_response :success
 
@@ -40,7 +40,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
       user = User.create!(email_address: "sender@example.com")
       sign_in_as(user)
       get root_path
-      assert_redirected_to sends_path
+      assert_redirected_to files_path
     end
   end
 

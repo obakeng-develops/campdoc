@@ -4,7 +4,7 @@ class HomeController < ApplicationController
   def show
     return redirect_to new_session_path unless managed_hosting?
 
-    redirect_to sends_path if authenticated?
+    redirect_to files_path if authenticated?
   end
 
   def pricing

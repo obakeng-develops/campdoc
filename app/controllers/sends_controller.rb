@@ -8,14 +8,17 @@ class SendsController < ApplicationController
 
   def new
     @send = current_user.sends.new
+    set_library_files
   end
 
   def create
     @send = current_user.sends.new(send_params)
     if @send.save
+      current_user.retain_files(@send.files.blobs)
       DeliveryEmailJob.perform_later(@send)
       redirect_to @send, notice: "You’re all set. #{@send.recipient_name} has something lovely waiting."
     else
+      set_library_files
       render :new, status: :unprocessable_entity
     end
   end
@@ -40,5 +43,12 @@ class SendsController < ApplicationController
 
     def send_params
       params.expect(send: [ :recipient_email, :message, files: [] ])
+    end
+
+    def set_library_files
+      files = current_user.files.attachments.includes(:blob).order(created_at: :desc)
+      selected_file = files.find_by(id: params[:file_id])
+      @library_files = [ selected_file, *files.where.not(id: selected_file&.id).limit(11) ].compact
+      @selected_file_id = selected_file&.id
     end
 end

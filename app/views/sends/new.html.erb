@@ -1,7 +1,7 @@
 <% content_for :title, "Send files · Campdoc" %>
 
 <div class="compose-heading">
-  <%= link_to sends_path, class: "back-link" do %><span aria-hidden="true">←</span> Back<% end %>
+  <%= link_to files_path, class: "back-link" do %><span aria-hidden="true">←</span> Back to My Files<% end %>
   <div>
     <p class="eyebrow">New send</p>
     <h1>Start with the file.</h1>
@@ -16,18 +16,35 @@
     </div>
   <% end %>
 
-  <div class="drop-zone" role="button" tabindex="0" aria-label="Choose files to send" data-file-drop-target="zone" data-action="dragover->file-drop#dragOver dragleave->file-drop#dragLeave drop->file-drop#drop click->file-drop#choose keydown.enter->file-drop#choose keydown.space->file-drop#choose">
-    <%= form.file_field :files, multiple: true, required: true, direct_upload: true, class: "visually-hidden", data: { file_drop_target: "input", action: "change->file-drop#changed" } %>
-    <div class="drop-prompt" data-file-drop-target="prompt">
-      <div class="drop-icon" aria-hidden="true">↑</div>
-      <strong>Drop files here</strong>
-      <span>or choose from your computer</span>
-      <small>Any kind of file is welcome.</small>
+  <div class="send-files-column">
+    <div class="drop-zone" role="button" tabindex="0" aria-label="Choose files to send" data-file-drop-target="zone" data-action="dragover->file-drop#dragOver dragleave->file-drop#dragLeave drop->file-drop#drop click->file-drop#choose keydown.enter->file-drop#choose keydown.space->file-drop#choose">
+      <%= form.file_field :files, multiple: true, direct_upload: true, class: "visually-hidden", data: { file_drop_target: "input", action: "change->file-drop#changed" } %>
+      <div class="drop-prompt" data-file-drop-target="prompt">
+        <div class="drop-icon" aria-hidden="true">↑</div>
+        <strong>Drop files here</strong>
+        <span>or choose from your computer</span>
+        <small>Any kind of file is welcome.</small>
+      </div>
+      <div class="selected-state" data-file-drop-target="state" hidden>
+        <div class="selected-files" data-file-drop-target="list" aria-live="polite"></div>
+        <button type="button" class="change-files" data-file-drop-target="change" data-action="file-drop#choose">Choose different files</button>
+      </div>
     </div>
-    <div class="selected-state" data-file-drop-target="state" hidden>
-      <div class="selected-files" data-file-drop-target="list" aria-live="polite"></div>
-      <button type="button" class="change-files" data-file-drop-target="change" data-action="file-drop#choose">Choose different files</button>
-    </div>
+
+    <% if @library_files.any? %>
+      <fieldset class="library-picker">
+        <legend>Or choose from My Files</legend>
+        <div>
+          <% @library_files.each do |file| %>
+            <%= check_box_tag "send[files][]", file.blob.signed_id, file.id == @selected_file_id, id: "library_file_#{file.id}" %>
+            <%= label_tag "library_file_#{file.id}" do %>
+              <span class="mini-file-icon"><%= file_kind(file.blob) %></span>
+              <span><strong><%= file.filename %></strong><small><%= number_to_human_size(file.byte_size) %></small></span>
+            <% end %>
+          <% end %>
+        </div>
+      </fieldset>
+    <% end %>
   </div>
 
   <div class="send-details">

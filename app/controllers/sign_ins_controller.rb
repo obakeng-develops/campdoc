@@ -14,7 +14,7 @@ class SignInsController < ApplicationController
       reset_session
       session[:user_id] = user.id
       session[:authenticated_at] = Time.current.to_i
-      redirect_to sends_path, notice: "Welcome to Campdoc."
+      redirect_to files_path, notice: "Welcome to Campdoc."
     else
       redirect_to new_session_path, alert: "That sign-in link has expired. Ask for a new one."
     end

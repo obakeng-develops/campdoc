@@ -1,0 +1,56 @@
+<% content_for :title, "My Files · Campdoc" %>
+
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Your library</p>
+    <h1>My Files</h1>
+  </div>
+  <%= link_to "New Send", new_send_path, class: "button button--primary" %>
+</div>
+
+<%= form_with url: files_path, class: "library-upload" do |form| %>
+  <div>
+    <strong>Keep something here</strong>
+    <span>Files you send are saved automatically.</span>
+  </div>
+  <%= file_field_tag "files[]", multiple: true, required: true, direct_upload: true %>
+  <%= form.submit "Upload", class: "button" %>
+<% end %>
+
+<% if @files.any? %>
+  <div class="file-library">
+    <% @files.each do |file| %>
+      <article class="library-file">
+        <%= link_to file_path(file), class: "library-file__preview", aria: { label: "Open #{file.filename}" } do %>
+          <% if previewable_image?(file.blob) %>
+            <%= image_tag file_path(file), alt: "" %>
+          <% else %>
+            <div class="file-glyph"><span><%= file_kind(file.blob) %></span></div>
+          <% end %>
+        <% end %>
+        <div class="library-file__body">
+          <div>
+            <strong><%= file.filename %></strong>
+            <span><%= number_to_human_size(file.byte_size) %> · Added <%= time_ago_in_words(file.created_at) %> ago</span>
+          </div>
+          <div class="library-file__actions">
+            <%= link_to "Send", new_send_path(file_id: file.id), class: "button button--quiet" %>
+            <%= link_to "Download", download_file_path(file), class: "button button--quiet" %>
+            <%= button_to "Remove", file_path(file), method: :delete, class: "button button--quiet", form: { data: { turbo_confirm: "Remove this file from My Files? Existing deliveries will keep working." } } %>
+          </div>
+        </div>
+      </article>
+    <% end %>
+  </div>
+<% else %>
+  <div class="empty-state">
+    <div class="empty-file" aria-hidden="true">
+      <span class="empty-file__fold"></span>
+      <span class="empty-file__line"></span>
+      <span class="empty-file__line empty-file__line--short"></span>
+    </div>
+    <h2>Your files will live here.</h2>
+    <p>Upload one now, or create a Send. Anything you send is kept here for next time.</p>
+    <%= link_to "Send a file", new_send_path, class: "button button--primary" %>
+  </div>
+<% end %>
