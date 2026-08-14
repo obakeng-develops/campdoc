@@ -8,6 +8,8 @@ class Send < ApplicationRecord
   has_many_attached :files
   has_many :send_events, inverse_of: :delivery, dependent: :delete_all
 
+  scope :available, -> { where(access_revoked_at: nil, access_expires_at: Time.current..).where.not(access_token_digest: nil) }
+
   normalizes :recipient_email, with: ->(email) { email.strip.downcase }
 
   validates :recipient_email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }

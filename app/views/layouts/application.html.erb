@@ -52,6 +52,10 @@
               <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M3.5 5.5h5l1.5 2h6.5v8h-13z"/></svg>
               <span>My Files</span>
             <% end %>
+            <%= link_to shared_files_path, class: class_names("sidebar-link", active: controller_name == "received_sends"), aria: { current: ("page" if controller_name == "received_sends") } do %>
+              <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M3.5 5.5h13v10h-13zM6 8.5l4 3 4-3"/></svg>
+              <span>Shared with me</span>
+            <% end %>
             <%= link_to sends_path, class: class_names("sidebar-link", active: controller_name == "sends" && action_name != "new"), aria: { current: ("page" if controller_name == "sends" && action_name != "new") } do %>
               <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M3.5 5.5h13v10h-13zM3.5 8.5h13"/></svg>
               <span>Sends</span>
@@ -74,6 +78,7 @@
           <% end %>
           <nav class="mobile-nav" aria-label="Main navigation">
             <%= link_to "Files", files_path %>
+            <%= link_to "Shared", shared_files_path %>
             <%= link_to "Sends", sends_path %>
             <%= link_to "New", new_send_path, class: "button button--primary" %>
             <%= button_to "Sign out", session_path, method: :delete, class: "button button--quiet" %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_14_110000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_14_110001) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -76,6 +76,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_14_110000) do
     t.integer "user_id", null: false
     t.index ["access_token_digest"], name: "index_sends_on_access_token_digest", unique: true
     t.index ["public_id"], name: "index_sends_on_public_id", unique: true
+    t.index ["recipient_email"], name: "index_sends_on_recipient_email"
     t.index ["user_id"], name: "index_sends_on_user_id"
   end
 

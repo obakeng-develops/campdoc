@@ -7,6 +7,6 @@ class DeliveriesController < ApplicationController
     @send = find_delivery
     return head :not_found unless @send.access_active?
 
-    render :access unless delivery_accesses.include?(@send.public_id)
+    render :access unless delivery_access_granted?(@send)
   end
 end

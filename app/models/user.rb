@@ -1,6 +1,7 @@
 class User < ApplicationRecord
   has_many :login_tokens, dependent: :delete_all
   has_many :sends, dependent: :destroy
+  has_many :received_sends, class_name: "Send", foreign_key: :recipient_email, primary_key: :email_address
   has_many_attached :files
 
   normalizes :email_address, with: ->(email) { email.strip.downcase }
