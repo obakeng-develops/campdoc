@@ -1,7 +1,7 @@
 <% content_for :title, "Send to #{@send.recipient_name} · Campdoc" %>
 
 <div class="detail-heading">
-  <%= link_to sends_path, class: "back-link" do %><span aria-hidden="true">←</span> Your sends<% end %>
+  <%= link_to sends_path, class: "back-link" do %><span aria-hidden="true">←</span> Sent<% end %>
   <% status = @send.status || "sending" %>
   <span class="status-pill status-pill--<%= status %>"><%= status.titleize %></span>
 </div>

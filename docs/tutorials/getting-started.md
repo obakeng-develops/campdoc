@@ -32,7 +32,13 @@ Open [http://localhost:3000](http://localhost:3000).
 4. Select a file, enter a recipient email and note, then send it.
 5. Open the delivery email in `tmp/mails` and follow its private link.
 
-The sender dashboard records when the delivery is sent, opened, and downloaded.
+The uploaded file now appears in My Files, where you can download it or use it in another Send. Sent records when the delivery is sent, opened, and downloaded.
+
+## Receiving A File
+
+Sign out, then request a sign-in link for the recipient email used above. After signing in, open Shared with me. The active delivery appears there without requiring the original bearer link.
+
+The delivery still expires after 30 days and disappears if the sender revokes it. Shared files remain owned by the sender and are not copied into the recipient's My Files library.
 
 ## Running The Tests
 
