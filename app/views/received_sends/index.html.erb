@@ -34,6 +34,7 @@
           <div class="relationship-row">
             <span class="avatar" aria-hidden="true"><%= send_record.user.email_address.first %></span>
             <span>From <%= send_record.user.email_address %></span>
+            <span class="delivery-expiry">Until <%= send_record.access_expires_at.strftime("%b %-d") %></span>
           </div>
         </div>
       <% end %>
@@ -46,7 +47,7 @@
       <span class="empty-file__line"></span>
       <span class="empty-file__line empty-file__line--short"></span>
     </div>
-    <h2>Nothing has been shared with you yet.</h2>
-    <p>Active deliveries sent to <%= current_user.email_address %> will appear here automatically.</p>
+    <h2>No files shared with you.</h2>
+    <p>Active deliveries sent to <%= current_user.email_address %> will appear here.</p>
   </section>
 <% end %>

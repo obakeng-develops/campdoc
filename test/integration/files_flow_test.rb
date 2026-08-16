@@ -16,6 +16,15 @@ class FilesFlowTest < ActionDispatch::IntegrationTest
     get files_path
     assert_select "details.mobile-menu"
     assert_select ".mobile-menu__panel", text: /Shared with me/
+    assert_select "form.library-upload[data-controller='upload-progress']"
+    assert_select "[data-upload-progress-target='error'][hidden]"
+    assert_select ".library-file__preview[href='#{file_path(@user.files.attachments.first)}']"
+    assert_select "a[href='#{download_file_path(@user.files.attachments.first)}'][data-turbo='false']"
+
+    get file_path(@user.files.attachments.first)
+    assert_response :success
+    assert_select "h1", text: "draft.txt"
+    assert_select "a[href='#{download_file_path(@user.files.attachments.first)}'][data-turbo='false']", text: "Download"
 
     get download_file_path(@user.files.attachments.first)
     assert_response :redirect
@@ -32,7 +41,7 @@ class FilesFlowTest < ActionDispatch::IntegrationTest
     assert_equal [ blob.id ], @user.files.blobs.ids
   end
 
-  test "existing files can be selected for another Send" do
+  test "existing files can be selected for another delivery" do
     blob = create_blob(@user, "invoice")
     @user.retain_files([ blob ])
     file = @user.files.attachments.first
@@ -67,6 +76,16 @@ class FilesFlowTest < ActionDispatch::IntegrationTest
 
     assert_response :forbidden
     assert_not @user.files.attached?
+  end
+
+  test "storage counts a reused blob once" do
+    blob = create_blob(@user, "contract")
+    @user.retain_files([ blob ])
+    send_record = @user.sends.new(recipient_email: "sam@example.com", files: [ blob ])
+    send_record.issue_access_token
+    send_record.save!
+
+    assert_equal blob.byte_size, @user.storage_used
   end
 
   private

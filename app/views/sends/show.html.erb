@@ -1,8 +1,9 @@
-<% content_for :title, "Send to #{@send.recipient_name} · Campdoc" %>
+<% content_for :title, "Delivery to #{@send.recipient_name} · Campdoc" %>
+<% content_for :head do %><meta http-equiv="refresh" content="3"><% end if @send.email_status_pending? %>
 
 <div class="detail-heading">
   <%= link_to sends_path, class: "back-link" do %><span aria-hidden="true">←</span> Sent<% end %>
-  <% status = @send.status || "sending" %>
+  <% status = @send.display_status %>
   <span class="status-pill status-pill--<%= status %>"><%= status.titleize %></span>
 </div>
 
@@ -28,25 +29,49 @@
       <span class="avatar avatar--large" aria-hidden="true"><%= @send.recipient_name.first %></span>
       <div><span>Sent to</span><strong><%= @send.recipient_email %></strong></div>
     </div>
+    <% if @send.access_expires_at || @send.access_revoked_at? %>
+      <p class="access-summary">
+        <% if @send.access_revoked_at? %>
+          Access revoked <%= time_ago_in_words(@send.access_revoked_at) %> ago.
+        <% elsif @send.access_expires_at.past? %>
+          Access expired on <%= @send.access_expires_at.strftime("%b %-d, %Y") %>.
+        <% else %>
+          Recipient access expires on <%= @send.access_expires_at.strftime("%b %-d, %Y") %>.
+        <% end %>
+      </p>
+    <% end %>
     <% if @send.message.present? %><blockquote>“<%= @send.message %>”</blockquote><% end %>
 
-    <ol class="event-ledger" aria-label="Send activity">
+    <ol class="event-ledger" aria-label="Delivery activity">
       <% %w[sent opened downloaded].each do |event_type| %>
         <% event = @send.send_events.find { |item| item.event_type == event_type } %>
         <li class="<%= "event-ledger__done" if event %>">
           <span class="event-marker" aria-hidden="true"></span>
           <strong><%= event_type.titleize %></strong>
-          <span><%= event ? event.occurred_at.strftime("%b %-d at %-I:%M %p") : "Waiting" %></span>
+          <span><%= event ? event.occurred_at.strftime("%b %-d at %-I:%M %p") : (event_type == "sent" && @send.email_status_failed? ? "Email failed" : "Not #{event_type} yet") %></span>
         </li>
       <% end %>
     </ol>
     <div class="access-actions">
-      <% if @send.access_active? %>
-        <%= button_to "Revoke private link", revoke_access_send_path(@send), class: "button button--quiet" %>
+      <% if @send.email_status_pending? %>
+        <span class="fine-print">Emailing the delivery link now.</span>
+      <% elsif @send.email_status_failed? %>
+        <span class="fine-print">The delivery email could not be sent.</span>
+        <% if @send.access_revoked_at? || @send.access_expires_at&.past? %>
+          <%= button_to "Restore access and try again", rotate_access_send_path(@send), class: "button", form: { data: { turbo_confirm: "Restore recipient access and email a new link?" } } %>
+        <% else %>
+          <%= button_to "Try emailing again", rotate_access_send_path(@send), class: "button" %>
+        <% end %>
       <% else %>
-        <span class="fine-print">Recipient access is inactive.</span>
+        <% if @send.access_active? %>
+          <%= button_to "Revoke recipient access", revoke_access_send_path(@send), class: "button button--quiet" %>
+          <%= button_to "Replace link and email recipient", rotate_access_send_path(@send), class: "button", form: { data: { turbo_confirm: "Replace the current link? The previous link will stop working." } } %>
+        <% else %>
+          <span class="fine-print">Recipient access is inactive.</span>
+          <%= button_to "Restore access and email a new link", rotate_access_send_path(@send), class: "button", form: { data: { turbo_confirm: "Restore recipient access and email a new link?" } } %>
+        <% end %>
       <% end %>
-      <%= button_to "Send a fresh link", rotate_access_send_path(@send), class: "button" %>
+      <%= button_to "Delete delivery", send_path(@send), method: :delete, class: "button button--quiet", form: { data: { turbo_confirm: "Delete this delivery and its activity? Files kept in My Files will remain." } } %>
     </div>
   </div>
 </section>

@@ -13,4 +13,5 @@
     <%= form.hidden_field :token, data: { secret_fragment_target: "input" } %>
     <%= form.submit "Continue to Campdoc", class: "button button--primary button--wide", disabled: true, data: { secret_fragment_target: "submit" } %>
   <% end %>
+  <p class="fine-print" data-secret-fragment-target="message" hidden>This link is incomplete. Request a new sign-in link.</p>
 </section>

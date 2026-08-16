@@ -1,0 +1,112 @@
+require "test_helper"
+
+class FailingWideEventJob < ApplicationJob
+  def perform
+    raise "job failed"
+  end
+end
+
+class WideEventTest < ActionDispatch::IntegrationTest
+  test "each request emits one structured event with request and user context" do
+    user = User.create!(email_address: "sender@example.com")
+    sign_in_as(user)
+
+    events = capture_wide_events { get files_path }
+
+    assert_equal 1, events.size
+    event = events.first
+    assert_equal "request", event["event"]
+    assert_equal true, event["main"]
+    assert_equal "campdoc", event["service_name"]
+    assert_equal "test", event["service_environment"]
+    assert_equal "GET", event["method"]
+    assert_equal "/files", event["path"]
+    assert_equal 200, event["status"]
+    assert_equal "success", event["outcome"]
+    assert_equal user.id, event["user_id"]
+    assert_equal "free", event["user_plan"]
+    assert event["request_id"].present?
+    assert event["duration_ms"].is_a?(Numeric)
+  end
+
+  test "health checks and assets are not logged" do
+    events = capture_wide_events { get rails_health_check_path }
+
+    assert_empty events
+  end
+
+  test "client errors have an explicit outcome" do
+    user = User.create!(email_address: "sender@example.com")
+    sign_in_as(user)
+
+    events = capture_wide_events { post files_path, params: { files: [ "forged" ] } }
+
+    assert_equal 1, events.size
+    assert_equal 403, events.first["status"]
+    assert_equal "client_error", events.first["outcome"]
+  end
+
+  test "jobs emit one structured event with outcome" do
+    user = User.create!(email_address: "sender@example.com")
+    delivery = user.sends.new(recipient_email: "sam@example.com")
+    delivery.files.attach(create_uploaded_blob(user))
+    delivery.save!
+
+    events = capture_wide_events { DeliveryEmailJob.perform_now(delivery) }
+
+    assert_equal 1, events.size
+    event = events.first
+    assert_equal "job", event["event"]
+    assert_equal "DeliveryEmailJob", event["job_class"]
+    assert_equal "success", event["outcome"]
+    assert_equal delivery.id, event["delivery_id"]
+    assert event["duration_ms"].is_a?(Numeric)
+  end
+
+  test "failed jobs record the error" do
+    user = User.create!(email_address: "sender@example.com")
+    drive_import = user.google_drive_imports.create!(google_file_id: "drive-file-123", filename: "Report.pdf")
+
+    events = capture_wide_events do
+      GoogleDriveImportJob.perform_now(drive_import, "forged-token")
+    end
+
+    event = events.first
+    assert_equal "success", event["outcome"]
+    assert_equal "failed", event["import_status"]
+    assert_equal "failed", drive_import.reload.status
+  end
+
+  test "raised job errors are recorded and re-raised" do
+    events = capture_wide_events do
+      assert_raises(RuntimeError) { FailingWideEventJob.perform_now }
+    end
+
+    event = events.first
+    assert_equal "error", event["outcome"]
+    assert_equal true, event["error"]
+    assert_equal "RuntimeError", event["exception_type"]
+    assert_nil event["exception_message"]
+  end
+
+  private
+    def capture_wide_events(&block)
+      output = StringIO.new
+      original_logger = Rails.logger
+      Rails.logger = ActiveSupport::TaggedLogging.new(Logger.new(output))
+      block.call
+      output.rewind
+      output.read.lines.filter_map do |line|
+        JSON.parse(line.sub(/\A\[[^\]]*\] /, ""))
+      rescue JSON::ParserError
+        nil
+      end
+    ensure
+      Rails.logger = original_logger
+    end
+
+    def sign_in_as(user)
+      login_token, raw_token = LoginToken.issue_for(user)
+      post consume_sign_in_path(public_id: login_token.public_id), params: { token: raw_token }
+    end
+end

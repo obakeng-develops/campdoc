@@ -5,16 +5,48 @@
     <p class="eyebrow">Your library</p>
     <h1>My Files</h1>
   </div>
-  <%= link_to "New Send", new_send_path, class: "button button--primary" %>
+  <%= link_to "Send files", new_send_path, class: "button button--primary" %>
 </div>
 
-<%= form_with url: files_path, class: "library-upload" do |form| %>
-  <div>
-    <strong>Keep something here</strong>
-    <span>Files you send are saved automatically.</span>
-  </div>
-  <%= file_field_tag "files[]", multiple: true, required: true, direct_upload: true %>
-  <%= form.submit "Upload", class: "button" %>
+<div class="library-sources">
+  <%= form_with url: files_path, class: "library-upload", data: { controller: "upload-progress", action: "direct-upload:start->upload-progress#start direct-upload:progress->upload-progress#updateProgress direct-upload:end->upload-progress#end direct-upload:error->upload-progress#error", upload_progress_final_text_value: "Saving files…" } do |form| %>
+    <div>
+      <strong>Upload files</strong>
+      <span>Files you send are also saved here automatically.</span>
+    </div>
+    <%= file_field_tag "files[]", multiple: true, required: true, direct_upload: true %>
+    <%= form.submit "Upload", class: "button", data: { upload_progress_target: "submit" } %>
+    <div class="form-errors" role="alert" data-upload-progress-target="error" hidden></div>
+  <% end %>
+
+  <% if google_drive_enabled? %>
+    <div class="library-upload" data-controller="google-drive-picker" data-google-drive-picker-client-id-value="<%= Rails.configuration.x.google_drive.client_id %>" data-google-drive-picker-api-key-value="<%= Rails.configuration.x.google_drive.api_key %>" data-google-drive-picker-app-id-value="<%= Rails.configuration.x.google_drive.app_id %>" data-google-drive-picker-url-value="<%= api_v1_google_drive_imports_path %>">
+      <div>
+        <strong>Import from Google Drive</strong>
+        <span data-google-drive-picker-target="status">Campdoc saves a private copy.</span>
+      </div>
+      <span></span>
+      <button type="button" class="button" data-google-drive-picker-target="button" data-action="google-drive-picker#open">Open Drive</button>
+      <div class="form-errors" role="alert" data-google-drive-picker-target="error" hidden></div>
+    </div>
+  <% end %>
+</div>
+
+<% if @google_drive_imports.any? %>
+  <% if @google_drive_imports.any? { |drive_import| drive_import.status.in?(%w[queued importing]) } %>
+    <% content_for :head do %><meta http-equiv="refresh" content="3"><% end %>
+  <% end %>
+  <section class="drive-imports" aria-live="polite" aria-label="Google Drive imports">
+    <% @google_drive_imports.each do |drive_import| %>
+      <article class="drive-import drive-import--<%= drive_import.status %>">
+        <span class="status-dot status-dot--<%= drive_import.status %>" aria-hidden="true"></span>
+        <div>
+          <strong><%= drive_import.filename %></strong>
+          <span><%= drive_import.status == "failed" ? drive_import.error : "Importing from Google Drive…" %></span>
+        </div>
+      </article>
+    <% end %>
+  </section>
 <% end %>
 
 <% if @files.any? %>
@@ -23,7 +55,7 @@
       <article class="library-file">
         <%= link_to file_path(file), class: "library-file__preview", aria: { label: "Open #{file.filename}" } do %>
           <% if previewable_image?(file.blob) %>
-            <%= image_tag file_path(file), alt: "" %>
+            <%= image_tag preview_file_path(file), alt: "" %>
           <% else %>
             <div class="file-glyph"><span><%= file_kind(file.blob) %></span></div>
           <% end %>
@@ -35,7 +67,7 @@
           </div>
           <div class="library-file__actions">
             <%= link_to "Send", new_send_path(file_id: file.id), class: "button button--quiet" %>
-            <%= link_to "Download", download_file_path(file), class: "button button--quiet" %>
+            <%= link_to "Download", download_file_path(file), class: "button button--quiet", data: { turbo: false } %>
             <%= button_to "Remove", file_path(file), method: :delete, class: "button button--quiet", form: { data: { turbo_confirm: "Remove this file from My Files? Existing deliveries will keep working." } } %>
           </div>
         </div>
@@ -49,8 +81,8 @@
       <span class="empty-file__line"></span>
       <span class="empty-file__line empty-file__line--short"></span>
     </div>
-    <h2>Your files will live here.</h2>
-    <p>Upload one now, or create a Send. Anything you send is kept here for next time.</p>
-    <%= link_to "Send a file", new_send_path, class: "button button--primary" %>
+    <h2>No files yet.</h2>
+    <p>Upload files here or send files to a recipient. Sent files are saved here for reuse.</p>
+    <%= link_to "Send files", new_send_path, class: "button button--primary" %>
   </div>
 <% end %>

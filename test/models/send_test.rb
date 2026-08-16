@@ -11,7 +11,7 @@ class SendTest < ActiveSupport::TestCase
 
     assert_not send_record.valid?
     assert_includes send_record.errors[:recipient_email], "can't be blank"
-    assert_includes send_record.errors[:files], "Choose at least one file"
+    assert_includes send_record.errors[:base], "Choose at least one file."
   end
 
   test "status follows the furthest recipient event" do
@@ -36,6 +36,21 @@ class SendTest < ActiveSupport::TestCase
     assert_not send_record.access_active?
   end
 
+  test "display status prioritizes email and access state" do
+    send_record = create_send
+    assert_equal "sending", send_record.display_status
+
+    send_record.update!(email_status: "failed")
+    assert_equal "failed", send_record.display_status
+
+    send_record.record_event!(:sent)
+    send_record.update!(access_expires_at: 1.minute.ago)
+    assert_equal "expired", send_record.display_status
+
+    send_record.revoke_access!
+    assert_equal "revoked", send_record.display_status
+  end
+
   test "rejects a direct-upload blob owned by another sender" do
     other_user = User.create!(email_address: "other@example.com")
     blob = ActiveStorage::Blob.create_and_upload!(
@@ -49,14 +64,26 @@ class SendTest < ActiveSupport::TestCase
     send_record.issue_access_token
 
     assert_not send_record.valid?
-    assert_includes send_record.errors[:files], "Include a file uploaded by another account"
+    assert_includes send_record.errors[:base], "You can only send files you uploaded."
+  end
+
+  test "rejects an ownerless blob" do
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: StringIO.new("ownerless"),
+      filename: "ownerless.txt",
+      content_type: "text/plain"
+    )
+    send_record = @user.sends.new(recipient_email: "sam@example.com", files: [ blob ])
+
+    assert_not send_record.valid?
+    assert_includes send_record.errors[:base], "You can only send files you uploaded."
   end
 
   private
     def create_send
       send_record = @user.sends.new(recipient_email: "sam@example.com")
       send_record.issue_access_token
-      send_record.files.attach(io: StringIO.new("hello"), filename: "hello.txt", content_type: "text/plain")
+      send_record.files.attach(create_uploaded_blob(@user))
       send_record.save!
       send_record
     end

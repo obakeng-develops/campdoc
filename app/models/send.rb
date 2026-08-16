@@ -7,6 +7,7 @@ class Send < ApplicationRecord
   has_secure_token :public_id
   has_many_attached :files
   has_many :send_events, inverse_of: :delivery, dependent: :delete_all
+  enum :email_status, { pending: "pending", sent: "sent", failed: "failed" }, prefix: true, validate: true
 
   scope :available, -> { where(access_revoked_at: nil, access_expires_at: Time.current..).where.not(access_token_digest: nil) }
 
@@ -46,11 +47,28 @@ class Send < ApplicationRecord
   end
 
   def record_event!(event_type)
-    send_events.find_or_create_by!(event_type: event_type) { |event| event.occurred_at = Time.current }
+    event = send_events.find_or_create_by!(event_type: event_type) { |item| item.occurred_at = Time.current }
+    update!(email_status: "sent") if event_type.to_s == "sent" && !email_status_sent?
+    event
   end
 
   def status
     %w[downloaded opened sent].find { |event_type| send_events.any? { |event| event.event_type == event_type } }
+  end
+
+  def access_state
+    return "revoked" if access_revoked_at?
+    return "expired" if access_expires_at&.past?
+
+    "active"
+  end
+
+  def display_status
+    return "sending" if email_status_pending?
+    return "failed" if email_status_failed?
+    return access_state unless access_state == "active"
+
+    status || "sent"
   end
 
   def recipient_name
@@ -64,17 +82,17 @@ class Send < ApplicationRecord
 
   private
     def files_are_attached
-      errors.add(:files, "Choose at least one file") unless files.attached?
+      errors.add(:base, "Choose at least one file.") unless files.attached?
     end
 
     def files_are_within_limits
-      errors.add(:files, "Choose no more than #{MAX_FILES} files") if files.size > MAX_FILES
-      errors.add(:files, "Must total less than 2 GB") if files.sum(&:byte_size) > MAX_SEND_SIZE
+      errors.add(:base, "Choose no more than #{MAX_FILES} files.") if files.size > MAX_FILES
+      errors.add(:base, "Files must total 2 GB or less.") if files.sum(&:byte_size) > MAX_SEND_SIZE
     end
 
     def files_belong_to_sender
       return unless user
 
-      errors.add(:files, "Include a file uploaded by another account") if files.any? { |file| file.blob.uploader_id.present? && file.blob.uploader_id != user_id }
+      errors.add(:base, "You can only send files you uploaded.") if files.any? { |file| file.blob.uploader_id != user_id }
     end
 end

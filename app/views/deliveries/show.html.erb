@@ -24,7 +24,7 @@
         </div>
         <div class="delivery-file__footer">
           <div><strong><%= file.filename %></strong><span><%= number_to_human_size(file.byte_size) %></span></div>
-          <%= button_to "Download", download_delivery_file_path(public_id: @send.public_id, id: file.id), class: "button button--primary" %>
+          <%= button_to "Download", download_delivery_file_path(public_id: @send.public_id, id: file.id), class: "button button--primary", form: { data: { turbo: false } } %>
         </div>
       </article>
     <% end %>

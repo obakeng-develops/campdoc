@@ -1,0 +1,28 @@
+<% content_for :title, "#{@file.filename} · Campdoc" %>
+
+<div class="detail-heading">
+  <%= link_to files_path, class: "back-link" do %><span aria-hidden="true">←</span> My Files<% end %>
+</div>
+
+<section class="file-detail">
+  <div class="file-detail__preview">
+    <% if previewable_image?(@file.blob) %>
+      <%= image_tag preview_file_path(@file), alt: @file.filename.to_s %>
+    <% else %>
+      <div class="file-glyph file-glyph--hero"><span><%= file_kind(@file.blob) %></span></div>
+    <% end %>
+  </div>
+
+  <div class="file-detail__body">
+    <div>
+      <p class="eyebrow">File</p>
+      <h1><%= @file.filename %></h1>
+      <p><%= number_to_human_size(@file.byte_size) %> · Added <%= time_ago_in_words(@file.created_at) %> ago</p>
+    </div>
+    <div class="access-actions">
+      <%= link_to "Send", new_send_path(file_id: @file.id), class: "button button--primary" %>
+      <%= link_to "Download", download_file_path(@file), class: "button", data: { turbo: false } %>
+      <%= button_to "Remove from My Files", file_path(@file), method: :delete, class: "button button--quiet", form: { data: { turbo_confirm: "Remove this file from My Files? Existing deliveries will keep working." } } %>
+    </div>
+  </div>
+</section>
