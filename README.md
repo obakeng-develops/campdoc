@@ -9,6 +9,7 @@ Choose the guide that matches what you're doing:
 - **Tutorial:** [Run Campdoc locally](docs/tutorials/getting-started.md)
 - **How-to guide:** [Deploy Campdoc](docs/how-to/deploy.md)
 - **Reference:** [Configuration](docs/reference/configuration.md)
+- **Reference:** [API stability](docs/reference/api-stability.md)
 - **Explanation:** [Private delivery and storage security](docs/explanation/security-model.md)
 
 ## Contributing
