@@ -1,4 +1,4 @@
-<h1>Here’s your way in.</h1>
-<p>Use this private link to sign in to Campdoc. It expires in 15 minutes and works once.</p>
+<h1>Sign in to Campdoc.</h1>
+<p>This single-use link expires in 15 minutes.</p>
 <p><%= link_to "Sign in to Campdoc", sign_in_url(public_id: @login_token.public_id, anchor: "token=#{@token}") %></p>
-<p>If you didn’t ask for this, you can safely ignore it.</p>
+<p>If you didn’t request this link, ignore this email.</p>

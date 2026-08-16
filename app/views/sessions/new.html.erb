@@ -2,8 +2,7 @@
 
 <section class="auth-card">
   <div class="auth-brand">
-    <span class="wordmark-mark wordmark-mark--large" aria-hidden="true">C</span>
-    <span>Campdoc</span>
+    <%= image_tag "campdoc-horizontal.png", class: "wordmark-logo wordmark-logo--large", alt: "Campdoc" %>
   </div>
   <% if @sign_in_email %>
     <div class="auth-copy">
@@ -13,8 +12,8 @@
     <%= link_to "Use another email", new_session_path(intent: params[:intent], change_email: 1), class: "button button--wide" %>
   <% else %>
     <div class="auth-copy">
-      <h1>Your files, delivered personally.</h1>
-      <p>Enter your email and we’ll send you a private sign-in link. No password to remember.</p>
+      <h1>Sign in or start free.</h1>
+      <p>Enter your email address. If you’re new, we’ll create your Free account. No password needed.</p>
     </div>
 
     <%= form_with url: session_path, class: "auth-form" do |form| %>

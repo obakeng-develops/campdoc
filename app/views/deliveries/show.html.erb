@@ -2,8 +2,8 @@
 
 <div class="delivery-page" data-controller="delivery-open" data-delivery-open-url-value="<%= delivery_opened_path(public_id: @send.public_id) %>">
   <header class="delivery-header">
-    <div class="auth-brand"><span class="wordmark-mark" aria-hidden="true">C</span><span>Campdoc</span></div>
-    <span>Private delivery</span>
+    <div class="auth-brand"><%= image_tag "campdoc-horizontal.png", class: "wordmark-logo", alt: "Campdoc" %></div>
+    <span>Available until <%= @send.access_expires_at.strftime("%b %-d, %Y") %></span>
   </header>
 
   <section class="delivery-intro">
@@ -30,5 +30,5 @@
     <% end %>
   </div>
 
-  <p class="delivery-footnote">This private link was made for <%= @send.recipient_email %>.</p>
+  <p class="delivery-footnote">This delivery was sent to <%= @send.recipient_email %>. Forwarding the full link shares access.</p>
 </div>

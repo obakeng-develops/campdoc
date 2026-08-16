@@ -20,7 +20,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_path
     follow_redirect!
     assert_response :success
-    assert_select "h1", text: "Your files, delivered personally."
+    assert_select "h1", text: "Sign in or start free."
 
     post consume_sign_in_path(public_id: login_token.public_id), params: { token: raw_token }
     assert_redirected_to new_session_path
@@ -30,13 +30,17 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     with_managed_hosting do
       get root_path
       assert_response :success
+      assert_select "img.wordmark-logo[alt='Campdoc']"
       assert_select ".handoff-scene"
+      assert_select "img.mini-app__mark[alt='']"
       assert_select ".mini-composer"
       assert_select ".mini-delivery"
       assert_select "[data-controller='handoff']"
       assert_select ".landing-ledger[data-controller='handoff']"
       assert_select ".manifesto-signature", text: /Obakeng Mosadi/
       assert_select "a[href='mailto:mosadiobakeng7@gmail.com']"
+      assert_select "a.github-link[href='https://github.com/obakeng-develops/campdoc'][aria-label='Campdoc on GitHub'] svg", count: 1
+      assert_select "a[href='#{new_session_path(intent: "send")}']", text: "Send files"
 
       user = User.create!(email_address: "sender@example.com")
       sign_in_as(user)
@@ -52,11 +56,14 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_select ".pricing-card", count: 3
       assert_select ".plan-price strong", text: "$9"
-      assert_select ".plan-price strong", text: "$10"
-      assert_select ".plan-label", text: "Coming soon", count: 2
+      assert_select ".plan-price strong", text: "$49"
+      assert_select ".plan-label", text: "Planned", count: 2
       assert_select ".plan-label--available", text: "Available now"
-      assert_select ".plan-features", text: /100 GB storage/
-      assert_select ".plan-features", text: /200 GB storage per member/
+      assert_select ".plan-features", text: /250 GB storage/
+      assert_select ".plan-features", text: /3 TB shared storage/
+      assert_select ".plan-features", text: /Unlimited members/
+      assert_select ".pricing-note", text: /provide the server, storage, and email service/
+      assert_select "a[href='https://github.com/obakeng-develops/campdoc']", text: "Self-host Campdoc"
 
       user = User.create!(email_address: "sender@example.com")
       sign_in_as(user)
@@ -91,7 +98,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     get new_session_path
     assert_select "h1", text: "Check your inbox."
     get new_session_path(change_email: 1)
-    assert_select "h1", text: "Your files, delivered personally."
+    assert_select "h1", text: "Sign in or start free."
   end
 
   test "send intent survives the sign-in link" do

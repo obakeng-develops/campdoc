@@ -1,6 +1,6 @@
 # Campdoc
 
-Campdoc is a private, file-first delivery tool. A sender adds files, a recipient, and a note. The recipient gets a private link, and the sender can see when the delivery is opened or downloaded.
+Campdoc sends files to one recipient through an expiring, revocable link. A sender can add a note and see when the delivery is first opened or when any file is first downloaded.
 
 ## Documentation
 
@@ -10,7 +10,7 @@ Choose the guide that matches what you're doing:
 - **How-to guide:** [Deploy Campdoc](docs/how-to/deploy.md)
 - **Reference:** [Configuration](docs/reference/configuration.md)
 - **Reference:** [API stability](docs/reference/api-stability.md)
-- **Explanation:** [Private delivery and storage security](docs/explanation/security-model.md)
+- **Explanation:** [Delivery and storage security](docs/explanation/security-model.md)
 
 ## Contributing
 

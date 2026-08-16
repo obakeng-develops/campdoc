@@ -37,7 +37,7 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     get delivery_path(public_id: send_record.public_id)
     assert_response :success
     assert_equal "private, no-store", response.headers["Cache-Control"]
-    assert_select "h1", text: "You have a private delivery."
+    assert_select "h1", text: "sender@example.com sent you a delivery."
     assert_select "[data-secret-fragment-target='message'][hidden]", text: /link is incomplete/
     assert_not send_record.send_events.opened.exists?
 
