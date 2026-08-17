@@ -16,12 +16,16 @@ class HomeSeoTest < ActionDispatch::IntegrationTest
       assert_select "link[rel='canonical'][href='https://campsend.app/']"
       assert_select "meta[property='og:url'][content='https://campsend.app/']"
       assert_select "script[type='application/ld+json']", text: /SoftwareApplication/
+      assert_select "#landing-details-title", text: "Send for free or run it yourself."
       assert_select "#free-file-transfer", text: "Send files for free"
       assert_select "#wetransfer-alternative", text: "A smaller WeTransfer alternative"
       assert_select "#self-hosted-file-transfer", text: "Run Campsend yourself"
       assert_select ".landing-detail", text: /five deliveries each month/
       assert_select ".landing-detail a[href='#{pricing_path}']", text: "See the free plan"
       assert_select ".landing-detail a[href='https://github.com/obakeng-develops/campsend']", text: "View Campsend on GitHub"
+      assert_select ".landing-ledger__copy .eyebrow", count: 0
+      assert_select ".landing-details__heading .eyebrow", count: 0
+      assert_select ".landing-cta .eyebrow", count: 0
 
       get pricing_path
 

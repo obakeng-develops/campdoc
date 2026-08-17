@@ -92,7 +92,6 @@
 
     <section class="landing-ledger" data-controller="handoff">
       <div class="landing-ledger__copy">
-        <p class="eyebrow">Delivery activity</p>
         <h2>See what happened.</h2>
         <p>Campsend records when a delivery is first opened and when any file is first downloaded.</p>
       </div>
@@ -111,8 +110,7 @@
 
     <section class="landing-details" aria-labelledby="landing-details-title">
       <div class="landing-details__heading">
-        <p class="eyebrow">Ways to use Campsend</p>
-        <h2 id="landing-details-title">File delivery without the extra machinery.</h2>
+        <h2 id="landing-details-title">Send for free or run it yourself.</h2>
       </div>
       <div class="landing-detail-list">
         <article class="landing-detail" aria-labelledby="free-file-transfer">
@@ -133,10 +131,7 @@
     </section>
 
     <section class="landing-cta">
-      <div>
-        <p class="eyebrow">Your next delivery</p>
-        <h2>Choose files to send.</h2>
-      </div>
+      <h2>Choose files to send.</h2>
       <%= link_to "Send files", new_session_path(intent: "send"), class: "button button--primary landing-primary-action" %>
     </section>
   </main>
