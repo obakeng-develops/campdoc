@@ -27,61 +27,11 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_path
   end
 
-  test "landing page sends signed-in users to their home" do
-    with_managed_hosting do
-      get root_path
-      assert_response :success
-      assert_select ".wordmark-logo", text: "Campsend"
-      assert_select ".wordmark-logo img[src*='campsend-icon'][alt='']"
-      assert_select ".handoff-scene"
-      assert_select "img.mini-app__mark[alt='']"
-      assert_select ".mini-composer"
-      assert_select ".mini-delivery"
-      assert_select "[data-controller='handoff']"
-      assert_select ".landing-ledger[data-controller='handoff']"
-      assert_select ".manifesto-signature", text: /Obakeng Mosadi/
-      assert_select "a[href='mailto:mosadiobakeng7@gmail.com']"
-      assert_select "a.github-link[href='https://github.com/obakeng-develops/campsend'][aria-label='Campsend on GitHub'] svg", count: 1
-      assert_select "a[href='#{new_session_path(intent: "send")}']", text: "Send files"
-
-      user = User.create!(email_address: "sender@example.com")
-      sign_in_as(user)
-      get root_path
-      assert_redirected_to files_path
-    end
-  end
-
-  test "pricing is public and stays in the marketing frame" do
-    with_managed_hosting do
-      get pricing_path
-
-      assert_response :success
-      assert_select ".pricing-card", count: 3
-      assert_select ".plan-price strong", text: "$9"
-      assert_select ".plan-price strong", text: "$49"
-      assert_select ".plan-label", text: "Planned", count: 2
-      assert_select ".plan-label--available", text: "Available now"
-      assert_select ".plan-features", text: /250 GB storage/
-      assert_select ".plan-features", text: /3 TB shared storage/
-      assert_select ".plan-features", text: /Unlimited members/
-      assert_select ".pricing-note", text: /provide the server, storage, and email service/
-      assert_select "a[href='https://github.com/obakeng-develops/campsend']", text: "Self-host Campsend"
-
-      user = User.create!(email_address: "sender@example.com")
-      sign_in_as(user)
-      get pricing_path
-
-      assert_response :success
-      assert_select ".landing-header"
-      assert_select ".site-sidebar", count: 0
-    end
-  end
-
-  test "self-hosted mode starts at sign-in and hides pricing" do
+  test "self-hosted mode starts at sign-in and has no pricing page" do
     get root_path
     assert_redirected_to new_session_path
 
-    get pricing_path
+    get "/pricing"
     assert_response :not_found
   end
 

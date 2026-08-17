@@ -5,25 +5,12 @@
     <% page_description = content_for(:description) || "Send files with expiring links and delivery tracking." %>
     <title><%= page_title %></title>
     <meta name="description" content="<%= page_description %>">
-    <meta name="robots" content="<%= indexable_page? ? "index, follow" : "noindex, nofollow" %>">
+    <meta name="robots" content="<%= content_for(:robots) || "noindex, nofollow" %>">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Campsend">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="referrer" content="no-referrer">
-    <% if indexable_page? %>
-      <link rel="canonical" href="<%= canonical_url %>">
-      <meta property="og:type" content="website">
-      <meta property="og:site_name" content="Campsend">
-      <meta property="og:title" content="<%= page_title %>">
-      <meta property="og:description" content="<%= page_description %>">
-      <meta property="og:url" content="<%= canonical_url %>">
-      <meta property="og:image" content="<%= image_url("campsend-icon.png") %>">
-      <meta name="twitter:card" content="summary">
-      <meta name="twitter:title" content="<%= page_title %>">
-      <meta name="twitter:description" content="<%= page_description %>">
-      <meta name="twitter:image" content="<%= image_url("campsend-icon.png") %>">
-    <% end %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 

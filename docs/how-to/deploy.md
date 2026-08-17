@@ -8,7 +8,7 @@ Copy `.env.example` into your secret management system and set every required pr
 
 Generate a unique Rails master key for the installation. Do not commit secrets or a populated environment file.
 
-Campsend defaults to self-hosted mode. Keep `CAMPSEND_MANAGED=false` so the root page opens sign-in and the pricing page remains unavailable. Campsend's hosted deployment sets this value to `true` to serve the public landing and pricing pages.
+Campsend defaults to self-hosted mode, where the root page opens sign-in and managed storage and delivery limits are disabled.
 
 ## Choosing file storage
 

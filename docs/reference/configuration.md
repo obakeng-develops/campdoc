@@ -9,7 +9,7 @@ Trusted distributions can add private Rails engines at bundle time by setting `C
 | Variable | Required | Description |
 | --- | --- | --- |
 | `APP_HOST` | Yes | Public hostname used in links and host authorization. Do not include the protocol. |
-| `CAMPSEND_MANAGED` | No | Enables public marketing pages and managed plan limits when `true`. Defaults to `false`. |
+| `CAMPSEND_MANAGED` | No | Enables managed plan limits when `true`. Defaults to `false`. |
 | `ACTIVE_STORAGE_SERVICE` | Yes | `local` or `s3`. |
 | `RAILS_MASTER_KEY` | For encrypted credentials | Decrypts `config/credentials.yml.enc`. |
 | `RAILS_LOG_LEVEL` | No | Rails log level. Defaults to `info`. |

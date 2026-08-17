@@ -40,7 +40,7 @@
           <% @library_files.each do |file| %>
             <%= check_box_tag "send[files][]", file.blob.signed_id, file.id == @selected_file_id, id: "library_file_#{file.id}" %>
             <%= label_tag "library_file_#{file.id}" do %>
-              <span class="mini-file-icon"><%= file_kind(file.blob) %></span>
+              <span class="library-picker__file-icon"><%= file_kind(file.blob) %></span>
               <span><strong><%= file.filename %></strong><small><%= number_to_human_size(file.byte_size) %></small></span>
             <% end %>
           <% end %>
