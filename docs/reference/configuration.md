@@ -2,6 +2,8 @@
 
 Campsend reads production configuration from environment variables. Production boot stops when a required setting is missing.
 
+Trusted distributions can add private Rails engines at bundle time by setting `CAMPSEND_EXTENSIONS_GEMFILE` to an additional Gemfile. The variable is optional and has no effect when unset. Extensions run with the same privileges as Campsend, so self-hosted operators should only load code they trust.
+
 ## Application
 
 | Variable | Required | Description |
