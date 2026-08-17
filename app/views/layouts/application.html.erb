@@ -27,7 +27,7 @@
   <% storage_used = current_user.storage_used if app_shell && managed_hosting? %>
   <% sends_used = current_user.sends_this_month if app_shell && managed_hosting? %>
   <body class="<%= app_shell ? "app-body" : "guest-body" %>">
-    <% if flash.any? %>
+    <% if flash.any? && controller_name != "sessions" %>
       <div class="flash-stack" aria-live="polite">
         <% flash.each do |type, message| %>
           <div class="flash flash--<%= type %>"><%= message %></div>

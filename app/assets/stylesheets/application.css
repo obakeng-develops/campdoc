@@ -217,6 +217,11 @@
   @starting-style { .flash { opacity: 0; transform: translateY(-0.5rem) scale(0.98); } }
 
   .auth-card { background: var(--bg-elevated); border: 1px solid var(--border-secondary); border-radius: var(--radius-xl); box-shadow: var(--popover-shadow); max-width: 28rem; padding: clamp(1.5rem, 5vw, 2.5rem); width: 100%; }
+  .auth-feedback { align-items: center; background: var(--bg-secondary); border: 1px solid var(--border-secondary); border-radius: var(--radius-md); color: var(--text-secondary); display: flex; font-size: 0.8125rem; gap: var(--space-3); margin-top: var(--space-6); padding: var(--space-3) var(--space-4); }
+  .auth-feedback__marker { background: var(--text-quaternary); border-radius: 50%; flex: none; height: 0.45rem; width: 0.45rem; }
+  .auth-feedback--alert { background: color-mix(in srgb, var(--negative) 6%, var(--bg-primary)); border-color: color-mix(in srgb, var(--negative) 20%, var(--border-secondary)); }
+  .auth-feedback--alert .auth-feedback__marker { background: var(--negative); }
+  .auth-feedback + .auth-copy { margin-top: var(--space-6); }
   .auth-copy { margin: var(--space-10) 0 var(--space-8); }
   .auth-copy h1 { font-size: 2rem; }
   .auth-copy p { color: var(--text-secondary); margin-top: var(--space-3); max-width: 36ch; }

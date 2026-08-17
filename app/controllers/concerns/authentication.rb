@@ -27,6 +27,6 @@ module Authentication
     end
 
     def require_authentication
-      redirect_to new_session_path, alert: "Sign in to keep going." unless authenticated?
+      redirect_to new_session_path unless authenticated?
     end
 end

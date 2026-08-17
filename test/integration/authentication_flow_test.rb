@@ -21,6 +21,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
     assert_select "h1", text: "Sign in or start free."
+    assert_select ".auth-feedback--notice", text: "You’re signed out."
 
     post consume_sign_in_path(public_id: login_token.public_id), params: { token: raw_token }
     assert_redirected_to new_session_path
@@ -82,6 +83,35 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
 
     get pricing_path
     assert_response :not_found
+  end
+
+  test "protected pages redirect without redundant sign-in feedback" do
+    get files_path
+
+    assert_redirected_to new_session_path
+    follow_redirect!
+    assert_select ".flash-stack", count: 0
+    assert_select ".auth-feedback", count: 0
+  end
+
+  test "sign-in errors appear inside the auth card" do
+    post session_path, params: { email_address: "not-an-email" }
+
+    assert_response :unprocessable_content
+    assert_select ".auth-card .auth-feedback--alert[role='alert']", text: "Enter a valid email address."
+    assert_select ".flash-stack", count: 0
+  end
+
+  test "expired sign-in links explain the error inside the auth card" do
+    user = User.create!(email_address: "sender@example.com")
+    login_token, = LoginToken.issue_for(user)
+    login_token.update!(expires_at: 1.minute.ago)
+
+    get sign_in_path(public_id: login_token.public_id)
+    assert_redirected_to new_session_path
+    follow_redirect!
+
+    assert_select ".auth-card .auth-feedback--alert", text: "That sign-in link has expired. Ask for a new one."
   end
 
   test "requesting a link creates a sender and queues email" do
