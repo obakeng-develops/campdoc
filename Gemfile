@@ -1,5 +1,7 @@
 source "https://rubygems.org"
 
+eval_gemfile ENV["CAMPSEND_EXTENSIONS_GEMFILE"] if ENV["CAMPSEND_EXTENSIONS_GEMFILE"]
+
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.1.3"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
