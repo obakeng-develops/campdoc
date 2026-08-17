@@ -16,7 +16,6 @@
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
     <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
@@ -40,13 +39,12 @@
       <div class="app-shell">
         <aside class="site-sidebar">
           <%= link_to files_path, class: "wordmark", aria: { label: "Campdoc home" } do %>
-            <span class="wordmark-mark" aria-hidden="true">C</span>
-            <span>Campdoc</span>
+            <%= image_tag "campdoc-horizontal.png", class: "wordmark-logo", alt: "Campdoc" %>
           <% end %>
 
           <%= link_to new_send_path, class: class_names("sidebar-compose", active: controller_name == "sends" && action_name == "new"), aria: { current: ("page" if controller_name == "sends" && action_name == "new") } do %>
             <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M10 4v12M4 10h12"/></svg>
-            <span>New Send</span>
+            <span>Send files</span>
           <% end %>
 
           <nav class="sidebar-nav" aria-label="Main navigation">
@@ -77,11 +75,10 @@
 
         <header class="mobile-header">
           <%= link_to files_path, class: "wordmark", aria: { label: "Campdoc home" } do %>
-            <span class="wordmark-mark" aria-hidden="true">C</span>
-            <span>Campdoc</span>
+            <%= image_tag "campdoc-horizontal.png", class: "wordmark-logo", alt: "Campdoc" %>
           <% end %>
           <div class="mobile-nav">
-            <%= link_to "New", new_send_path, class: "button button--primary" %>
+            <%= link_to "Send", new_send_path, class: "button button--primary" %>
             <details class="mobile-menu">
               <summary aria-label="Open navigation"><span aria-hidden="true">•••</span></summary>
               <nav class="mobile-menu__panel" aria-label="Main navigation">

@@ -1,7 +1,7 @@
-<%= @send.user.email_address %> sent you <%= pluralize(@send.files.count, "file") %>.
+<%= @send.user.email_address %> sent you <%= pluralize(@file_count, "file") %>.
 
 <% if @send.message.present? %>“<%= @send.message %>”
 
-<% end %>See your files: <%= delivery_url(public_id: @send.public_id, anchor: "token=#{@access_token}") %>
+<% end %><%= @file_count == 1 ? "View file" : "View files" %>: <%= delivery_url(public_id: @send.public_id, anchor: "token=#{@access_token}") %>
 
-This is a private Campdoc delivery meant for <%= @send.recipient_email %>.
+This delivery was sent to <%= @send.recipient_email %>. Forwarding the full link shares access.

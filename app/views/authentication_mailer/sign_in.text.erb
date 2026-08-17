@@ -1,7 +1,7 @@
-Here’s your way in.
+Sign in to Campdoc.
 
-Use this private link to sign in to Campdoc. It expires in 15 minutes and works once:
+This single-use link expires in 15 minutes:
 
 <%= sign_in_url(public_id: @login_token.public_id, anchor: "token=#{@token}") %>
 
-If you didn’t ask for this, you can safely ignore it.
+If you didn’t request this link, ignore this email.

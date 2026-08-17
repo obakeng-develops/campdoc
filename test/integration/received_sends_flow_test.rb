@@ -31,7 +31,7 @@ class ReceivedSendsFlowTest < ActionDispatch::IntegrationTest
 
     get delivery_path(public_id: @delivery.public_id)
     assert_response :success
-    assert_select "h1", text: "You have a private delivery."
+    assert_select "h1", text: "sender@example.com sent you a delivery."
 
     get delivery_file_path(public_id: @delivery.public_id, id: @delivery.files.first.id)
     assert_response :not_found
