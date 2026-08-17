@@ -58,6 +58,28 @@ class ReceivedSendsFlowTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: "This delivery is no longer available."
   end
 
+
+  test "unpublished and canceled deliveries stay out of Shared with me" do
+    scheduled = @sender.sends.new(recipient_email: @recipient.email_address, scheduled_at: 2.days.from_now)
+    scheduled.files.attach(create_uploaded_blob(@sender, filename: "scheduled.txt"))
+    scheduled.save!
+    canceled = @sender.sends.new(recipient_email: @recipient.email_address, scheduled_at: 2.days.from_now)
+    canceled.files.attach(create_uploaded_blob(@sender, filename: "canceled.txt"))
+    canceled.save!
+    canceled.cancel!
+    sign_in_as(@recipient)
+
+    get shared_files_path
+
+    assert_response :success
+    assert_select ".send-card", count: 1
+    assert_select ".send-card", text: /contract.txt/
+    get delivery_path(public_id: scheduled.public_id)
+    assert_select "h1", text: "This delivery isn’t available yet."
+    get delivery_path(public_id: canceled.public_id)
+    assert_select "h1", text: "This delivery is no longer available."
+  end
+
   private
     def create_delivery(filename: "contract.txt")
       delivery = @sender.sends.new(recipient_email: "RECIPIENT@example.com", message: "For you.")

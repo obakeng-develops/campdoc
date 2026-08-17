@@ -79,6 +79,8 @@ Self-hosted installations ignore managed plan limits.
 
 Production runs `SecurityCleanupJob` every day at 3am. It removes expired login tokens, old Drive import statuses, and unattached uploads older than one day. Solid Queue removes finished jobs every hour at minute 12.
 
+Scheduled deliveries use Solid Queue delayed jobs. Keep a queue worker running whenever the web process is running; publication time is stored in UTC and checked again from the primary database when each job starts.
+
 ## Wide events
 
 Campsend emits one JSON wide event at the end of each application request and background job. Request events include the request ID, route, status, duration, authenticated user ID and plan, plus delivery or upload context added during processing. Job events include the job ID, class, queue, outcome, duration, and relevant domain IDs. Health checks and static assets are excluded.

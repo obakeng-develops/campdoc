@@ -1,5 +1,5 @@
 <% content_for :title, "Delivery to #{@send.recipient_name} · Campsend" %>
-<% content_for :head do %><meta http-equiv="refresh" content="3"><% end if @send.email_status_pending? %>
+<% content_for :head do %><meta http-equiv="refresh" content="3"><% end if @send.email_status_pending? && !@send.scheduled? %>
 
 <div class="detail-heading">
   <%= link_to sends_path, class: "back-link" do %><span aria-hidden="true">←</span> Sent<% end %>
@@ -20,10 +20,12 @@
           <strong><%= file.filename %></strong>
           <span><%= number_to_human_size(file.byte_size) %></span>
         </div>
-        <%= form_with url: send_revisions_path(@send), scope: :revision, class: "file-replacement" do |form| %>
-          <%= form.hidden_field :attachment_id, value: file.id %>
-          <%= form.file_field :file, direct_upload: true, required: true, aria: { label: "Replacement for #{file.filename}" } %>
-          <%= form.submit "Replace file", class: "button button--primary" %>
+        <% unless @send.canceled? %>
+          <%= form_with url: send_revisions_path(@send), scope: :revision, class: "file-replacement" do |form| %>
+            <%= form.hidden_field :attachment_id, value: file.id %>
+            <%= form.file_field :file, direct_upload: true, required: true, aria: { label: "Replacement for #{file.filename}" } %>
+            <%= form.submit "Replace file", class: "button button--primary" %>
+          <% end %>
         <% end %>
       </div>
     <% end %>
@@ -34,6 +36,11 @@
       <span class="avatar avatar--large" aria-hidden="true"><%= @send.recipient_name.first %></span>
       <div><span>Sent to</span><strong><%= @send.recipient_email %></strong></div>
     </div>
+    <% if @send.scheduled? %>
+      <p class="schedule-summary">Scheduled for <time datetime="<%= @send.scheduled_at.iso8601 %>" data-controller="local-time"><%= @send.scheduled_at.to_fs(:long) %> UTC</time>.</p>
+    <% elsif @send.canceled? %>
+      <p class="schedule-summary">Canceled before publication.</p>
+    <% end %>
     <% if @send.access_expires_at || @send.access_revoked_at? %>
       <p class="access-summary">
         <% if @send.access_revoked_at? %>
@@ -58,7 +65,12 @@
       <% end %>
     </ol>
     <div class="access-actions">
-      <% if @send.email_status_pending? %>
+      <% if @send.scheduled? %>
+        <%= link_to "Edit schedule", edit_send_path(@send), class: "button" %>
+        <%= button_to "Cancel delivery", cancel_send_path(@send), class: "button button--quiet", form: { data: { turbo_confirm: "Cancel this scheduled delivery?" } } %>
+      <% elsif @send.canceled? %>
+        <span class="fine-print">This delivery will not be published.</span>
+      <% elsif @send.email_status_pending? %>
         <span class="fine-print">Emailing the delivery link now.</span>
       <% elsif @send.email_status_failed? %>
         <span class="fine-print">The delivery email could not be sent.</span>
@@ -76,7 +88,9 @@
           <%= button_to "Restore access and email a new link", rotate_access_send_path(@send), class: "button", form: { data: { turbo_confirm: "Restore recipient access and email a new link?" } } %>
         <% end %>
       <% end %>
-      <%= button_to "Delete delivery", send_path(@send), method: :delete, class: "button button--quiet", form: { data: { turbo_confirm: "Delete this delivery and its activity? Files kept in My Files will remain." } } %>
+      <% if @send.published? %>
+        <%= button_to "Delete delivery", send_path(@send), method: :delete, class: "button button--quiet", form: { data: { turbo_confirm: "Delete this delivery and its activity? Files kept in My Files will remain." } } %>
+      <% end %>
     </div>
   </div>
 </section>

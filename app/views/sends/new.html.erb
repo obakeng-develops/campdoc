@@ -8,7 +8,7 @@
   </div>
 </div>
 
-<%= form_with model: @send, class: "send-form", data: { controller: "file-drop upload-progress", action: "direct-upload:start->upload-progress#start direct-upload:progress->upload-progress#updateProgress direct-upload:end->upload-progress#end direct-upload:error->upload-progress#error", upload_progress_final_text_value: "Creating delivery…" } do |form| %>
+<%= form_with model: @send, class: "send-form", data: { controller: "file-drop upload-progress schedule", action: "submit->schedule#sync direct-upload:start->upload-progress#start direct-upload:progress->upload-progress#updateProgress direct-upload:end->upload-progress#end direct-upload:error->upload-progress#error", schedule_utc_value: @send.scheduled_at&.iso8601, upload_progress_final_text_value: "Creating delivery…" } do |form| %>
   <% if @send.errors.any? %>
     <div class="form-errors" role="alert">
       <strong>We couldn’t create this delivery:</strong>
@@ -61,6 +61,7 @@
       </div>
       <%= form.text_area :message, rows: 3, maxlength: 500, placeholder: "Add context for the recipient" %>
     </div>
+    <%= render "schedule_fields", form: form %>
     <%= form.submit "Send files", class: "button button--primary button--wide button--send", data: { upload_progress_target: "submit" } %>
     <p class="privacy-note"><span aria-hidden="true">⌁</span> The link expires after 30 days. Anyone with the full link can open it.</p>
   </div>

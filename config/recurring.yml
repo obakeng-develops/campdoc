@@ -16,3 +16,6 @@ production:
   clear_expired_tokens_and_uploads:
     class: SecurityCleanupJob
     schedule: every day at 3am
+  publish_due_deliveries:
+    class: PublishDueDeliveriesJob
+    schedule: every minute

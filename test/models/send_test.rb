@@ -26,6 +26,7 @@ class SendTest < ActiveSupport::TestCase
 
   test "delivery access expires and can be revoked" do
     send_record = create_send
+    send_record.record_event!(:sent)
 
     assert send_record.access_active?
     send_record.update!(access_expires_at: 1.minute.ago)
@@ -117,6 +118,46 @@ class SendTest < ActiveSupport::TestCase
         send_record.replace_file!(send_record.files.first.id, replacement)
       end
     end
+  end
+
+  test "scheduled deliveries remain unpublished until their future time" do
+    send_record = @user.sends.new(recipient_email: "sam@example.com", scheduled_at: 2.hours.from_now)
+    send_record.files.attach(create_uploaded_blob(@user))
+
+    assert send_record.save
+    assert send_record.scheduled?
+    assert_equal "scheduled", send_record.display_status
+    assert_not send_record.access_active?
+  end
+
+  test "rejects a schedule in the past" do
+    send_record = @user.sends.new(recipient_email: "sam@example.com", scheduled_at: 1.minute.ago)
+    send_record.files.attach(create_uploaded_blob(@user))
+
+    assert_not send_record.valid?
+    assert_includes send_record.errors[:scheduled_at], "must be in the future"
+  end
+
+  test "sent events record publication time" do
+    send_record = create_send
+    published_at = Time.current.change(usec: 0)
+
+    event = send_record.record_event!(:sent, occurred_at: published_at)
+
+    assert_equal published_at, send_record.reload.published_at
+    assert_equal published_at, event.occurred_at
+    assert send_record.access_active?
+  end
+
+  test "canceling an unpublished delivery is durable" do
+    send_record = @user.sends.new(recipient_email: "sam@example.com", scheduled_at: 2.hours.from_now)
+    send_record.files.attach(create_uploaded_blob(@user))
+    send_record.save!
+
+    assert send_record.cancel!
+    assert send_record.reload.canceled?
+    assert_equal "canceled", send_record.display_status
+    assert_not send_record.cancel!
   end
 
   private

@@ -1,0 +1,31 @@
+<% content_for :title, "Edit scheduled delivery · Campsend" %>
+
+<div class="compose-heading">
+  <%= link_to @send, class: "back-link" do %><span aria-hidden="true">←</span> Back to delivery<% end %>
+  <div>
+    <p class="eyebrow">Scheduled delivery</p>
+    <h1>Edit before it sends.</h1>
+  </div>
+</div>
+
+<%= form_with model: @send, class: "schedule-form", data: { controller: "schedule", action: "submit->schedule#sync", schedule_utc_value: @send.scheduled_at&.iso8601 } do |form| %>
+  <% if @send.errors.any? %>
+    <div class="form-errors" role="alert">
+      <strong>We couldn’t update this delivery:</strong>
+      <%= @send.errors.full_messages.to_sentence %>
+    </div>
+  <% end %>
+  <div class="field">
+    <%= form.label :recipient_email, "Who’s this for?" %>
+    <%= form.email_field :recipient_email, required: true, autocomplete: "email" %>
+  </div>
+  <div class="field">
+    <div class="label-row">
+      <%= form.label :message, "Add a note" %>
+      <span>Optional</span>
+    </div>
+    <%= form.text_area :message, rows: 3, maxlength: 500 %>
+  </div>
+  <%= render "schedule_fields", form: form %>
+  <%= form.submit "Save changes", class: "button button--primary button--wide" %>
+<% end %>

@@ -1,0 +1,7 @@
+<div class="field schedule-field">
+  <%= label_tag :send_schedule_local, "Send later" %>
+  <%= tag.input type: "datetime-local", id: "send_schedule_local", name: "send[scheduled_local]", data: { schedule_target: "local", action: "change->schedule#sync" } %>
+  <%= form.hidden_field :scheduled_at, data: { schedule_target: "utc" } %>
+  <%= hidden_field_tag "send[schedule_synced]", "", data: { schedule_target: "synced" } %>
+  <small>Leave blank to send now. Times use this device’s timezone.</small>
+</div>

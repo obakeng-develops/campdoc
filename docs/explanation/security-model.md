@@ -20,6 +20,10 @@ Known expired and revoked deliveries return a generic unavailable page without e
 
 Private pages send `Cache-Control: private, no-store` and use a `no-referrer` policy. The unauthenticated confirmation page does not reveal the recipient email address.
 
+Scheduled deliveries keep their public identifier but issue no access token until publication. Before publication, recipient routes return a generic not-yet-available page without sender, recipient, file, or schedule details. The database publication state controls access; delayed queue entries only wake the publication job.
+
+Publication records `published_at`, issues the access token, and sends email while holding the delivery lock. Retries cannot publish a committed delivery twice. SMTP remains at least once: if the provider accepts an email and the process stops before the database commit, a retry may send a duplicate.
+
 ## File uploads
 
 A sender session must be active before Campsend creates a direct-upload grant. Each new blob records its uploader, and a delivery rejects blobs owned by another sender. The application also checks the declared file count and total size before saving a delivery.

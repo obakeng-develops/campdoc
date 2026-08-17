@@ -10,13 +10,15 @@ class Send < ApplicationRecord
   has_many :send_events, inverse_of: :delivery, dependent: :delete_all
   enum :email_status, { pending: "pending", sent: "sent", failed: "failed" }, prefix: true, validate: true
 
-  scope :available, -> { where(access_revoked_at: nil, access_expires_at: Time.current..).where.not(access_token_digest: nil) }
+  scope :available, -> { where.not(published_at: nil).where(canceled_at: nil, access_revoked_at: nil, access_expires_at: Time.current..).where.not(access_token_digest: nil) }
 
   normalizes :recipient_email, with: ->(email) { email.strip.downcase }
 
   validates :recipient_email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :message, length: { maximum: 500 }
   validate :revision_is_valid
+  validate :scheduled_at_is_future, if: :will_save_change_to_scheduled_at?
+  validate :publication_state_is_consistent
 
   scope :with_attached_files, -> { includes(latest_revision: { files_attachments: :blob }) }
 
@@ -41,10 +43,42 @@ class Send < ApplicationRecord
     end
   end
 
-  def issue_access_token
+  def published?
+    published_at.present?
+  end
+
+  def canceled?
+    canceled_at.present?
+  end
+
+  def publication_pending?
+    !published? && !canceled?
+  end
+
+  def scheduled?
+    publication_pending? && scheduled_at.present?
+  end
+
+  def cancel!
+    with_lock do
+      return false unless publication_pending?
+
+      update!(canceled_at: Time.current)
+    end
+  end
+
+  def update_before_publication(attributes)
+    with_lock do
+      return false unless publication_pending?
+
+      update(attributes)
+    end
+  end
+
+  def issue_access_token(at: Time.current)
     raw_token = SecureRandom.urlsafe_base64(32)
     self.access_token_digest = Digest::SHA256.hexdigest(raw_token)
-    self.access_expires_at = ACCESS_LIFETIME.from_now
+    self.access_expires_at = at + ACCESS_LIFETIME
     self.access_revoked_at = nil
     raw_token
   end
@@ -61,16 +95,16 @@ class Send < ApplicationRecord
   end
 
   def access_active?
-    access_token_digest.present? && access_revoked_at.nil? && access_expires_at&.future?
+    published? && !canceled? && access_token_digest.present? && access_revoked_at.nil? && access_expires_at&.future?
   end
 
   def revoke_access!
     update!(access_revoked_at: Time.current)
   end
 
-  def record_event!(event_type)
-    event = send_events.find_or_create_by!(event_type: event_type) { |item| item.occurred_at = Time.current }
-    update!(email_status: "sent") if event_type.to_s == "sent" && !email_status_sent?
+  def record_event!(event_type, occurred_at: Time.current)
+    event = send_events.find_or_create_by!(event_type: event_type) { |item| item.occurred_at = occurred_at }
+    update!(email_status: "sent", published_at: published_at || occurred_at) if event_type.to_s == "sent" && (!email_status_sent? || !published?)
     event
   end
 
@@ -79,6 +113,7 @@ class Send < ApplicationRecord
   end
 
   def access_state
+    return "canceled" if canceled?
     return "revoked" if access_revoked_at?
     return "expired" if access_expires_at&.past?
 
@@ -86,8 +121,10 @@ class Send < ApplicationRecord
   end
 
   def display_status
-    return "sending" if email_status_pending?
+    return "canceled" if canceled?
     return "failed" if email_status_failed?
+    return "scheduled" if scheduled?
+    return "sending" if email_status_pending?
     return access_state unless access_state == "active"
 
     status || "sent"
@@ -111,5 +148,13 @@ class Send < ApplicationRecord
 
     def revision_is_valid
       files_revision.errors.each { |error| errors.import(error) } unless files_revision.valid?
+    end
+
+    def scheduled_at_is_future
+      errors.add(:scheduled_at, "must be in the future") if scheduled_at.present? && scheduled_at <= Time.current
+    end
+
+    def publication_state_is_consistent
+      errors.add(:base, "A delivery cannot be published and canceled") if published? && canceled?
     end
 end
