@@ -1,4 +1,4 @@
-<% content_for :title, "My Files · Campdoc" %>
+<% content_for :title, "My Files · Campsend" %>
 
 <div class="page-heading">
   <div>
@@ -23,7 +23,7 @@
     <div class="library-upload" data-controller="google-drive-picker" data-google-drive-picker-client-id-value="<%= Rails.configuration.x.google_drive.client_id %>" data-google-drive-picker-api-key-value="<%= Rails.configuration.x.google_drive.api_key %>" data-google-drive-picker-app-id-value="<%= Rails.configuration.x.google_drive.app_id %>" data-google-drive-picker-url-value="<%= api_v1_google_drive_imports_path %>">
       <div>
         <strong>Import from Google Drive</strong>
-        <span data-google-drive-picker-target="status">Campdoc saves a private copy.</span>
+        <span data-google-drive-picker-target="status">Campsend saves a private copy.</span>
       </div>
       <span></span>
       <button type="button" class="button" data-google-drive-picker-target="button" data-action="google-drive-picker#open">Open Drive</button>

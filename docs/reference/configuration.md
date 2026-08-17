@@ -1,13 +1,13 @@
 # Configuration reference
 
-Campdoc reads production configuration from environment variables. Production boot stops when a required setting is missing.
+Campsend reads production configuration from environment variables. Production boot stops when a required setting is missing.
 
 ## Application
 
 | Variable | Required | Description |
 | --- | --- | --- |
 | `APP_HOST` | Yes | Public hostname used in links and host authorization. Do not include the protocol. |
-| `CAMPDOC_MANAGED` | No | Enables public marketing pages and managed plan limits when `true`. Defaults to `false`. |
+| `CAMPSEND_MANAGED` | No | Enables public marketing pages and managed plan limits when `true`. Defaults to `false`. |
 | `ACTIVE_STORAGE_SERVICE` | Yes | `local` or `s3`. |
 | `RAILS_MASTER_KEY` | For encrypted credentials | Decrypts `config/credentials.yml.enc`. |
 | `RAILS_LOG_LEVEL` | No | Rails log level. Defaults to `info`. |
@@ -19,7 +19,7 @@ Campdoc reads production configuration from environment variables. Production bo
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `MAIL_FROM` | Yes | Sender shown on Campdoc email. |
+| `MAIL_FROM` | Yes | Sender shown on Campsend email. |
 | `SMTP_ADDRESS` | Yes | SMTP server hostname. |
 | `SMTP_PORT` | No | SMTP server port. Defaults to `587`. |
 | `SMTP_USERNAME` | Yes | SMTP authentication username. |
@@ -45,11 +45,11 @@ Google Drive imports are disabled unless all three values are set. These values 
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `GOOGLE_DRIVE_CLIENT_ID` | To enable Drive | OAuth web client ID with the Campdoc origin listed as an authorized JavaScript origin. |
-| `GOOGLE_DRIVE_API_KEY` | To enable Drive | Browser API key restricted to the Campdoc origin and Google Picker API. |
+| `GOOGLE_DRIVE_CLIENT_ID` | To enable Drive | OAuth web client ID with the Campsend origin listed as an authorized JavaScript origin. |
+| `GOOGLE_DRIVE_API_KEY` | To enable Drive | Browser API key restricted to the Campsend origin and Google Picker API. |
 | `GOOGLE_DRIVE_APP_ID` | To enable Drive | Numeric Google Cloud project number used as the Picker app ID. |
 
-Campdoc requests the non-sensitive `drive.file` scope. It can read files the user selects in Google Picker, but it cannot browse the account outside Picker. Imports support binary Drive files up to 2 GB. Google Docs, Sheets, Slides, folders, and shortcuts are not supported.
+Campsend requests the non-sensitive `drive.file` scope. It can read files the user selects in Google Picker, but it cannot browse the account outside Picker. Imports support binary Drive files up to 2 GB. Google Docs, Sheets, Slides, folders, and shortcuts are not supported.
 
 ## Security lifetimes and limits
 
@@ -81,6 +81,6 @@ Production runs `SecurityCleanupJob` every day at 3am. It removes expired login 
 
 ## Wide events
 
-Campdoc emits one JSON wide event at the end of each application request and background job. Request events include the request ID, route, status, duration, authenticated user ID and plan, plus delivery or upload context added during processing. Job events include the job ID, class, queue, outcome, duration, and relevant domain IDs. Health checks and static assets are excluded.
+Campsend emits one JSON wide event at the end of each application request and background job. Request events include the request ID, route, status, duration, authenticated user ID and plan, plus delivery or upload context added during processing. Job events include the job ID, class, queue, outcome, duration, and relevant domain IDs. Health checks and static assets are excluded.
 
 The events are written to standard output through the Rails logger. They contain user and record IDs but exclude email addresses, access tokens, file names, and exception messages. `KAMAL_VERSION`, when present, is recorded as `service_version` so incidents can be grouped by deployment.

@@ -4,7 +4,7 @@ class Api::V1::DirectUploadsController < ActiveStorage::DirectUploadsController
 
   def create
     if blob_args[:byte_size].to_i > Send::MAX_SEND_SIZE
-      return render json: { error: "File exceeds Campdoc's 2 GB limit." }, status: :content_too_large
+      return render json: { error: "File exceeds Campsend's 2 GB limit." }, status: :content_too_large
     end
 
     blob = current_user.reserve_blob!(**blob_args)

@@ -23,7 +23,7 @@ class GoogleDriveImportsFlowTest < ActionDispatch::IntegrationTest
     assert_not_includes enqueued_jobs.last.fetch(:args).inspect, "short-lived-token"
   end
 
-  test "Drive imports require a Campdoc session" do
+  test "Drive imports require a Campsend session" do
     assert_no_difference "GoogleDriveImport.count" do
       post api_v1_google_drive_imports_path, params: valid_params, as: :json
     end

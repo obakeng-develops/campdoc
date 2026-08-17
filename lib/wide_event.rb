@@ -8,7 +8,7 @@ class WideEvent < ActiveSupport::CurrentAttributes
         event: kind,
         main: true,
         timestamp: Time.current.iso8601(3),
-        service_name: "campdoc",
+        service_name: "campsend",
         service_environment: Rails.env,
         service_version: ENV["KAMAL_VERSION"],
         **fields

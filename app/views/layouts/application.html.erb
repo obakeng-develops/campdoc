@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title><%= content_for(:title) || "Campdoc" %></title>
+    <title><%= content_for(:title) || "Campsend" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Campdoc">
+    <meta name="application-name" content="Campsend">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="referrer" content="no-referrer">
     <%= csrf_meta_tags %>
@@ -38,8 +38,8 @@
     <% if app_shell %>
       <div class="app-shell">
         <aside class="site-sidebar">
-          <%= link_to files_path, class: "wordmark", aria: { label: "Campdoc home" } do %>
-            <%= image_tag "campdoc-horizontal.png", class: "wordmark-logo", alt: "Campdoc" %>
+          <%= link_to files_path, class: "wordmark", aria: { label: "Campsend home" } do %>
+            <%= render "shared/wordmark" %>
           <% end %>
 
           <%= link_to new_send_path, class: class_names("sidebar-compose", active: controller_name == "sends" && action_name == "new"), aria: { current: ("page" if controller_name == "sends" && action_name == "new") } do %>
@@ -74,8 +74,8 @@
         </aside>
 
         <header class="mobile-header">
-          <%= link_to files_path, class: "wordmark", aria: { label: "Campdoc home" } do %>
-            <%= image_tag "campdoc-horizontal.png", class: "wordmark-logo", alt: "Campdoc" %>
+          <%= link_to files_path, class: "wordmark", aria: { label: "Campsend home" } do %>
+            <%= render "shared/wordmark" %>
           <% end %>
           <div class="mobile-nav">
             <%= link_to "Send", new_send_path, class: "button button--primary" %>

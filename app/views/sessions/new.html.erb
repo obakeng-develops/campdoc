@@ -1,8 +1,8 @@
-<% content_for :title, "Sign in · Campdoc" %>
+<% content_for :title, "Sign in · Campsend" %>
 
 <section class="auth-card">
   <div class="auth-brand">
-    <%= image_tag "campdoc-horizontal.png", class: "wordmark-logo wordmark-logo--large", alt: "Campdoc" %>
+    <%= render "shared/wordmark", large: true %>
   </div>
   <% if @sign_in_email %>
     <div class="auth-copy">

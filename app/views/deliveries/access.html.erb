@@ -1,8 +1,8 @@
-<% content_for :title, "Open delivery · Campdoc" %>
+<% content_for :title, "Open delivery · Campsend" %>
 
 <section class="auth-card" data-controller="secret-fragment">
   <div class="auth-brand">
-    <%= image_tag "campdoc-horizontal.png", class: "wordmark-logo wordmark-logo--large", alt: "Campdoc" %>
+    <%= render "shared/wordmark", large: true %>
   </div>
   <div class="auth-copy">
     <h1><%= @send.user.email_address %> sent you a delivery.</h1>

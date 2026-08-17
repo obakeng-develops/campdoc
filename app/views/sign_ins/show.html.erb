@@ -1,8 +1,8 @@
-<% content_for :title, "Confirm sign in · Campdoc" %>
+<% content_for :title, "Confirm sign in · Campsend" %>
 
 <section class="auth-card" data-controller="secret-fragment">
   <div class="auth-brand">
-    <%= image_tag "campdoc-horizontal.png", class: "wordmark-logo wordmark-logo--large", alt: "Campdoc" %>
+    <%= render "shared/wordmark", large: true %>
   </div>
   <div class="auth-copy">
     <h1>Sign in as <%= @login_token.user.email_address %>?</h1>
@@ -10,7 +10,7 @@
   </div>
   <%= form_with url: consume_sign_in_path(public_id: @login_token.public_id), class: "auth-form" do |form| %>
     <%= form.hidden_field :token, data: { secret_fragment_target: "input" } %>
-    <%= form.submit "Continue to Campdoc", class: "button button--primary button--wide", disabled: true, data: { secret_fragment_target: "submit" } %>
+    <%= form.submit "Continue to Campsend", class: "button button--primary button--wide", disabled: true, data: { secret_fragment_target: "submit" } %>
   <% end %>
   <p class="fine-print" data-secret-fragment-target="message" hidden>This link is incomplete. Request a new sign-in link.</p>
 </section>
