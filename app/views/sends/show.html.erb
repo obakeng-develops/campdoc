@@ -20,6 +20,11 @@
           <strong><%= file.filename %></strong>
           <span><%= number_to_human_size(file.byte_size) %></span>
         </div>
+        <%= form_with url: send_revisions_path(@send), scope: :revision, class: "file-replacement" do |form| %>
+          <%= form.hidden_field :attachment_id, value: file.id %>
+          <%= form.file_field :file, direct_upload: true, required: true, aria: { label: "Replacement for #{file.filename}" } %>
+          <%= form.submit "Replace file", class: "button button--primary" %>
+        <% end %>
       </div>
     <% end %>
   </div>
@@ -75,3 +80,27 @@
     </div>
   </div>
 </section>
+
+<% if @revisions.many? %>
+  <section class="revision-history" aria-labelledby="revision-history-title">
+    <div class="revision-history__heading">
+      <p class="eyebrow">Delivery history</p>
+      <h2 id="revision-history-title">Previous versions</h2>
+    </div>
+    <ol>
+      <% @revisions.each do |revision| %>
+        <li>
+          <div>
+            <strong>Version <%= revision.number %></strong>
+            <time datetime="<%= revision.created_at.iso8601 %>"><%= revision.created_at.strftime("%b %-d, %Y at %-I:%M %p") %></time>
+          </div>
+          <ul>
+            <% revision.files.each do |file| %>
+              <li><%= link_to file.filename, send_file_path(@send, file) %> <span><%= number_to_human_size(file.byte_size) %></span></li>
+            <% end %>
+          </ul>
+        </li>
+      <% end %>
+    </ol>
+  </section>
+<% end %>

@@ -28,6 +28,7 @@ class SendsController < ApplicationController
   end
 
   def show
+    @revisions = @send.delivery_revisions.includes(files_attachments: :blob).order(number: :desc)
   end
 
   def destroy
