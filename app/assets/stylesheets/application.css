@@ -93,6 +93,8 @@
       --card-shadow: 0 1px 2px rgb(0 0 0 / 16%), 0 6px 20px rgb(0 0 0 / 14%);
       --popover-shadow: 0 0 4px rgb(0 0 0 / 8%), 0 10px 24px rgb(0 0 0 / 16%), 0 32px 80px rgb(0 0 0 / 20%);
     }
+
+    .wordmark-logo__icon { filter: invert(1); }
   }
 }
 
@@ -343,6 +345,7 @@
   .library-picker input { opacity: 0; pointer-events: none; position: absolute; }
   .library-picker label { align-items: center; background: var(--bg-primary); border: 1px solid var(--border-secondary); border-radius: var(--radius-md); cursor: pointer; display: flex; gap: var(--space-3); min-width: 0; padding: var(--space-3); }
   .library-picker label > span:last-child { display: flex; flex-direction: column; min-width: 0; }
+  .library-picker__file-icon { align-items: center; background: var(--bg-tertiary); border: 1px solid var(--border-secondary); border-radius: 0.35rem; color: var(--text-secondary); display: flex; flex: none; font-size: 0.5rem; font-weight: 700; height: 2.5rem; justify-content: center; width: 2rem; }
   .library-picker label strong { font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .library-picker label small { color: var(--text-tertiary); font-size: 0.65rem; }
   .library-picker input:checked + label { background: color-mix(in srgb, var(--brand) 6%, var(--bg-primary)); border-color: var(--brand); box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 12%, transparent); }
@@ -418,254 +421,7 @@
   .delivery-file__footer span { color: var(--text-tertiary); font-size: 0.75rem; }
   .delivery-footnote { color: var(--text-tertiary); font-size: 0.75rem; margin-top: var(--space-8); text-align: center; }
 
-  .landing-page { min-height: 100vh; overflow: clip; }
-  .landing-header { align-items: center; backdrop-filter: blur(1rem); background: color-mix(in srgb, var(--bg-main) 88%, transparent); border-bottom: 1px solid var(--border-secondary); display: flex; height: 4.5rem; justify-content: space-between; padding: 0 max(var(--space-6), calc((100vw - 76rem) / 2 + var(--space-6))); position: sticky; top: 0; z-index: 40; }
-  .landing-nav { align-items: center; display: flex; gap: var(--space-4); }
-  .landing-signin, .landing-nav-link { color: var(--text-secondary); font-size: 0.875rem; font-weight: 550; }
-  .landing-nav-link.active { color: var(--text-primary); }
-  .github-link { align-items: center; display: inline-flex; gap: var(--space-2); }
-  .github-link svg { fill: currentColor; height: 1.1rem; width: 1.1rem; }
-  .landing-page main { margin: 0 auto; max-width: 76rem; padding: 0 var(--space-6); }
-  .landing-hero { align-items: center; display: grid; gap: clamp(3rem, 7vw, 7rem); grid-template-columns: minmax(0, 0.82fr) minmax(28rem, 1.18fr); min-height: calc(100vh - 4.5rem); padding: var(--space-12) 0 6rem; }
-  .landing-hero__copy { transition: opacity 280ms var(--ease-out), transform 280ms var(--ease-out); }
-  .landing-hero__copy h1 { font-size: clamp(3rem, 6.2vw, 5.75rem); font-weight: 650; letter-spacing: -0.06em; max-width: 10ch; }
-  .landing-lede { color: var(--text-secondary); font-size: clamp(1rem, 1.5vw, 1.2rem); line-height: 1.5; margin-top: var(--space-6); max-width: 46ch; }
-  .landing-actions { align-items: center; display: flex; gap: var(--space-4); margin-top: var(--space-8); }
-  .landing-actions > span { color: var(--text-tertiary); font-size: 0.75rem; }
-  .landing-primary-action { min-height: 3rem; padding-inline: var(--space-5); }
 
-  /*
-   * HANDOFF STORYBOARD
-   *
-   *     0ms  empty Campsend composer rests in view
-   *   350ms  Final contract.pdf drops into the file panel
-   *   900ms  sam@example.com appears
-   *  1400ms  personal note appears
-   *  1900ms  Send button presses
-   *  2300ms  composer exits to the left
-   *  2550ms  recipient delivery enters from the right
-   *  3300ms  Download button presses
-   *  3700ms  download confirmation enters and remains
-   */
-  .handoff-scene {
-    --handoff-file-at: 350ms;
-    --handoff-recipient-at: 900ms;
-    --handoff-note-at: 1400ms;
-    --handoff-send-ready-at: 1700ms;
-    --handoff-send-at: 1900ms;
-    --handoff-composer-out-at: 2300ms;
-    --handoff-delivery-at: 2550ms;
-    --handoff-download-at: 3300ms;
-    --handoff-confirmed-at: 3700ms;
-
-    background: color-mix(in srgb, var(--brand) 12%, var(--bg-primary));
-    border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border-primary));
-    border-radius: 2rem;
-    min-height: 36rem;
-    overflow: hidden;
-    position: relative;
-  }
-  .handoff-scene::before, .handoff-scene::after { border: 1px solid color-mix(in srgb, var(--brand) 16%, transparent); border-radius: 50%; content: ""; position: absolute; }
-  .handoff-scene::before { height: 23rem; left: -10rem; top: -11rem; width: 23rem; }
-  .handoff-scene::after { bottom: -13rem; height: 27rem; right: -12rem; width: 27rem; }
-  .mini-app { background: var(--bg-primary); border: 1px solid var(--border-primary); border-radius: var(--radius-xl); box-shadow: var(--popover-shadow); height: 29rem; left: 50%; overflow: hidden; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 86%; z-index: 2; }
-  .mini-app__bar { align-items: center; border-bottom: 1px solid var(--border-secondary); color: var(--text-secondary); display: flex; font-size: 0.65rem; font-weight: 600; gap: var(--space-2); height: 2.5rem; padding: 0 var(--space-3); }
-  .mini-app__mark { height: 1.4rem; object-fit: contain; width: 1.25rem; }
-  @media (prefers-color-scheme: dark) {
-    .wordmark-logo__icon, .mini-app__mark { filter: invert(1); }
-  }
-  .mini-composer, .mini-delivery { inset: 2.5rem 0 0; position: absolute; }
-  .mini-composer { opacity: 0; transform: translateX(-0.75rem); }
-  .mini-composer__heading { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-4) var(--space-5); }
-  .mini-composer__heading span, .mini-delivery__intro small { color: var(--text-tertiary); font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase; }
-  .mini-composer__heading strong { font-size: 1rem; letter-spacing: -0.025em; }
-  .mini-composer__body { display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1.15fr) minmax(8.5rem, 0.85fr); padding: 0 var(--space-5) var(--space-5); }
-  .mini-dropzone { align-items: center; background: var(--bg-secondary); border: 1px dashed var(--border-primary); border-radius: var(--radius-md); display: flex; justify-content: center; min-height: 18rem; overflow: hidden; position: relative; }
-  .mini-drop-prompt { align-items: center; display: flex; flex-direction: column; gap: var(--space-2); }
-  .mini-drop-prompt > span { align-items: center; background: var(--bg-action); border-radius: 50%; color: var(--text-on-action); display: flex; font-size: 0.8rem; height: 2rem; justify-content: center; width: 2rem; }
-  .mini-drop-prompt strong { font-size: 0.7rem; }
-  .mini-selected-file { align-items: center; background: var(--bg-primary); border: 1px solid var(--border-primary); border-radius: var(--radius-md); box-shadow: var(--card-shadow); display: flex; gap: var(--space-3); left: var(--space-3); opacity: 1; padding: var(--space-3); position: absolute; right: var(--space-3); }
-  .mini-file-icon { align-items: center; background: var(--bg-tertiary); border: 1px solid var(--border-secondary); border-radius: 0.35rem; color: var(--text-secondary); display: flex; flex: none; font-size: 0.5rem; font-weight: 700; height: 2.5rem; justify-content: center; width: 2rem; }
-  .mini-selected-file > div, .mini-delivery__file > div { display: flex; flex-direction: column; min-width: 0; }
-  .mini-selected-file strong, .mini-delivery__file strong { font-size: 0.65rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .mini-selected-file small, .mini-delivery__file small { color: var(--text-tertiary); font-size: 0.55rem; }
-  .mini-fields { align-content: start; background: var(--bg-primary); border: 1px solid var(--border-secondary); border-radius: var(--radius-md); display: grid; gap: var(--space-3); padding: var(--space-3); }
-  .mini-fields label { color: var(--text-secondary); display: grid; font-size: 0.55rem; font-weight: 600; gap: var(--space-1); }
-  .mini-field-value { background: var(--bg-secondary); border: 1px solid var(--border-secondary); border-radius: 0.35rem; color: var(--text-primary); display: block; font-size: 0.58rem; font-weight: 450; line-height: 1.35; min-height: 2rem; opacity: 1; overflow: hidden; padding: 0.55rem; text-overflow: ellipsis; }
-  .mini-field-value--note { min-height: 4.25rem; }
-  .mini-send-button, .mini-download-button { align-items: center; background: var(--bg-action); border-radius: 0.35rem; color: var(--text-on-action); display: flex; font-size: 0.6rem; font-weight: 650; justify-content: center; min-height: 2rem; }
-  .mini-send-button { opacity: 1; }
-  .mini-delivery { align-content: center; display: grid; gap: var(--space-5); opacity: 1; padding: var(--space-6); }
-  .mini-delivery__intro { display: grid; gap: var(--space-2); text-align: center; }
-  .mini-delivery__intro strong { font-size: 1.25rem; letter-spacing: -0.035em; }
-  .mini-delivery__intro p { color: var(--text-secondary); font-size: 0.65rem; margin-inline: auto; max-width: 38ch; }
-  .mini-delivery__file { align-items: center; background: var(--bg-secondary); border: 1px solid var(--border-secondary); border-radius: var(--radius-md); display: grid; gap: var(--space-3); grid-template-columns: auto minmax(0, 1fr) auto; padding: var(--space-3); }
-  .mini-file-icon--large { height: 3.25rem; width: 2.6rem; }
-  .mini-download-button { min-width: 5.5rem; padding-inline: var(--space-3); }
-  .handoff-delivered { align-items: center; background: var(--gray-900); border: 1px solid rgb(255 255 255 / 12%); border-radius: 999px; bottom: 5%; box-shadow: var(--button-shadow); color: #fff; display: flex; font-size: 0.75rem; font-weight: 550; gap: var(--space-2); opacity: 1; padding: 0.65rem 0.85rem; position: absolute; right: 3%; transform: rotate(-1deg); z-index: 3; }
-  .handoff-delivered span { align-items: center; background: var(--positive); border-radius: 50%; display: flex; height: 1.15rem; justify-content: center; width: 1.15rem; }
-
-  .handoff-scene.is-pending .mini-composer { opacity: 1; transform: translateX(0); }
-  .handoff-scene.is-pending .mini-delivery,
-  .handoff-scene.is-pending .mini-selected-file,
-  .handoff-scene.is-pending .mini-field-value,
-  .handoff-scene.is-pending .handoff-delivered { opacity: 0; }
-  .handoff-scene.is-pending .mini-send-button { opacity: 0.45; }
-
-  .handoff-scene.is-playing .mini-drop-prompt { animation: mini-prompt-out 260ms var(--ease-out) var(--handoff-file-at) both; }
-  .handoff-scene.is-playing .mini-selected-file { animation: mini-file-in 420ms var(--ease-out) var(--handoff-file-at) both; }
-  .handoff-scene.is-playing .mini-field-value--recipient { animation: mini-field-in 320ms var(--ease-out) var(--handoff-recipient-at) both; }
-  .handoff-scene.is-playing .mini-field-value--note { animation: mini-field-in 360ms var(--ease-out) var(--handoff-note-at) both; }
-  .handoff-scene.is-playing .mini-send-button { animation: mini-enable 260ms ease var(--handoff-send-ready-at) both, mini-button-press 300ms var(--ease-out) var(--handoff-send-at) both; }
-  .handoff-scene.is-playing .mini-composer { animation: mini-composer-out 380ms var(--ease-out) var(--handoff-composer-out-at) both; }
-  .handoff-scene.is-playing .mini-delivery { animation: mini-delivery-in 460ms var(--ease-out) var(--handoff-delivery-at) both; }
-  .handoff-scene.is-playing .mini-download-button { animation: mini-button-press 300ms var(--ease-out) var(--handoff-download-at) both; }
-  .handoff-scene.is-playing .handoff-delivered { animation: handoff-confirmation-in 420ms var(--ease-out) var(--handoff-confirmed-at) both; }
-
-  @keyframes mini-prompt-out {
-    from { opacity: 1; transform: translateY(0); }
-    to { opacity: 0; transform: translateY(0.35rem); }
-  }
-  @keyframes mini-file-in {
-    from { opacity: 0; transform: translateY(-0.75rem) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  @keyframes mini-field-in {
-    from { opacity: 0; transform: translateY(0.3rem); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes mini-enable {
-    from { opacity: 0.45; }
-    to { opacity: 1; }
-  }
-  @keyframes mini-button-press {
-    0%, 100% { transform: scale(1); }
-    48% { transform: scale(0.97); }
-  }
-  @keyframes mini-composer-out {
-    from { opacity: 1; transform: translateX(0); }
-    to { opacity: 0; transform: translateX(-0.75rem); }
-  }
-  @keyframes mini-delivery-in {
-    from { opacity: 0; transform: translateX(0.75rem); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-  @keyframes handoff-confirmation-in {
-    from { opacity: 0; transform: translate(0.75rem, 0.5rem) rotate(-1deg) scale(0.97); }
-    to { opacity: 1; transform: translate(0, 0) rotate(-1deg) scale(1); }
-  }
-
-  .landing-manifesto { align-items: start; border-bottom: 1px solid var(--border-secondary); border-top: 1px solid var(--border-secondary); display: grid; gap: clamp(3rem, 8vw, 8rem); grid-template-columns: minmax(13rem, 0.55fr) minmax(0, 1fr); padding: 9rem 0; }
-  .manifesto-heading h2, .landing-ledger h2, .landing-details h2, .landing-cta h2 { font-size: clamp(2rem, 4vw, 3.5rem); }
-  .manifesto-letter { background: var(--bg-primary); border: 1px solid var(--border-secondary); border-radius: var(--radius-xl); box-shadow: var(--card-shadow); color: var(--text-secondary); font-size: 1.0625rem; line-height: 1.6; padding: clamp(1.5rem, 5vw, 4rem); }
-  .manifesto-letter p { max-width: 62ch; }
-  .manifesto-letter p + p { margin-top: var(--space-5); }
-  .manifesto-letter p:nth-child(2) { color: var(--text-primary); font-size: 1.2rem; font-weight: 600; }
-  .manifesto-signature { display: flex; flex-direction: column; font-size: 0.875rem; font-style: normal; margin-top: var(--space-10); }
-  .manifesto-signature strong { color: var(--text-primary); }
-  .manifesto-signature a { color: var(--text-tertiary); width: fit-content; }
-
-  /*
-   * DELIVERY LEDGER STORYBOARD
-   *
-   *     0ms  waiting for the ledger to enter the viewport
-   *   120ms  activity card fades and lifts into place
-   *   520ms  Sent event appears
-   *  1020ms  Opened event appears
-   *  1520ms  Downloaded event appears
-   */
-  .landing-ledger {
-    --ledger-card-at: 120ms;
-    --ledger-sent-at: 520ms;
-    --ledger-opened-at: 1020ms;
-    --ledger-downloaded-at: 1520ms;
-
-    align-items: center;
-    background: var(--gray-900);
-    border-radius: 2rem;
-    color: var(--gray-100);
-    display: grid;
-    gap: clamp(3rem, 8vw, 8rem);
-    grid-template-columns: 0.8fr 1.2fr;
-    padding: clamp(2rem, 6vw, 5rem);
-  }
-  .landing-ledger__copy > p:last-child { color: var(--gray-400); font-size: 1rem; line-height: 1.55; margin-top: var(--space-5); max-width: 43ch; }
-  .ledger-card { background: var(--gray-850); border: 1px solid rgb(255 255 255 / 10%); border-radius: var(--radius-xl); box-shadow: 0 24px 60px rgb(0 0 0 / 25%); padding: var(--space-5); }
-  .ledger-file-row { align-items: center; border-bottom: 1px solid rgb(255 255 255 / 8%); display: flex; gap: var(--space-4); padding-bottom: var(--space-5); }
-  .ledger-file-icon { align-items: center; background: var(--gray-750); border: 1px solid rgb(255 255 255 / 10%); border-radius: var(--radius-sm); color: var(--gray-300); display: flex; font-size: 0.65rem; font-weight: 700; height: 3rem; justify-content: center; width: 2.5rem; }
-  .ledger-file-row > div:last-child { display: flex; flex-direction: column; min-width: 0; }
-  .ledger-file-row span { color: var(--gray-400); font-size: 0.75rem; }
-  .landing-event-list { display: grid; list-style: none; padding: var(--space-4) 0 0; }
-  .landing-event-list li { align-items: center; color: var(--gray-400); display: grid; font-size: 0.75rem; gap: var(--space-3); grid-template-columns: auto 1fr auto; min-height: 2.6rem; }
-  .landing-event-list i { background: var(--positive); border-radius: 50%; box-shadow: 0 0 0 3px rgb(22 163 74 / 14%); height: 0.5rem; width: 0.5rem; }
-  .landing-event-list strong { color: var(--gray-200); }
-
-  .landing-ledger.is-pending .ledger-card,
-  .landing-ledger.is-pending .landing-event-list li { opacity: 0; }
-  .landing-ledger.is-pending .ledger-card { transform: translateY(0.75rem); }
-  .landing-ledger.is-pending .landing-event-list li { transform: translateY(0.4rem); }
-  .landing-ledger.is-pending .landing-event-list i { transform: scale(0.7); }
-
-  .landing-ledger.is-playing .ledger-card { animation: ledger-card-in 460ms var(--ease-out) var(--ledger-card-at) both; }
-  .landing-ledger.is-playing .landing-event-list li:nth-child(1) { animation: ledger-event-in 360ms var(--ease-out) var(--ledger-sent-at) both; }
-  .landing-ledger.is-playing .landing-event-list li:nth-child(2) { animation: ledger-event-in 360ms var(--ease-out) var(--ledger-opened-at) both; }
-  .landing-ledger.is-playing .landing-event-list li:nth-child(3) { animation: ledger-event-in 360ms var(--ease-out) var(--ledger-downloaded-at) both; }
-  .landing-ledger.is-playing .landing-event-list li:nth-child(1) i { animation: ledger-dot-in 320ms var(--ease-out) var(--ledger-sent-at) both; }
-  .landing-ledger.is-playing .landing-event-list li:nth-child(2) i { animation: ledger-dot-in 320ms var(--ease-out) var(--ledger-opened-at) both; }
-  .landing-ledger.is-playing .landing-event-list li:nth-child(3) i { animation: ledger-dot-in 320ms var(--ease-out) var(--ledger-downloaded-at) both; }
-
-  @keyframes ledger-card-in {
-    from { opacity: 0; transform: translateY(0.75rem); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes ledger-event-in {
-    from { opacity: 0; transform: translateY(0.4rem); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes ledger-dot-in {
-    from { transform: scale(0.7); }
-    to { transform: scale(1); }
-  }
-
-  .landing-details { border-bottom: 1px solid var(--border-secondary); padding: 9rem 0; }
-  .landing-details__heading { max-width: 48rem; }
-  .landing-detail-list { border-top: 1px solid var(--border-secondary); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: var(--space-10); }
-  .landing-detail { border-left: 1px solid var(--border-secondary); padding: var(--space-8) var(--space-6) 0; }
-  .landing-detail:first-child { border-left: 0; padding-left: 0; }
-  .landing-detail:last-child { padding-right: 0; }
-  .landing-detail h3 { font-size: 1.125rem; letter-spacing: -0.02em; }
-  .landing-detail p { color: var(--text-secondary); font-size: 0.9375rem; line-height: 1.6; margin-top: var(--space-4); max-width: 42ch; }
-  .landing-detail a { color: var(--text-primary); display: inline-block; font-size: 0.875rem; font-weight: 600; margin-top: var(--space-5); text-decoration: underline; text-decoration-color: var(--border-primary); text-underline-offset: 0.2em; }
-
-  .landing-cta { align-items: center; border-bottom: 1px solid var(--border-secondary); display: flex; justify-content: space-between; padding: 9rem 0; }
-  .landing-footer { color: var(--text-tertiary); display: flex; font-size: 0.75rem; justify-content: space-between; margin: 0 auto; max-width: 76rem; padding: var(--space-6); }
-
-  .pricing-heading { margin: 0 auto; max-width: 60rem; padding: clamp(3.5rem, 6vw, 4.5rem) 0 var(--space-10); text-align: center; }
-  .pricing-heading h1 { font-size: clamp(2.75rem, 5vw, 3.75rem); letter-spacing: -0.05em; }
-  .pricing-heading > p:last-child { color: var(--text-secondary); font-size: 1.0625rem; margin-top: var(--space-5); }
-  .pricing-grid { align-items: stretch; display: grid; gap: var(--space-4); grid-template-columns: repeat(3, minmax(0, 1fr)); padding-bottom: 4rem; }
-  .pricing-card { background: var(--bg-primary); border: 1px solid var(--border-secondary); border-radius: var(--radius-xl); display: flex; flex-direction: column; height: 100%; padding: var(--space-6); position: relative; }
-  .pricing-card--featured { border-color: color-mix(in srgb, var(--brand) 48%, var(--border-primary)); box-shadow: var(--card-shadow); }
-  .plan-label { color: var(--brand); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; margin-bottom: var(--space-5); text-transform: uppercase; }
-  .plan-label--available { color: var(--positive); }
-  .pricing-card__heading { display: grid; gap: var(--space-6); }
-  .pricing-card__heading h2 { font-size: 1.35rem; }
-  .pricing-card__heading > div > p { color: var(--text-tertiary); font-size: 0.8125rem; margin-top: var(--space-2); }
-  .plan-price { align-items: baseline; display: flex; gap: var(--space-2); }
-  .plan-price strong { font-size: 2.75rem; font-weight: 650; letter-spacing: -0.055em; }
-  .plan-price span { color: var(--text-tertiary); font-size: 0.75rem; }
-  .plan-features { border-top: 1px solid var(--border-secondary); display: grid; gap: var(--space-4); list-style: none; margin: var(--space-6) 0; padding: var(--space-6) 0 0; }
-  .plan-features li { color: var(--text-secondary); display: grid; font-size: 0.8125rem; gap: var(--space-3); grid-template-columns: auto 1fr; }
-  .plan-features li::before { color: var(--positive); content: "✓"; font-weight: 700; }
-  .pricing-card > .button, .plan-availability { margin-top: auto; }
-  .plan-availability { border-top: 1px solid var(--border-secondary); color: var(--text-tertiary); font-size: 0.75rem; padding-top: var(--space-4); }
-  .pricing-note { align-items: center; border-bottom: 1px solid var(--border-secondary); border-top: 1px solid var(--border-secondary); display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; padding: var(--space-10) 0; }
-  .pricing-note h2 { font-size: 1.35rem; }
-  .pricing-note p { color: var(--text-secondary); font-size: 0.875rem; max-width: 46ch; }
-
-  @starting-style {
-    .landing-hero__copy { opacity: 0; transform: translateY(0.5rem); }
-  }
 }
 
 @layer utilities {
@@ -685,23 +441,6 @@
   .send-details { padding: var(--space-5); }
   .delivery-page { padding-inline: var(--space-4); }
   .delivery-files--grid { grid-template-columns: 1fr; }
-  .landing-header { padding-inline: var(--space-4); }
-  .landing-page main { padding-inline: var(--space-4); }
-  .landing-hero { gap: var(--space-12); grid-template-columns: 1fr; padding-top: 5rem; }
-  .landing-hero__copy { text-align: center; }
-  .landing-hero__copy h1 { margin-inline: auto; max-width: 12ch; }
-  .landing-lede { margin-inline: auto; }
-  .landing-actions { justify-content: center; }
-  .handoff-scene { margin-inline: auto; max-width: 38rem; min-height: 32rem; width: 100%; }
-  .landing-manifesto { grid-template-columns: 1fr; }
-  .landing-ledger { grid-template-columns: 1fr; }
-  .landing-detail-list { grid-template-columns: 1fr; }
-  .landing-detail, .landing-detail:first-child, .landing-detail:last-child { border-left: 0; border-top: 1px solid var(--border-secondary); padding: var(--space-6) 0; }
-  .landing-detail:first-child { border-top: 0; }
-  .pricing-grid { grid-template-columns: 1fr; margin-inline: auto; max-width: 32rem; }
-  .pricing-card { min-height: 0; }
-  .pricing-note { grid-template-columns: 1fr; }
-  .pricing-note .button { justify-self: start; }
 }
 
 @media (max-width: 34rem) {
@@ -717,44 +456,8 @@
   .delivery-intro { margin-top: var(--space-12); }
   .delivery-file__footer { align-items: stretch; flex-direction: column; }
   .delivery-file__footer .button { width: 100%; }
-  .landing-nav { gap: var(--space-2); }
-  .landing-signin { display: none; }
-  .landing-header .button { min-height: 2.25rem; }
-  .landing-hero { min-height: auto; padding: 4rem 0 5rem; }
-  .landing-hero__copy h1 { font-size: clamp(2.75rem, 15vw, 4rem); }
-  .landing-actions { align-items: stretch; flex-direction: column; }
-  .landing-actions > span { text-align: center; }
-  .handoff-scene { min-height: 29rem; }
-  .mini-app { height: 25.5rem; width: 94%; }
-  .mini-composer__heading { padding: var(--space-3); }
-  .mini-composer__body { gap: var(--space-2); padding: 0 var(--space-3) var(--space-3); }
-  .mini-dropzone { min-height: 15.5rem; }
-  .mini-fields { gap: var(--space-2); padding: var(--space-2); }
-  .mini-field-value--note { min-height: 3.5rem; }
-  .mini-delivery { padding: var(--space-4); }
-  .handoff-delivered { bottom: 3%; font-size: 0.68rem; }
-  .landing-manifesto { padding: 6rem 0; }
-  .manifesto-letter { border-radius: var(--radius-lg); font-size: 1rem; }
-  .landing-ledger { border-radius: var(--radius-xl); padding: var(--space-6); }
-  .landing-details { padding: 6rem 0; }
-  .landing-cta { align-items: stretch; flex-direction: column; gap: var(--space-8); padding: 6rem 0; }
-  .landing-footer { padding-inline: var(--space-4); }
-  .pricing-heading { padding-top: 4rem; }
-  .pricing-grid { padding-bottom: 6rem; }
-  .pricing-note .button { justify-self: stretch; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .handoff-scene.is-playing .mini-drop-prompt,
-  .handoff-scene.is-playing .mini-selected-file,
-  .handoff-scene.is-playing .mini-field-value,
-  .handoff-scene.is-playing .mini-send-button,
-  .handoff-scene.is-playing .mini-composer,
-  .handoff-scene.is-playing .mini-delivery,
-  .handoff-scene.is-playing .mini-download-button,
-  .handoff-scene.is-playing .handoff-delivered { animation: none; }
-  .handoff-scene .mini-composer { opacity: 0; transform: translateX(-0.75rem); }
-  .handoff-scene .mini-delivery,
-  .handoff-scene .handoff-delivered { opacity: 1; transform: none; }
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
 }
