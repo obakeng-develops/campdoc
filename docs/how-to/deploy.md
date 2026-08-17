@@ -71,6 +71,8 @@ The client ID, API key, and app ID are browser-public configuration. Do not add 
 
 Mount a persistent volume at `/rails/storage`. This volume contains the application, cache, queue, and cable databases. Run one writable Campsend host against it.
 
+Keep Solid Queue running so scheduled deliveries publish on time. The default deployment runs it inside Puma with `SOLID_QUEUE_IN_PUMA=true`; split it into a dedicated job process before adding more web hosts.
+
 Back up every SQLite database with a SQLite-aware snapshot process. Test restores and monitor free disk space. Move to a server database before adding another application host.
 
 ## Deploying with Kamal

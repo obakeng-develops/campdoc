@@ -36,6 +36,108 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     assert_equal [ 1 ], send_record.delivery_revisions.pluck(:number)
   end
 
+  test "sender schedules a delivery in UTC" do
+    blob = create_uploaded_blob(@user, filename: "scheduled.txt")
+    scheduled_at = 2.days.from_now.change(usec: 0)
+
+    assert_enqueued_with(job: DeliveryEmailJob, at: scheduled_at) do
+      post sends_path, params: {
+        send: {
+          recipient_email: "later@example.com",
+          files: [ blob.signed_id ],
+          scheduled_at: scheduled_at.iso8601
+        }
+      }
+    end
+
+    send_record = Send.last
+    assert_equal scheduled_at, send_record.scheduled_at
+    assert_nil send_record.published_at
+    assert_redirected_to send_path(send_record)
+    follow_redirect!
+    assert_select ".status-pill--scheduled", text: "Scheduled"
+    assert_select "meta[http-equiv='refresh']", count: 0
+    assert_select "time[data-controller='local-time'][datetime='#{scheduled_at.iso8601}']"
+    assert_select "a[href='#{edit_send_path(send_record)}']", text: "Edit schedule"
+    assert_select "form[action='#{cancel_send_path(send_record)}']", text: "Cancel delivery"
+  end
+
+  test "sender edits and clears a schedule before publication" do
+    send_record = create_scheduled_send
+    changed_at = 3.days.from_now.change(usec: 0)
+
+    assert_enqueued_with(job: DeliveryEmailJob, at: changed_at) do
+      patch send_path(send_record), params: {
+        send: { recipient_email: "changed@example.com", message: "Updated", scheduled_at: changed_at.iso8601 }
+      }
+    end
+
+    assert_redirected_to send_path(send_record)
+    assert_equal "changed@example.com", send_record.reload.recipient_email
+    assert_equal "Updated", send_record.message
+    assert_equal changed_at, send_record.scheduled_at
+
+    assert_enqueued_with(job: DeliveryEmailJob) do
+      patch send_path(send_record), params: {
+        send: { recipient_email: send_record.recipient_email, message: send_record.message, scheduled_at: "" }
+      }
+    end
+    assert_nil send_record.reload.scheduled_at
+  end
+
+  test "unpublished delivery links reveal no delivery details" do
+    send_record = create_scheduled_send
+    delete session_path
+    follow_redirect!
+
+    get delivery_path(public_id: send_record.public_id)
+
+    assert_response :not_found
+    assert_select "h1", text: "This delivery isn’t available yet."
+    assert_not_includes response.body, @user.email_address
+    assert_not_includes response.body, send_record.recipient_email
+    assert_not_includes response.body, send_record.files.first.filename.to_s
+
+    post delivery_access_path(public_id: send_record.public_id), params: { token: "not-issued" }
+    assert_response :not_found
+    get delivery_file_path(public_id: send_record.public_id, id: send_record.files.first.id)
+    assert_response :not_found
+  end
+
+  test "canceling a scheduled delivery keeps its quota reservation" do
+    blob = create_uploaded_blob(@user)
+
+    with_managed_hosting do
+      post sends_path, params: {
+        send: { recipient_email: "later@example.com", files: [ blob.signed_id ], scheduled_at: 2.days.from_now.iso8601 }
+      }
+      send_record = Send.last
+
+      post cancel_send_path(send_record)
+
+      assert_redirected_to send_path(send_record)
+      assert send_record.reload.canceled?
+      assert_equal 1, @user.reload.sends_this_month
+      assert_no_difference -> { ActionMailer::Base.deliveries.size } do
+        DeliveryEmailJob.perform_now(send_record)
+      end
+    end
+  end
+
+  test "published deliveries cannot be edited or canceled" do
+    send_record, = create_send
+
+    patch send_path(send_record), params: {
+      send: { recipient_email: "changed@example.com", message: "Changed", scheduled_at: 2.days.from_now.iso8601 }
+    }
+    assert_redirected_to send_path(send_record)
+    assert_equal "sam@example.com", send_record.reload.recipient_email
+
+    post cancel_send_path(send_record)
+    assert_redirected_to send_path(send_record)
+    assert_not send_record.reload.canceled?
+  end
+
   test "sender replaces a file while recipients see only the latest revision" do
     send_record, token = create_send
     original_attachment = send_record.files.first
@@ -130,6 +232,10 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     assert_select ".selected-state[hidden]"
     assert_select "input[data-direct-upload-url='#{rails_direct_uploads_url}']"
     assert_select "form[data-controller~='upload-progress']"
+    assert_select "form[data-controller~='schedule']"
+    assert_select "input[type='datetime-local']"
+    assert_select "input[type='hidden'][name='send[scheduled_at]']"
+    assert_select "input[type='hidden'][name='send[schedule_synced]']"
     assert_select "[data-upload-progress-target='error'][hidden]"
 
     content = "hello"
@@ -160,6 +266,27 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :bad_request
+  end
+
+  test "a selected local schedule fails closed when browser conversion does not run" do
+    blob = create_uploaded_blob(@user)
+
+    assert_no_enqueued_jobs only: DeliveryEmailJob do
+      assert_no_difference "Send.count" do
+        post sends_path, params: {
+          send: {
+            recipient_email: "later@example.com",
+            files: [ blob.signed_id ],
+            scheduled_local: "2026-08-20T10:00",
+            scheduled_at: "",
+            schedule_synced: ""
+          }
+        }
+      end
+    end
+
+    assert_response :unprocessable_content
+    assert_select ".form-errors", text: /could not be converted to UTC/
   end
 
   test "managed Free accounts are limited to five deliveries each month" do
@@ -198,6 +325,31 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     assert_select ".status-pill--failed", text: "Failed"
     assert_select "form[action='#{rotate_access_send_path(send_record)}'] button", text: "Try emailing again"
     assert_select "meta[http-equiv='refresh']", count: 0
+  end
+
+  test "failed first publication retries publication while published links rotate" do
+    unpublished = create_scheduled_send
+    unpublished.update!(email_status: "failed")
+
+    assert_enqueued_with(job: DeliveryEmailJob) do
+      post rotate_access_send_path(unpublished)
+    end
+
+    published, = create_send
+    published.update!(email_status: "failed")
+    assert_enqueued_with(job: DeliveryAccessEmailJob) do
+      post rotate_access_send_path(published)
+    end
+  end
+
+  test "unpublished deliveries cannot be deleted while delayed jobs may exist" do
+    send_record = create_scheduled_send
+
+    assert_no_difference "Send.count" do
+      delete send_path(send_record)
+    end
+
+    assert_redirected_to send_path(send_record)
   end
 
   test "managed Pro accounts have unlimited deliveries" do
@@ -242,6 +394,7 @@ class SendFlowTest < ActionDispatch::IntegrationTest
       content_type: "image/svg+xml"
     ))
     send_record.save!
+    send_record.record_event!(:sent)
     attachment = send_record.files.first
 
     get send_file_path(send_record, attachment)
@@ -272,5 +425,12 @@ class SendFlowTest < ActionDispatch::IntegrationTest
       send_record.save!
       send_record.record_event!(:sent)
       [ send_record, token ]
+    end
+
+    def create_scheduled_send
+      send_record = @user.sends.new(recipient_email: "later@example.com", message: "For later.", scheduled_at: 2.days.from_now)
+      send_record.files.attach(create_uploaded_blob(@user, filename: "scheduled.txt"))
+      send_record.save!
+      send_record
     end
 end

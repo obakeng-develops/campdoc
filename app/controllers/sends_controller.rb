@@ -1,5 +1,5 @@
 class SendsController < ApplicationController
-  before_action :set_send, only: %i[show destroy revoke_access rotate_access]
+  before_action :set_send, only: %i[show edit update destroy cancel revoke_access rotate_access]
   rate_limit to: 20, within: 1.hour, only: :create, by: -> { current_user.id }
 
   def index
@@ -15,12 +15,19 @@ class SendsController < ApplicationController
     return head :bad_request if Array(params.dig(:send, :files)).any? { |file| !file.is_a?(String) }
 
     @send = current_user.sends.new(send_params)
+    if schedule_conversion_missing?
+      @send.errors.add(:scheduled_at, "could not be converted to UTC. Refresh and try again")
+      set_library_files
+      return render :new, status: :unprocessable_entity
+    end
+
     if save_send
       blobs = @send.files.blobs.to_a
-      WideEvent.add(send_id: @send.id, file_count: blobs.size, send_bytes: blobs.sum(&:byte_size))
+      WideEvent.add(delivery_id: @send.id, delivery_operation: @send.scheduled? ? "scheduled" : "created", scheduled_at: @send.scheduled_at&.iso8601(3), file_count: blobs.size, send_bytes: blobs.sum(&:byte_size))
       current_user.retain_files(blobs)
-      DeliveryEmailJob.perform_later(@send)
-      redirect_to @send, notice: "We’re emailing the delivery link to #{@send.recipient_email}."
+      DeliveryEmailJob.enqueue(@send)
+      notice = @send.scheduled? ? "Delivery scheduled." : "We’re emailing the delivery link to #{@send.recipient_email}."
+      redirect_to @send, notice: notice
     else
       set_library_files
       render :new, status: :unprocessable_entity
@@ -31,19 +38,57 @@ class SendsController < ApplicationController
     @revisions = @send.delivery_revisions.includes(files_attachments: :blob).order(number: :desc)
   end
 
+  def edit
+    redirect_to @send, alert: "Published and canceled deliveries cannot be edited." unless @send.publication_pending?
+  end
+
+  def update
+    if schedule_conversion_missing?
+      @send.errors.add(:scheduled_at, "could not be converted to UTC. Refresh and try again")
+      return render :edit, status: :unprocessable_entity
+    end
+
+    if @send.update_before_publication(update_send_params)
+      DeliveryEmailJob.enqueue(@send)
+      WideEvent.add(delivery_id: @send.id, delivery_operation: "rescheduled", scheduled_at: @send.scheduled_at&.iso8601(3))
+      redirect_to @send, notice: @send.scheduled? ? "Delivery schedule updated." : "Delivery is being published now."
+    elsif @send.publication_pending?
+      render :edit, status: :unprocessable_entity
+    else
+      redirect_to @send, alert: "Published and canceled deliveries cannot be edited."
+    end
+  end
+
   def destroy
+    unless @send.published?
+      WideEvent.add(delivery_id: @send.id, delivery_operation: "delete_rejected", scheduled_at: @send.scheduled_at&.iso8601(3))
+      # ponytail: retain unpublished rows so stale delayed jobs can no-op against database state.
+      return redirect_to @send, alert: "Unpublished deliveries cannot be deleted."
+    end
+
     @send.destroy!
     redirect_to sends_path, notice: "Delivery deleted. Files kept in My Files are unchanged."
   end
 
+  def cancel
+    if @send.cancel!
+      WideEvent.add(delivery_id: @send.id, delivery_operation: "canceled", scheduled_at: @send.scheduled_at&.iso8601(3), canceled_at: @send.canceled_at.iso8601(3))
+      redirect_to @send, notice: "Scheduled delivery canceled."
+    else
+      redirect_to @send, alert: "Published and canceled deliveries cannot be canceled."
+    end
+  end
+
   def revoke_access
+    return redirect_to @send, alert: "This delivery has not been published." unless @send.published?
+
     @send.revoke_access!
     redirect_to @send, notice: "Recipient access revoked."
   end
 
   def rotate_access
     @send.update!(email_status: "pending")
-    DeliveryEmailJob.perform_later(@send)
+    @send.published? ? DeliveryAccessEmailJob.perform_later(@send) : DeliveryEmailJob.enqueue(@send)
     redirect_to @send, notice: "We’re emailing a new delivery link to #{@send.recipient_email}."
   end
 
@@ -53,7 +98,15 @@ class SendsController < ApplicationController
     end
 
     def send_params
-      params.expect(send: [ :recipient_email, :message, files: [] ])
+      params.expect(send: [ :recipient_email, :message, :scheduled_at, files: [] ])
+    end
+
+    def update_send_params
+      params.expect(send: [ :recipient_email, :message, :scheduled_at ])
+    end
+
+    def schedule_conversion_missing?
+      params.dig(:send, :scheduled_local).present? && params.dig(:send, :schedule_synced) != "1"
     end
 
     def save_send

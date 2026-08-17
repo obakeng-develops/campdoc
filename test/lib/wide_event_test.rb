@@ -60,7 +60,28 @@ class WideEventTest < ActionDispatch::IntegrationTest
     assert_equal "DeliveryEmailJob", event["job_class"]
     assert_equal "success", event["outcome"]
     assert_equal delivery.id, event["delivery_id"]
+    assert_equal "publication", event["email_kind"]
+    assert_equal "published", event["publication_outcome"]
+    assert_equal delivery.reload.published_at.iso8601(3), event["published_at"]
     assert event["duration_ms"].is_a?(Numeric)
+  end
+
+  test "scheduling requests include operation context" do
+    user = User.create!(email_address: "sender@example.com")
+    sign_in_as(user)
+    blob = create_uploaded_blob(user)
+    scheduled_at = 2.days.from_now.change(usec: 0)
+
+    events = capture_wide_events do
+      post sends_path, params: {
+        send: { recipient_email: "later@example.com", files: [ blob.signed_id ], scheduled_at: scheduled_at.iso8601 }
+      }
+    end
+
+    event = events.first
+    assert_equal "scheduled", event["delivery_operation"]
+    assert_equal Send.last.id, event["delivery_id"]
+    assert_equal scheduled_at.iso8601(3), event["scheduled_at"]
   end
 
   test "failed jobs record the error" do

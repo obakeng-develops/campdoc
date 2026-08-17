@@ -250,7 +250,9 @@
   .status-dot { background: var(--text-quaternary); border-radius: 50%; height: 0.375rem; width: 0.375rem; }
   .status-dot--opened { background: var(--warning); }
   .status-dot--downloaded { background: var(--positive); }
+  .status-dot--scheduled { background: var(--focus); }
   .status-dot--failed, .status-dot--revoked, .status-dot--expired { background: var(--negative); }
+  .status-dot--canceled { background: var(--text-quaternary); }
 
   .avatar { align-items: center; background: var(--bg-tertiary); border: 1px solid var(--border-secondary); border-radius: 50%; color: var(--text-secondary); display: inline-flex; font-size: 0.625rem; font-weight: 650; height: 1.4rem; justify-content: center; text-transform: uppercase; width: 1.4rem; }
   .avatar--large { font-size: 0.875rem; height: 2.5rem; width: 2.5rem; }
@@ -348,6 +350,8 @@
   .send-details { align-content: start; align-self: start; background: var(--bg-primary); border: 1px solid var(--border-secondary); border-radius: var(--radius-xl); display: grid; gap: var(--space-5); padding: var(--space-6); }
   .privacy-note { color: var(--text-tertiary); font-size: 0.75rem; text-align: center; }
   .access-summary { color: var(--text-tertiary); font-size: 0.75rem; }
+  .schedule-field small, .schedule-summary { color: var(--text-tertiary); font-size: 0.75rem; }
+  .schedule-form { background: var(--bg-primary); border: 1px solid var(--border-secondary); border-radius: var(--radius-xl); display: grid; gap: var(--space-5); max-width: 32rem; padding: var(--space-6); }
   .delivery-expiry { color: var(--text-quaternary); margin-left: auto; }
   [data-secret-fragment-target="message"] { color: var(--text-tertiary); }
   .form-errors { background: color-mix(in srgb, var(--negative) 8%, var(--bg-primary)); border: 1px solid color-mix(in srgb, var(--negative) 30%, transparent); border-radius: var(--radius-md); color: var(--text-secondary); grid-column: 1 / -1; padding: var(--space-4); }
@@ -360,7 +364,9 @@
   .status-pill { background: var(--bg-tertiary); border: 1px solid var(--border-secondary); border-radius: 999px; color: var(--text-secondary); font-size: 0.75rem; padding: 0.25rem 0.65rem; }
   .status-pill--opened { color: var(--warning); }
   .status-pill--downloaded { color: var(--positive); }
+  .status-pill--scheduled { color: var(--focus); }
   .status-pill--failed, .status-pill--revoked, .status-pill--expired { color: var(--negative); }
+  .status-pill--canceled { color: var(--text-tertiary); }
   .send-detail { display: grid; gap: var(--space-8); grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.75fr); }
   .detail-files { display: grid; gap: var(--space-3); }
   .detail-files--grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
