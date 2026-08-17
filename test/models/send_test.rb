@@ -79,6 +79,46 @@ class SendTest < ActiveSupport::TestCase
     assert_includes send_record.errors[:base], "You can only send files you uploaded."
   end
 
+  test "creates an immutable first revision" do
+    send_record = create_send
+
+    assert_equal [ 1 ], send_record.delivery_revisions.pluck(:number)
+    assert_equal send_record.files.first.blob_id, send_record.delivery_revisions.first.files.first.blob_id
+    assert_raises(ActiveRecord::ReadOnlyRecord) { send_record.files = [ create_uploaded_blob(@user) ] }
+  end
+
+  test "replacing a file preserves the previous revision" do
+    send_record = create_send
+    original_blob = send_record.files.first.blob
+    replacement = create_uploaded_blob(@user, content: "updated", filename: "updated.txt")
+
+    revision = send_record.replace_file!(send_record.files.first.id, replacement)
+
+    assert_equal 2, revision.number
+    assert_equal replacement.id, send_record.reload.files.first.blob_id
+    assert_equal original_blob.id, send_record.delivery_revisions.find_by!(number: 1).files.first.blob_id
+  end
+
+  test "revision numbers are unique within a delivery" do
+    send_record = create_send
+    duplicate = send_record.delivery_revisions.build(number: 1, files: [ create_uploaded_blob(@user) ])
+
+    assert_not duplicate.valid?
+    assert_includes duplicate.errors[:number], "has already been taken"
+  end
+
+  test "rejects a replacement owned by another sender" do
+    send_record = create_send
+    other_user = User.create!(email_address: "other@example.com")
+    replacement = create_uploaded_blob(other_user)
+
+    assert_no_difference "DeliveryRevision.count" do
+      assert_raises(ActiveRecord::RecordInvalid) do
+        send_record.replace_file!(send_record.files.first.id, replacement)
+      end
+    end
+  end
+
   private
     def create_send
       send_record = @user.sends.new(recipient_email: "sam@example.com")

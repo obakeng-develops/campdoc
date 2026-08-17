@@ -27,8 +27,45 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".status-pill--sending", text: "Sending"
     assert_select "meta[http-equiv='refresh'][content='3']", count: 1
+    assert_select "form.file-replacement[action='#{send_revisions_path(send_record)}']" do
+      assert_select "input[type='file'][required]"
+      assert_select "input[type='submit'][value='Replace file']"
+    end
     assert_nil send_record.status
     assert_equal "sample.txt", send_record.files.first.filename.to_s
+    assert_equal [ 1 ], send_record.delivery_revisions.pluck(:number)
+  end
+
+  test "sender replaces a file while recipients see only the latest revision" do
+    send_record, token = create_send
+    original_attachment = send_record.files.first
+    replacement = create_uploaded_blob(@user, content: "updated", filename: "updated.txt")
+
+    assert_difference "DeliveryRevision.count", 1 do
+      post send_revisions_path(send_record), params: {
+        revision: { attachment_id: original_attachment.id, file: replacement.signed_id }
+      }
+    end
+
+    assert_redirected_to send_path(send_record)
+    assert_equal %w[updated.txt], send_record.reload.files.map { |file| file.filename.to_s }
+    assert @user.reload.files.blobs.exists?(replacement.id)
+
+    get send_path(send_record)
+    assert_select "#revision-history-title", text: "Previous versions"
+    assert_select ".revision-history", text: /Version 1/
+    assert_select ".revision-history", text: /sample.txt/
+
+    get send_file_path(send_record, original_attachment)
+    assert_response :redirect
+
+    authorize_delivery(send_record, token)
+    get delivery_path(public_id: send_record.public_id)
+    assert_select ".delivery-file", text: /updated.txt/
+    assert_select ".delivery-file", text: /sample.txt/, count: 0
+
+    get delivery_file_path(public_id: send_record.public_id, id: original_attachment.id)
+    assert_response :not_found
   end
 
   test "recipient opens and downloads a delivery" do

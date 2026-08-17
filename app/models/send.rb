@@ -5,7 +5,8 @@ class Send < ApplicationRecord
 
   belongs_to :user
   has_secure_token :public_id
-  has_many_attached :files
+  has_many :delivery_revisions, -> { order(number: :asc) }, inverse_of: :delivery, dependent: :destroy, autosave: true
+  has_one :latest_revision, -> { order(number: :desc) }, class_name: "DeliveryRevision", inverse_of: :delivery
   has_many :send_events, inverse_of: :delivery, dependent: :delete_all
   enum :email_status, { pending: "pending", sent: "sent", failed: "failed" }, prefix: true, validate: true
 
@@ -15,9 +16,30 @@ class Send < ApplicationRecord
 
   validates :recipient_email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :message, length: { maximum: 500 }
-  validate :files_are_attached
-  validate :files_are_within_limits
-  validate :files_belong_to_sender
+  validate :revision_is_valid
+
+  scope :with_attached_files, -> { includes(latest_revision: { files_attachments: :blob }) }
+
+  def files
+    files_revision.files
+  end
+
+  def files=(attachables)
+    raise ActiveRecord::ReadOnlyRecord, "Published delivery files are immutable" if persisted?
+
+    files.attach(attachables)
+  end
+
+  def replace_file!(attachment_id, replacement_blob)
+    with_lock do
+      current = delivery_revisions.includes(files_attachments: :blob).order(number: :desc).first!
+      replaced = current.files.attachments.find(attachment_id)
+      blobs = current.files.attachments.map { |attachment| attachment == replaced ? replacement_blob : attachment.blob }
+      revision = delivery_revisions.create!(number: current.number + 1, files: blobs)
+      association(:latest_revision).reset
+      revision
+    end
+  end
 
   def issue_access_token
     raw_token = SecureRandom.urlsafe_base64(32)
@@ -81,18 +103,13 @@ class Send < ApplicationRecord
   private_class_method :digest
 
   private
-    def files_are_attached
-      errors.add(:base, "Choose at least one file.") unless files.attached?
+    def files_revision
+      return @initial_revision ||= delivery_revisions.build(number: 1) if new_record?
+
+      latest_revision
     end
 
-    def files_are_within_limits
-      errors.add(:base, "Choose no more than #{MAX_FILES} files.") if files.size > MAX_FILES
-      errors.add(:base, "Files must total 2 GB or less.") if files.sum(&:byte_size) > MAX_SEND_SIZE
-    end
-
-    def files_belong_to_sender
-      return unless user
-
-      errors.add(:base, "You can only send files you uploaded.") if files.any? { |file| file.blob.uploader_id != user_id }
+    def revision_is_valid
+      files_revision.errors.each { |error| errors.import(error) } unless files_revision.valid?
     end
 end
