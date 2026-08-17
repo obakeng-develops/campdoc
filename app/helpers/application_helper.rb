@@ -1,4 +1,12 @@
 module ApplicationHelper
+  def indexable_page?
+    managed_hosting? && controller_name == "home" && action_name.in?(%w[show pricing])
+  end
+
+  def canonical_url
+    action_name == "pricing" ? pricing_url : root_url
+  end
+
   def status_sentence(send_record)
     case send_record.display_status
     when "revoked" then "Access revoked"

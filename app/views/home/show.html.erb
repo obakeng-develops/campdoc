@@ -1,6 +1,22 @@
 <% content_for :title, "Campsend · Send files and track delivery" %>
+<% content_for :description, "Send files free with an expiring link. Track when your delivery is first opened or downloaded." %>
 <% content_for :head do %>
-  <meta name="description" content="Send files to one person with an expiring link. See when the delivery is first opened or downloaded.">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Campsend",
+      "url": "<%= root_url %>",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "description": "Send files with expiring links and track when each delivery is opened or downloaded.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+  </script>
 <% end %>
 
 <div class="landing-page">

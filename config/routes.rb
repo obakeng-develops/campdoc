@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   root "home#show"
   get "pricing", to: "home#pricing"
+  get "robots.txt", to: "home#robots", defaults: { format: :text }
+  get "sitemap.xml", to: "home#sitemap", defaults: { format: :xml }, as: :sitemap
 
   resource :session, only: %i[new create destroy]
   get "sign-in/:public_id", to: "sign_ins#show", as: :sign_in
