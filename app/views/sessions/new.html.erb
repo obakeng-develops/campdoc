@@ -4,6 +4,12 @@
   <div class="auth-brand">
     <%= render "shared/wordmark", large: true %>
   </div>
+  <% flash.each do |type, message| %>
+    <div class="auth-feedback auth-feedback--<%= type %>" role="<%= type.to_s == "alert" ? "alert" : "status" %>">
+      <span class="auth-feedback__marker" aria-hidden="true"></span>
+      <span><%= message %></span>
+    </div>
+  <% end %>
   <% if @sign_in_email %>
     <div class="auth-copy">
       <h1>Check your inbox.</h1>
