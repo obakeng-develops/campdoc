@@ -109,6 +109,29 @@
       </div>
     </section>
 
+    <section class="landing-details" aria-labelledby="landing-details-title">
+      <div class="landing-details__heading">
+        <p class="eyebrow">Ways to use Campsend</p>
+        <h2 id="landing-details-title">File delivery without the extra machinery.</h2>
+      </div>
+      <div class="landing-detail-list">
+        <article class="landing-detail" aria-labelledby="free-file-transfer">
+          <h3 id="free-file-transfer">Send files for free</h3>
+          <p>The free plan includes five deliveries each month and 2 GB of storage. Delivery links expire after 30 days and can be revoked at any time.</p>
+          <%= link_to "See the free plan", pricing_path %>
+        </article>
+        <article class="landing-detail" aria-labelledby="wetransfer-alternative">
+          <h3 id="wetransfer-alternative">A smaller WeTransfer alternative</h3>
+          <p>Campsend is built for sending finished files to one person. Add a note, email the link, and see when the delivery is first opened or downloaded. If you need shared folders or file syncing, Dropbox and Google Drive are better fits.</p>
+        </article>
+        <article class="landing-detail" aria-labelledby="self-hosted-file-transfer">
+          <h3 id="self-hosted-file-transfer">Run Campsend yourself</h3>
+          <p>Campsend is open source. Run it on one server with your own object storage and SMTP service. Self-hosted installations have no Campsend storage or delivery limits.</p>
+          <%= link_to "View Campsend on GitHub", "https://github.com/obakeng-develops/campsend" %>
+        </article>
+      </div>
+    </section>
+
     <section class="landing-cta">
       <div>
         <p class="eyebrow">Your next delivery</p>
