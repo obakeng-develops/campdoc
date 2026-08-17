@@ -5,7 +5,7 @@ class DeliveriesController < ApplicationController
 
   def show
     @send = find_delivery
-    return head :not_found unless @send.access_active?
+    return render :unavailable, status: :not_found unless @send.access_active?
 
     render :access unless delivery_access_granted?(@send)
   end

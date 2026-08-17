@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["input", "list", "prompt", "state", "submit", "zone"]
+  static targets = ["input", "list", "prompt", "state", "zone"]
 
   choose(event) {
     if (event.target === this.inputTarget) return
@@ -41,16 +41,6 @@ export default class extends Controller {
     })
     this.inputTarget.files = transfer.files
     this.render()
-  }
-
-  uploadProgress(event) {
-    this.submitTarget.disabled = true
-    this.submitTarget.value = `Sending… ${Math.round(event.detail.progress)}%`
-  }
-
-  uploadEnd() {
-    this.submitTarget.disabled = false
-    this.submitTarget.value = "Send files"
   }
 
   render() {

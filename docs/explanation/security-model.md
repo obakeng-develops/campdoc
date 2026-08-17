@@ -1,38 +1,54 @@
-# Private Delivery And Storage Security
+# Delivery and storage security
 
 Campdoc separates application authorization from object storage. A recipient cannot derive a permanent bucket URL from a Campdoc delivery link.
 
-## Sign-In Links
+## Sign-in links
 
 A sign-in email contains a public token ID and a random bearer token in the URL fragment. Fragments are not sent in the HTTP request. Browser JavaScript moves the bearer token into a CSRF-protected POST, removes the fragment from browser history, and exchanges it for a sender session.
 
 Campdoc stores a SHA-256 digest of the token. The link expires after 15 minutes and can be consumed once.
 
-## Delivery Links
+## Delivery links
 
 Recipient links use the same fragment exchange pattern. A successful exchange stores the delivery public ID in the recipient's encrypted browser session. The browser can keep up to ten delivery grants.
 
-A signed-in user can also discover active deliveries addressed to their normalized account email in Shared with me. The matching account may open those deliveries without the bearer token. Recipients without accounts can continue using the private link, and a signed-in account with a different email gains no additional access.
+A signed-in user can also discover active deliveries addressed to their normalized account email in Shared with me. The matching account may open those deliveries without the bearer token. Recipients without accounts can continue using the complete delivery link, and a signed-in account with a different email gains no additional access.
 
 Delivery links expire after 30 days. A sender can revoke one or rotate it by emailing a fresh token. Rotation and email delivery happen in one locked database transaction, so an SMTP failure preserves the previous working link.
 
+Known expired and revoked deliveries return a generic unavailable page without exposing recipient details. Unknown delivery IDs continue to use the standard not-found response.
+
 Private pages send `Cache-Control: private, no-store` and use a `no-referrer` policy. The unauthenticated confirmation page does not reveal the recipient email address.
 
-## File Uploads
+## File uploads
 
 A sender session must be active before Campdoc creates a direct-upload grant. Each new blob records its uploader, and a delivery rejects blobs owned by another sender. The application also checks the declared file count and total size before saving a delivery.
 
 Direct uploads use short-lived signed storage requests. The bucket CORS policy should allow `PUT` from the Campdoc origin and no broader browser access.
 
-## File Downloads
+Managed hosting reserves each upload against the uploader's plan before issuing the signed request. The reservation and quota check run while locking the user record so concurrent uploads cannot cross the limit. Unfinished uploads count toward usage until the daily cleanup removes their unattached blob records. Self-hosted installations do not apply account storage quotas.
+
+## File downloads
 
 Campdoc checks the sender or recipient session before every file request. After authorization it redirects to a five-minute Active Storage URL. The bucket remains private.
 
 Files in Shared with me remain attached to the sender's delivery. They are not copied into the recipient's library or counted as recipient-owned storage.
 
+Deleting a delivery removes its recipient access and activity. A blob remains stored while it is kept in My Files or another delivery, and it is purged after its final attachment is removed.
+
 Only Active Storage's web-safe image types can render inline for recipients. Other formats download as attachments or are rejected from recipient previews. This prevents an uploaded active document from running as Campdoc content.
 
-## Storage Lifecycle
+## Google Drive imports
+
+Google authorization does not sign a user into Campdoc. An active Campdoc session opens Google Picker with the narrow `drive.file` scope, which grants access to files selected in Picker rather than the user's complete Drive.
+
+Campdoc receives selected file IDs and a short-lived access token. It encrypts the token before placing it in Solid Queue and does not store a refresh token. The import job asks Google for authoritative name, type, size, download permission, and checksum metadata. It constructs Drive API URLs itself and will not fetch a client-supplied URL.
+
+Each import becomes a private snapshot in Campdoc's Active Storage service. Later edits, deletion, or permission changes in Drive do not change a completed snapshot. The snapshot belongs to the importing user, counts toward managed storage, and follows the same My Files, delivery, and deletion rules as a browser upload.
+
+The first version accepts binary Drive files. It rejects native Google Workspace documents, folders, shortcuts, blocked downloads, and files over 2 GB. Downloads stream through temporary disk, must match Google's declared size and checksum, and are attached only after storage upload succeeds. Failed imports purge their blob reservation.
+
+## Storage lifecycle
 
 Active Storage records the service used by each blob. Changing `ACTIVE_STORAGE_SERVICE` changes where new blobs are written; it does not move existing objects.
 
@@ -44,6 +60,6 @@ A storage migration needs three separate steps:
 
 Keep the old service available until every existing delivery has been tested against the new location.
 
-## Operational Boundary
+## Operational boundary
 
 The default production design uses one Rails host and SQLite databases on one persistent volume. SQLite does not provide a shared multi-host write boundary. Add a server database and shared object storage before running more than one application host.

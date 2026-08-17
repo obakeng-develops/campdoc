@@ -5,6 +5,8 @@ if Rails.env.production? && !ENV["SECRET_KEY_BASE_DUMMY"]
 
   required = %w[APP_HOST MAIL_FROM SMTP_ADDRESS SMTP_USERNAME SMTP_PASSWORD]
   required += %w[STORAGE_ENDPOINT STORAGE_ACCESS_KEY_ID STORAGE_SECRET_ACCESS_KEY STORAGE_BUCKET] if service == "s3"
+  drive_values = %w[GOOGLE_DRIVE_CLIENT_ID GOOGLE_DRIVE_API_KEY GOOGLE_DRIVE_APP_ID].filter_map { |name| ENV[name].presence }
+  required += %w[GOOGLE_DRIVE_CLIENT_ID GOOGLE_DRIVE_API_KEY GOOGLE_DRIVE_APP_ID] if drive_values.any?
   missing = required.select { |name| ENV[name].blank? }
   raise "Missing production configuration: #{missing.join(', ')}" if missing.any?
 end

@@ -9,6 +9,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal "private, no-store", response.headers["Cache-Control"]
     assert login_token.reload.usable?
+    assert_select "[data-secret-fragment-target='message'][hidden]", text: /link is incomplete/
 
     post consume_sign_in_path(public_id: login_token.public_id), params: { token: raw_token }
     assert_redirected_to files_path
@@ -51,8 +52,10 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_select ".pricing-card", count: 3
       assert_select ".plan-price strong", text: "$9"
+      assert_select ".plan-price strong", text: "$10"
       assert_select ".plan-label", text: "Coming soon", count: 2
       assert_select ".plan-label--available", text: "Available now"
+      assert_select ".plan-features", text: /100 GB storage/
       assert_select ".plan-features", text: /200 GB storage per member/
 
       user = User.create!(email_address: "sender@example.com")
@@ -80,12 +83,31 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to new_session_path
     assert_equal "new@example.com", User.last.email_address
+    follow_redirect!
+    assert_select "h1", text: "Check your inbox."
+    assert_select ".auth-copy", text: /new@example.com/
+    assert_select "form", count: 0
+
+    get new_session_path
+    assert_select "h1", text: "Check your inbox."
+    get new_session_path(change_email: 1)
+    assert_select "h1", text: "Your files, delivered personally."
+  end
+
+  test "send intent survives the sign-in link" do
+    user = User.create!(email_address: "sender@example.com")
+    login_token, raw_token = LoginToken.issue_for(user, intent: "send")
+
+    post consume_sign_in_path(public_id: login_token.public_id), params: { token: raw_token }
+
+    assert_redirected_to new_send_path
   end
 
   test "direct upload grants require a signed-in sender" do
     post rails_direct_uploads_path, params: { blob: blob_params }, as: :json
 
     assert_response :unauthorized
+    assert_equal "Sign in to upload files.", response.parsed_body.fetch("error")
     assert_not ActiveStorage::Blob.exists?
   end
 
@@ -110,18 +132,71 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     }, as: :json
 
     assert_response :content_too_large
+    assert_equal "File exceeds Campdoc's 2 GB limit.", response.parsed_body.fetch("error")
     assert_not ActiveStorage::Blob.exists?
   end
 
-  private
-    def with_managed_hosting
-      previous_value = Rails.configuration.x.managed_hosting
-      Rails.configuration.x.managed_hosting = true
-      yield
-    ensure
-      Rails.configuration.x.managed_hosting = previous_value
-    end
+  test "managed accounts see plan usage" do
+    user = User.create!(email_address: "sender@example.com")
+    create_uploaded_blob(user)
 
+    with_managed_hosting do
+      sign_in_as(user)
+      get files_path
+
+      assert_response :success
+      assert_select ".plan-usage", count: 2
+      assert_select ".plan-usage", text: /5 Bytes of 2 GB/
+      assert_select ".plan-usage", text: /0 of 5 deliveries sent this month/
+
+      user.update!(plan: "pro")
+      get files_path
+      assert_select ".plan-usage", text: /Pro/, count: 2
+      assert_select ".plan-usage", text: /250 GB/, count: 2
+      assert_select ".plan-usage", text: /deliveries sent this month/, count: 0
+    end
+  end
+
+  test "managed storage is reserved before direct upload" do
+    user = User.create!(email_address: "sender@example.com")
+    reserve_storage(user, user.storage_limit)
+
+    with_managed_hosting do
+      sign_in_as(user)
+
+      assert_no_difference "ActiveStorage::Blob.count" do
+        post rails_direct_uploads_path, params: { blob: blob_params }, as: :json
+      end
+      assert_response :unprocessable_content
+      assert_match "Storage limit reached", response.parsed_body.fetch("error")
+    end
+  end
+
+  test "managed Pro accounts have 250 GB of storage" do
+    user = User.create!(email_address: "sender@example.com", plan: "pro")
+    assert_equal 250.gigabytes, user.storage_limit
+    reserve_storage(user, user.storage_limit)
+
+    with_managed_hosting do
+      sign_in_as(user)
+      post rails_direct_uploads_path, params: { blob: blob_params }, as: :json
+
+      assert_response :unprocessable_content
+    end
+  end
+
+  test "self-hosted accounts do not have aggregate storage quotas" do
+    user = User.create!(email_address: "sender@example.com")
+    reserve_storage(user, user.storage_limit)
+    sign_in_as(user)
+
+    assert_difference "ActiveStorage::Blob.count", 1 do
+      post rails_direct_uploads_path, params: { blob: blob_params }, as: :json
+    end
+    assert_response :success
+  end
+
+  private
     def sign_in_as(user)
       login_token, raw_token = LoginToken.issue_for(user)
       post consume_sign_in_path(public_id: login_token.public_id), params: { token: raw_token }
@@ -135,5 +210,14 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
         checksum: Base64.strict_encode64(Digest::MD5.digest(content)),
         content_type: "text/plain"
       }
+    end
+
+    def reserve_storage(user, byte_size)
+      ActiveStorage::Blob.create_before_direct_upload!(
+        filename: "reserved.bin",
+        byte_size: byte_size,
+        checksum: Base64.strict_encode64(Digest::MD5.digest("reserved")),
+        content_type: "application/octet-stream"
+      ).update!(uploader_id: user.id)
     end
 end

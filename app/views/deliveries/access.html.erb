@@ -13,4 +13,5 @@
     <%= form.hidden_field :token, data: { secret_fragment_target: "input" } %>
     <%= form.submit "View files", class: "button button--primary button--wide", disabled: true, data: { secret_fragment_target: "submit" } %>
   <% end %>
+  <p class="fine-print" data-secret-fragment-target="message" hidden>This link is incomplete. Open the full link from the delivery email or ask the sender for a new one.</p>
 </section>

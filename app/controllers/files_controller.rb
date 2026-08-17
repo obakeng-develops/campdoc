@@ -1,10 +1,11 @@
 class FilesController < ApplicationController
   include ServeBlob
 
-  before_action :set_file, only: %i[show download destroy]
+  before_action :set_file, only: %i[show preview download destroy]
 
   def index
     @files = current_user.files.attachments.includes(:blob).order(created_at: :desc)
+    @google_drive_imports = current_user.google_drive_imports.visible
   end
 
   def create
@@ -13,12 +14,16 @@ class FilesController < ApplicationController
     return head :forbidden unless blobs.size == signed_ids.size && blobs.any? && blobs.all? { |blob| blob.uploader_id == current_user.id }
 
     current_user.retain_files(blobs)
-    redirect_to files_path, notice: "Your files are ready."
+    redirect_to files_path, notice: "Files uploaded."
   end
 
   def show
-    disposition = ActiveStorage.web_image_content_types.include?(@file.blob.content_type) ? "inline" : "attachment"
-    serve_blob @file.blob, disposition: disposition
+  end
+
+  def preview
+    return head :unsupported_media_type unless ActiveStorage.web_image_content_types.include?(@file.blob.content_type)
+
+    serve_blob @file.blob, disposition: "inline"
   end
 
   def download
@@ -27,7 +32,7 @@ class FilesController < ApplicationController
 
   def destroy
     @file.destroy!
-    redirect_to files_path, notice: "File removed from My Files."
+    redirect_to files_path, notice: "Removed from My Files."
   end
 
   private

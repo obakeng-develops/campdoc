@@ -2,7 +2,7 @@
 
 This guide deploys one Campdoc web host with Docker or Kamal. It uses SQLite on a persistent volume and either local or S3-compatible file storage.
 
-## Preparing The Environment
+## Preparing the environment
 
 Copy `.env.example` into your secret management system and set every required production value. The [configuration reference](../reference/configuration.md) lists each variable.
 
@@ -10,7 +10,7 @@ Generate a unique Rails master key for the installation. Do not commit secrets o
 
 Campdoc defaults to self-hosted mode. Keep `CAMPDOC_MANAGED=false` so the root page opens sign-in and the pricing page remains unavailable. Campdoc's hosted deployment sets this value to `true` to serve the public landing and pricing pages.
 
-## Choosing File Storage
+## Choosing file storage
 
 For files on the persistent application volume, set:
 
@@ -48,9 +48,24 @@ Configure browser uploads on the bucket. For R2, replace the origin in this poli
 ]
 ```
 
-## Configuring Email
+## Configuring email
 
 Set `APP_HOST`, `MAIL_FROM`, `SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_USERNAME`, and `SMTP_PASSWORD`. Campdoc uses SMTP for sign-in and delivery links.
+
+## Enabling Google Drive imports
+
+Google Drive support is optional. Leave its variables blank to keep it disabled.
+
+To enable it:
+
+1. Create or select a Google Cloud project.
+2. Enable the Google Picker API and Google Drive API.
+3. Configure the OAuth consent screen with the `https://www.googleapis.com/auth/drive.file` scope.
+4. Create an OAuth web client and add the complete Campdoc origin, such as `https://campdoc.example.com`, under authorized JavaScript origins.
+5. Create an API key. Restrict it to the Campdoc browser origin and Google Picker API.
+6. Set `GOOGLE_DRIVE_CLIENT_ID`, `GOOGLE_DRIVE_API_KEY`, and `GOOGLE_DRIVE_APP_ID`. The app ID is the numeric project number.
+
+The client ID, API key, and app ID are browser-public configuration. Do not add a Google client secret. Campdoc uses a short-lived browser token for each import and does not retain Google refresh tokens.
 
 ## Preparing SQLite
 
@@ -58,7 +73,7 @@ Mount a persistent volume at `/rails/storage`. This volume contains the applicat
 
 Back up every SQLite database with a SQLite-aware snapshot process. Test restores and monitor free disk space. Move to a server database before adding another application host.
 
-## Deploying With Kamal
+## Deploying with Kamal
 
 Replace the example host, registry, app host, mail settings, and storage settings in `config/deploy.yml`. Load secret values through `.kamal/secrets`, then run:
 
@@ -74,13 +89,14 @@ bin/kamal deploy
 
 The container entrypoint prepares the database before the Rails server starts.
 
-## Verifying The Deployment
+## Verifying the deployment
 
 1. Open `/up` and confirm it returns HTTP 200.
 2. Request a sign-in email and consume the link once.
 3. Send a small file and confirm it appears in My Files.
 4. Sign in as the recipient and confirm the delivery appears in Shared with me.
-5. Download the file and confirm Sent records the events.
+5. Download the file and confirm the **Sent** page shows the delivery events.
 6. Confirm database and file backups include the persistent storage volume.
+7. If Google Drive is enabled, import a small PDF into My Files and confirm it remains downloadable after changing the source file in Drive.
 
 Changing `ACTIVE_STORAGE_SERVICE` does not move existing files. Read the [security and storage explanation](../explanation/security-model.md) before migrating objects.

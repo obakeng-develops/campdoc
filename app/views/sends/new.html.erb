@@ -3,18 +3,19 @@
 <div class="compose-heading">
   <%= link_to files_path, class: "back-link" do %><span aria-hidden="true">←</span> Back to My Files<% end %>
   <div>
-    <p class="eyebrow">New send</p>
-    <h1>Start with the file.</h1>
+    <p class="eyebrow">New delivery</p>
+    <h1>Choose files to send.</h1>
   </div>
 </div>
 
-<%= form_with model: @send, class: "send-form", data: { controller: "file-drop", action: "direct-upload:progress->file-drop#uploadProgress direct-upload:end->file-drop#uploadEnd" } do |form| %>
+<%= form_with model: @send, class: "send-form", data: { controller: "file-drop upload-progress", action: "direct-upload:start->upload-progress#start direct-upload:progress->upload-progress#updateProgress direct-upload:end->upload-progress#end direct-upload:error->upload-progress#error", upload_progress_final_text_value: "Creating delivery…" } do |form| %>
   <% if @send.errors.any? %>
     <div class="form-errors" role="alert">
-      <strong>Something needs a quick look.</strong>
+      <strong>We couldn’t create this delivery:</strong>
       <%= @send.errors.full_messages.to_sentence %>
     </div>
   <% end %>
+  <div class="form-errors" role="alert" data-upload-progress-target="error" hidden></div>
 
   <div class="send-files-column">
     <div class="drop-zone" role="button" tabindex="0" aria-label="Choose files to send" data-file-drop-target="zone" data-action="dragover->file-drop#dragOver dragleave->file-drop#dragLeave drop->file-drop#drop click->file-drop#choose keydown.enter->file-drop#choose keydown.space->file-drop#choose">
@@ -23,7 +24,7 @@
         <div class="drop-icon" aria-hidden="true">↑</div>
         <strong>Drop files here</strong>
         <span>or choose from your computer</span>
-        <small>Any kind of file is welcome.</small>
+        <small>Any file type. Up to 20 files, 2 GB total.</small>
       </div>
       <div class="selected-state" data-file-drop-target="state" hidden>
         <div class="selected-files" data-file-drop-target="list" aria-live="polite"></div>
@@ -33,7 +34,8 @@
 
     <% if @library_files.any? %>
       <fieldset class="library-picker">
-        <legend>Or choose from My Files</legend>
+        <legend class="visually-hidden">Recent files from My Files</legend>
+        <div class="library-picker__heading"><span>Recent files from My Files</span><%= link_to "View all My Files", files_path %></div>
         <div>
           <% @library_files.each do |file| %>
             <%= check_box_tag "send[files][]", file.blob.signed_id, file.id == @selected_file_id, id: "library_file_#{file.id}" %>
@@ -57,9 +59,9 @@
         <%= form.label :message, "Add a note" %>
         <span>Optional</span>
       </div>
-      <%= form.text_area :message, rows: 3, maxlength: 500, placeholder: "A little context goes a long way…" %>
+      <%= form.text_area :message, rows: 3, maxlength: 500, placeholder: "Add context for the recipient" %>
     </div>
-    <%= form.submit "Send files", class: "button button--primary button--wide button--send", data: { file_drop_target: "submit" } %>
-    <p class="privacy-note"><span aria-hidden="true">⌁</span> Private by default. Only your recipient gets the link.</p>
+    <%= form.submit "Send files", class: "button button--primary button--wide button--send", data: { upload_progress_target: "submit" } %>
+    <p class="privacy-note"><span aria-hidden="true">⌁</span> The link expires after 30 days. Anyone with the full link can open it.</p>
   </div>
 <% end %>

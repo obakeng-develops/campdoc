@@ -10,6 +10,20 @@ module ActiveSupport
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
 
-    # Add more helper methods to be used by all tests here...
+    def create_uploaded_blob(user, content: "hello", filename: "hello.txt", content_type: "text/plain")
+      ActiveStorage::Blob.create_and_upload!(
+        io: StringIO.new(content),
+        filename: filename,
+        content_type: content_type
+      ).tap { |blob| blob.update!(uploader_id: user.id) }
+    end
+
+    def with_managed_hosting
+      previous_value = Rails.configuration.x.managed_hosting
+      Rails.configuration.x.managed_hosting = true
+      yield
+    ensure
+      Rails.configuration.x.managed_hosting = previous_value
+    end
   end
 end

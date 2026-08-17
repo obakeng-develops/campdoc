@@ -53,6 +53,10 @@ env:
     STORAGE_REGION: auto
     STORAGE_BUCKET: campdoc
     STORAGE_FORCE_PATH_STYLE: true
+    # Set all three values to enable Google Drive imports.
+    # GOOGLE_DRIVE_CLIENT_ID: 123.apps.googleusercontent.com
+    # GOOGLE_DRIVE_API_KEY: AIza...
+    # GOOGLE_DRIVE_APP_ID: 123456789
     SMTP_ADDRESS: smtp.example.com
     SMTP_PORT: 587
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.

@@ -1,12 +1,14 @@
 class LoginToken < ApplicationRecord
   LIFETIME = 15.minutes
+  INTENTS = %w[send].freeze
 
   belongs_to :user
   has_secure_token :public_id
+  validates :intent, inclusion: { in: INTENTS }, allow_nil: true
 
-  def self.issue_for(user)
+  def self.issue_for(user, intent: nil)
     raw_token = SecureRandom.urlsafe_base64(32)
-    token = create!(user: user, token_digest: digest(raw_token), expires_at: LIFETIME.from_now)
+    token = create!(user: user, intent: intent, token_digest: digest(raw_token), expires_at: LIFETIME.from_now)
     [ token, raw_token ]
   end
 

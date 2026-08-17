@@ -1,9 +1,12 @@
 module ApplicationHelper
   def status_sentence(send_record)
-    case send_record.status
-    when "downloaded" then "#{send_record.recipient_name} downloaded this"
-    when "opened" then "#{send_record.recipient_name} opened this"
-    when nil then "Sending to #{send_record.recipient_name}"
+    case send_record.display_status
+    when "revoked" then "Access revoked"
+    when "expired" then "Delivery expired"
+    when "failed" then "Email failed"
+    when "sending" then "Emailing #{send_record.recipient_name}"
+    when "downloaded" then "#{send_record.recipient_name} downloaded this delivery"
+    when "opened" then "#{send_record.recipient_name} opened this delivery"
     else "Sent to #{send_record.recipient_name}"
     end
   end

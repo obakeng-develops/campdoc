@@ -3,7 +3,7 @@
 <div class="page-heading">
   <div>
     <p class="eyebrow">Sent</p>
-    <h1>What you’ve shared</h1>
+    <h1>Your deliveries</h1>
   </div>
   <%= link_to new_send_path, class: "button button--primary" do %>
     <span aria-hidden="true">＋</span> Send files
@@ -37,7 +37,8 @@
           <div class="relationship-row">
             <span class="avatar" aria-hidden="true"><%= send_record.recipient_name.first %></span>
             <span><%= status_sentence(send_record) %></span>
-            <span class="status-dot status-dot--<%= send_record.status %>" aria-hidden="true"></span>
+            <% if send_record.access_active? %><span class="delivery-expiry">Until <%= send_record.access_expires_at.strftime("%b %-d") %></span><% end %>
+            <span class="status-dot status-dot--<%= send_record.display_status %>" aria-hidden="true"></span>
           </div>
         </div>
       <% end %>
@@ -50,8 +51,8 @@
       <span class="empty-file__line"></span>
       <span class="empty-file__line empty-file__line--short"></span>
     </div>
-    <h2>Your first Send starts with a file.</h2>
-    <p>Share the work, add a little context, and we’ll keep track of the handoff.</p>
-    <%= link_to "Choose something to send", new_send_path, class: "button button--primary" %>
+    <h2>No deliveries yet.</h2>
+    <p>Choose files, enter a recipient, and add an optional note.</p>
+    <%= link_to "Send files", new_send_path, class: "button button--primary" %>
   </section>
 <% end %>
