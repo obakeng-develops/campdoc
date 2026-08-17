@@ -128,7 +128,7 @@ export default class extends Controller {
 
   reset() {
     this.buttonTarget.disabled = false
-    this.statusTarget.textContent = "Campdoc saves a private copy."
+    this.statusTarget.textContent = "Campsend saves a private copy."
   }
 
   showError(message) {

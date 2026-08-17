@@ -1,10 +1,10 @@
 <header class="landing-header">
-  <%= link_to root_path, class: "wordmark", aria: { label: "Campdoc home" } do %>
-    <%= image_tag "campdoc-horizontal.png", class: "wordmark-logo", alt: "Campdoc" %>
+  <%= link_to root_path, class: "wordmark", aria: { label: "Campsend home" } do %>
+    <%= render "shared/wordmark" %>
   <% end %>
   <nav class="landing-nav" aria-label="Main navigation">
     <%= link_to "Pricing", pricing_path, class: class_names("landing-nav-link", active: current_page?(pricing_path)), aria: { current: ("page" if current_page?(pricing_path)) } %>
-    <%= link_to "https://github.com/obakeng-develops/campdoc", class: "landing-nav-link github-link", aria: { label: "Campdoc on GitHub" } do %>
+    <%= link_to "https://github.com/obakeng-develops/campsend", class: "landing-nav-link github-link", aria: { label: "Campsend on GitHub" } do %>
       <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 .7a12 12 0 0 0-3.79 23.4c.6.11.82-.26.82-.58v-2.23c-3.34.73-4.04-1.42-4.04-1.42-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.84 2.81 1.31 3.5 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23A11.5 11.5 0 0 1 12 8.3c1.02 0 2.04.14 3 .4 2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.82.58A12 12 0 0 0 12 .7Z"/></svg>
       <span>GitHub</span>
     <% end %>

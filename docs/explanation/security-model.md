@@ -1,12 +1,12 @@
 # Delivery and storage security
 
-Campdoc separates application authorization from object storage. A recipient cannot derive a permanent bucket URL from a Campdoc delivery link.
+Campsend separates application authorization from object storage. A recipient cannot derive a permanent bucket URL from a Campsend delivery link.
 
 ## Sign-in links
 
 A sign-in email contains a public token ID and a random bearer token in the URL fragment. Fragments are not sent in the HTTP request. Browser JavaScript moves the bearer token into a CSRF-protected POST, removes the fragment from browser history, and exchanges it for a sender session.
 
-Campdoc stores a SHA-256 digest of the token. The link expires after 15 minutes and can be consumed once.
+Campsend stores a SHA-256 digest of the token. The link expires after 15 minutes and can be consumed once.
 
 ## Delivery links
 
@@ -22,29 +22,29 @@ Private pages send `Cache-Control: private, no-store` and use a `no-referrer` po
 
 ## File uploads
 
-A sender session must be active before Campdoc creates a direct-upload grant. Each new blob records its uploader, and a delivery rejects blobs owned by another sender. The application also checks the declared file count and total size before saving a delivery.
+A sender session must be active before Campsend creates a direct-upload grant. Each new blob records its uploader, and a delivery rejects blobs owned by another sender. The application also checks the declared file count and total size before saving a delivery.
 
-Direct uploads use short-lived signed storage requests. The bucket CORS policy should allow `PUT` from the Campdoc origin and no broader browser access.
+Direct uploads use short-lived signed storage requests. The bucket CORS policy should allow `PUT` from the Campsend origin and no broader browser access.
 
 Managed hosting reserves each upload against the uploader's plan before issuing the signed request. The reservation and quota check run while locking the user record so concurrent uploads cannot cross the limit. Unfinished uploads count toward usage until the daily cleanup removes their unattached blob records. Self-hosted installations do not apply account storage quotas.
 
 ## File downloads
 
-Campdoc checks the sender or recipient session before every file request. After authorization it redirects to a five-minute Active Storage URL. The bucket remains private.
+Campsend checks the sender or recipient session before every file request. After authorization it redirects to a five-minute Active Storage URL. The bucket remains private.
 
 Files in Shared with me remain attached to the sender's delivery. They are not copied into the recipient's library or counted as recipient-owned storage.
 
 Deleting a delivery removes its recipient access and activity. A blob remains stored while it is kept in My Files or another delivery, and it is purged after its final attachment is removed.
 
-Only Active Storage's web-safe image types can render inline for recipients. Other formats download as attachments or are rejected from recipient previews. This prevents an uploaded active document from running as Campdoc content.
+Only Active Storage's web-safe image types can render inline for recipients. Other formats download as attachments or are rejected from recipient previews. This prevents an uploaded active document from running as Campsend content.
 
 ## Google Drive imports
 
-Google authorization does not sign a user into Campdoc. An active Campdoc session opens Google Picker with the narrow `drive.file` scope, which grants access to files selected in Picker rather than the user's complete Drive.
+Google authorization does not sign a user into Campsend. An active Campsend session opens Google Picker with the narrow `drive.file` scope, which grants access to files selected in Picker rather than the user's complete Drive.
 
-Campdoc receives selected file IDs and a short-lived access token. It encrypts the token before placing it in Solid Queue and does not store a refresh token. The import job asks Google for authoritative name, type, size, download permission, and checksum metadata. It constructs Drive API URLs itself and will not fetch a client-supplied URL.
+Campsend receives selected file IDs and a short-lived access token. It encrypts the token before placing it in Solid Queue and does not store a refresh token. The import job asks Google for authoritative name, type, size, download permission, and checksum metadata. It constructs Drive API URLs itself and will not fetch a client-supplied URL.
 
-Each import becomes a private snapshot in Campdoc's Active Storage service. Later edits, deletion, or permission changes in Drive do not change a completed snapshot. The snapshot belongs to the importing user, counts toward managed storage, and follows the same My Files, delivery, and deletion rules as a browser upload.
+Each import becomes a private snapshot in Campsend's Active Storage service. Later edits, deletion, or permission changes in Drive do not change a completed snapshot. The snapshot belongs to the importing user, counts toward managed storage, and follows the same My Files, delivery, and deletion rules as a browser upload.
 
 The first version accepts binary Drive files. It rejects native Google Workspace documents, folders, shortcuts, blocked downloads, and files over 2 GB. Downloads stream through temporary disk, must match Google's declared size and checksum, and are attached only after storage upload succeeds. Failed imports purge their blob reservation.
 

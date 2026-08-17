@@ -1,8 +1,8 @@
 # Name of your application. Used to uniquely configure containers.
-service: campdoc
+service: campsend
 
 # Name of the container image (use your-user/app-name on external registries).
-image: campdoc
+image: campsend
 
 # Deploy to these servers.
 servers:
@@ -46,12 +46,12 @@ env:
     - SMTP_PASSWORD
   clear:
     APP_HOST: app.example.com
-    CAMPDOC_MANAGED: false
-    MAIL_FROM: Campdoc <hello@example.com>
+    CAMPSEND_MANAGED: false
+    MAIL_FROM: Campsend <hello@example.com>
     ACTIVE_STORAGE_SERVICE: s3
     STORAGE_ENDPOINT: https://ACCOUNT_ID.r2.cloudflarestorage.com
     STORAGE_REGION: auto
-    STORAGE_BUCKET: campdoc
+    STORAGE_BUCKET: campsend
     STORAGE_FORCE_PATH_STYLE: true
     # Set all three values to enable Google Drive imports.
     # GOOGLE_DRIVE_CLIENT_ID: 123.apps.googleusercontent.com
@@ -70,7 +70,7 @@ env:
     # WEB_CONCURRENCY: 2
 
     # Match this to any external database server to configure Active Record correctly
-    # Use campdoc-db for a db accessory server on same machine via local kamal docker network.
+    # Use campsend-db for a db accessory server on same machine via local kamal docker network.
     # DB_HOST: 192.168.0.2
 
     # Log everything from Rails
@@ -87,7 +87,7 @@ aliases:
 # Use a persistent storage volume for sqlite database files and local Active Storage files.
 # Recommended to change this to a mounted volume path that is backed up off server.
 volumes:
-  - "campdoc_storage:/rails/storage"
+  - "campsend_storage:/rails/storage"
 
 # Bridge fingerprinted assets, like JS and CSS, between versions to avoid
 # hitting 404 on in-flight requests. Combines all files from new and old

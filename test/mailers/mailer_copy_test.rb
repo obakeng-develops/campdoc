@@ -6,7 +6,7 @@ class MailerCopyTest < ActionMailer::TestCase
     login_token, raw_token = LoginToken.issue_for(user)
     mail = AuthenticationMailer.with(login_token: login_token, token: raw_token).sign_in
 
-    assert_equal "Your Campdoc sign-in link", mail.subject
+    assert_equal "Your Campsend sign-in link", mail.subject
     assert_includes mail.text_part.body.decoded, "This single-use link expires in 15 minutes"
     assert_includes mail.text_part.body.decoded, "If you didn’t request this link, ignore this email."
   end

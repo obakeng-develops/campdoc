@@ -30,7 +30,8 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     with_managed_hosting do
       get root_path
       assert_response :success
-      assert_select "img.wordmark-logo[alt='Campdoc']"
+      assert_select ".wordmark-logo", text: "Campsend"
+      assert_select ".wordmark-logo img[src*='campsend-icon'][alt='']"
       assert_select ".handoff-scene"
       assert_select "img.mini-app__mark[alt='']"
       assert_select ".mini-composer"
@@ -39,7 +40,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
       assert_select ".landing-ledger[data-controller='handoff']"
       assert_select ".manifesto-signature", text: /Obakeng Mosadi/
       assert_select "a[href='mailto:mosadiobakeng7@gmail.com']"
-      assert_select "a.github-link[href='https://github.com/obakeng-develops/campdoc'][aria-label='Campdoc on GitHub'] svg", count: 1
+      assert_select "a.github-link[href='https://github.com/obakeng-develops/campsend'][aria-label='Campsend on GitHub'] svg", count: 1
       assert_select "a[href='#{new_session_path(intent: "send")}']", text: "Send files"
 
       user = User.create!(email_address: "sender@example.com")
@@ -63,7 +64,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
       assert_select ".plan-features", text: /3 TB shared storage/
       assert_select ".plan-features", text: /Unlimited members/
       assert_select ".pricing-note", text: /provide the server, storage, and email service/
-      assert_select "a[href='https://github.com/obakeng-develops/campdoc']", text: "Self-host Campdoc"
+      assert_select "a[href='https://github.com/obakeng-develops/campsend']", text: "Self-host Campsend"
 
       user = User.create!(email_address: "sender@example.com")
       sign_in_as(user)
@@ -139,7 +140,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     }, as: :json
 
     assert_response :content_too_large
-    assert_equal "File exceeds Campdoc's 2 GB limit.", response.parsed_body.fetch("error")
+    assert_equal "File exceeds Campsend's 2 GB limit.", response.parsed_body.fetch("error")
     assert_not ActiveStorage::Blob.exists?
   end
 

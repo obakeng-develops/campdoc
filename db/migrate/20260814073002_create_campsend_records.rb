@@ -1,4 +1,4 @@
-class CreateCampdocRecords < ActiveRecord::Migration[8.1]
+class CreateCampsendRecords < ActiveRecord::Migration[8.1]
   def change
     create_table :users do |t|
       t.string :email_address, null: false

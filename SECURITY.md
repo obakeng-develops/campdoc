@@ -4,4 +4,4 @@ Please report security issues privately to mosadiobakeng7@gmail.com. Do not open
 
 Include the affected version, reproduction steps, impact, and any suggested fix. We aim to acknowledge reports within seven days.
 
-Only the latest version on the default branch receives security fixes while Campdoc is in early development.
+Only the latest version on the default branch receives security fixes while Campsend is in early development.

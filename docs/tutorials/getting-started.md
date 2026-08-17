@@ -1,6 +1,6 @@
-# Running Campdoc locally
+# Running Campsend locally
 
-This tutorial gets Campdoc running and walks through one file delivery.
+This tutorial gets Campsend running and walks through one file delivery.
 
 ## Before you start
 
@@ -48,4 +48,4 @@ Run the test suite:
 bin/rails test
 ```
 
-You now have a working local Campdoc installation. Use the [deployment guide](../how-to/deploy.md) when you're ready to run it in production.
+You now have a working local Campsend installation. Use the [deployment guide](../how-to/deploy.md) when you're ready to run it in production.

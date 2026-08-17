@@ -1,6 +1,6 @@
-# Deploying Campdoc
+# Deploying Campsend
 
-This guide deploys one Campdoc web host with Docker or Kamal. It uses SQLite on a persistent volume and either local or S3-compatible file storage.
+This guide deploys one Campsend web host with Docker or Kamal. It uses SQLite on a persistent volume and either local or S3-compatible file storage.
 
 ## Preparing the environment
 
@@ -8,7 +8,7 @@ Copy `.env.example` into your secret management system and set every required pr
 
 Generate a unique Rails master key for the installation. Do not commit secrets or a populated environment file.
 
-Campdoc defaults to self-hosted mode. Keep `CAMPDOC_MANAGED=false` so the root page opens sign-in and the pricing page remains unavailable. Campdoc's hosted deployment sets this value to `true` to serve the public landing and pricing pages.
+Campsend defaults to self-hosted mode. Keep `CAMPSEND_MANAGED=false` so the root page opens sign-in and the pricing page remains unavailable. Campsend's hosted deployment sets this value to `true` to serve the public landing and pricing pages.
 
 ## Choosing file storage
 
@@ -24,7 +24,7 @@ For a private S3-compatible bucket, set:
 ACTIVE_STORAGE_SERVICE=s3
 STORAGE_ENDPOINT=https://storage.example.com
 STORAGE_REGION=us-east-1
-STORAGE_BUCKET=campdoc
+STORAGE_BUCKET=campsend
 STORAGE_ACCESS_KEY_ID=...
 STORAGE_SECRET_ACCESS_KEY=...
 STORAGE_FORCE_PATH_STYLE=false
@@ -32,14 +32,14 @@ STORAGE_FORCE_PATH_STYLE=false
 
 Cloudflare R2 uses region `auto` and path-style requests. If presigned upload URLs use a different origin from `STORAGE_ENDPOINT`, set `STORAGE_BROWSER_ORIGIN` to that origin.
 
-Keep the bucket private. Give the credentials object read, write, and delete access for the Campdoc bucket, without account administration permissions.
+Keep the bucket private. Give the credentials object read, write, and delete access for the Campsend bucket, without account administration permissions.
 
-Configure browser uploads on the bucket. For R2, replace the origin in this policy with your Campdoc origin:
+Configure browser uploads on the bucket. For R2, replace the origin in this policy with your Campsend origin:
 
 ```json
 [
   {
-    "AllowedOrigins": ["https://campdoc.example.com"],
+    "AllowedOrigins": ["https://campsend.example.com"],
     "AllowedMethods": ["PUT"],
     "AllowedHeaders": ["Content-Type", "Content-MD5", "Content-Disposition"],
     "ExposeHeaders": ["ETag"],
@@ -50,7 +50,7 @@ Configure browser uploads on the bucket. For R2, replace the origin in this poli
 
 ## Configuring email
 
-Set `APP_HOST`, `MAIL_FROM`, `SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_USERNAME`, and `SMTP_PASSWORD`. Campdoc uses SMTP for sign-in and delivery links.
+Set `APP_HOST`, `MAIL_FROM`, `SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_USERNAME`, and `SMTP_PASSWORD`. Campsend uses SMTP for sign-in and delivery links.
 
 ## Enabling Google Drive imports
 
@@ -61,15 +61,15 @@ To enable it:
 1. Create or select a Google Cloud project.
 2. Enable the Google Picker API and Google Drive API.
 3. Configure the OAuth consent screen with the `https://www.googleapis.com/auth/drive.file` scope.
-4. Create an OAuth web client and add the complete Campdoc origin, such as `https://campdoc.example.com`, under authorized JavaScript origins.
-5. Create an API key. Restrict it to the Campdoc browser origin and Google Picker API.
+4. Create an OAuth web client and add the complete Campsend origin, such as `https://campsend.example.com`, under authorized JavaScript origins.
+5. Create an API key. Restrict it to the Campsend browser origin and Google Picker API.
 6. Set `GOOGLE_DRIVE_CLIENT_ID`, `GOOGLE_DRIVE_API_KEY`, and `GOOGLE_DRIVE_APP_ID`. The app ID is the numeric project number.
 
-The client ID, API key, and app ID are browser-public configuration. Do not add a Google client secret. Campdoc uses a short-lived browser token for each import and does not retain Google refresh tokens.
+The client ID, API key, and app ID are browser-public configuration. Do not add a Google client secret. Campsend uses a short-lived browser token for each import and does not retain Google refresh tokens.
 
 ## Preparing SQLite
 
-Mount a persistent volume at `/rails/storage`. This volume contains the application, cache, queue, and cable databases. Run one writable Campdoc host against it.
+Mount a persistent volume at `/rails/storage`. This volume contains the application, cache, queue, and cable databases. Run one writable Campsend host against it.
 
 Back up every SQLite database with a SQLite-aware snapshot process. Test restores and monitor free disk space. Move to a server database before adding another application host.
 

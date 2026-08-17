@@ -17,7 +17,7 @@ class WideEventTest < ActionDispatch::IntegrationTest
     event = events.first
     assert_equal "request", event["event"]
     assert_equal true, event["main"]
-    assert_equal "campdoc", event["service_name"]
+    assert_equal "campsend", event["service_name"]
     assert_equal "test", event["service_environment"]
     assert_equal "GET", event["method"]
     assert_equal "/files", event["path"]

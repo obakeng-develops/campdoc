@@ -6,14 +6,14 @@ require "rails/all"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module Campdoc
+module Campsend
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
 
-    # Files are only exposed through Campdoc's authorization and tracking endpoints.
+    # Files are only exposed through Campsend's authorization and tracking endpoints.
     config.active_storage.draw_routes = false
-    config.x.managed_hosting = ENV["CAMPDOC_MANAGED"] == "true"
+    config.x.managed_hosting = ENV["CAMPSEND_MANAGED"] == "true"
     config.x.google_drive.client_id = ENV["GOOGLE_DRIVE_CLIENT_ID"]
     config.x.google_drive.api_key = ENV["GOOGLE_DRIVE_API_KEY"]
     config.x.google_drive.app_id = ENV["GOOGLE_DRIVE_APP_ID"]

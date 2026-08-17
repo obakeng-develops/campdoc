@@ -1,8 +1,8 @@
-<% content_for :title, "Files from #{@send.user.email_address} · Campdoc" %>
+<% content_for :title, "Files from #{@send.user.email_address} · Campsend" %>
 
 <div class="delivery-page" data-controller="delivery-open" data-delivery-open-url-value="<%= delivery_opened_path(public_id: @send.public_id) %>">
   <header class="delivery-header">
-    <div class="auth-brand"><%= image_tag "campdoc-horizontal.png", class: "wordmark-logo", alt: "Campdoc" %></div>
+    <div class="auth-brand"><%= render "shared/wordmark" %></div>
     <span>Available until <%= @send.access_expires_at.strftime("%b %-d, %Y") %></span>
   </header>
 

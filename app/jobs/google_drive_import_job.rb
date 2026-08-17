@@ -83,7 +83,7 @@ class GoogleDriveImportJob < ApplicationJob
 
       size = Integer(metadata["size"], exception: false)
       raise PermanentError, "Google Drive didn't provide this file's size." unless size
-      raise PermanentError, "This file is larger than Campdoc's 2 GB limit." if size > Send::MAX_SEND_SIZE
+      raise PermanentError, "This file is larger than Campsend's 2 GB limit." if size > Send::MAX_SEND_SIZE
       raise PermanentError, "Google Drive didn't provide this file's name." if metadata["name"].blank?
       if metadata["md5Checksum"].present? && !metadata["md5Checksum"].match?(/\A[0-9a-f]{32}\z/i)
         raise PermanentError, "Google Drive returned an invalid file checksum."
@@ -107,13 +107,13 @@ class GoogleDriveImportJob < ApplicationJob
       uri.query = URI.encode_www_form(alt: "media", supportsAllDrives: true)
       expected_size = Integer(metadata.fetch("size"))
       expected_checksum = checksum_from_hex(metadata["md5Checksum"])
-      file = Tempfile.new([ "campdoc-drive-", ".download" ], binmode: true)
+      file = Tempfile.new([ "campsend-drive-", ".download" ], binmode: true)
       digest = Digest::MD5.new
       bytes = 0
 
       stream_request(uri, token:, resource_key: drive_import.resource_key) do |chunk|
         bytes += chunk.bytesize
-        raise PermanentError, "The downloaded file exceeded Campdoc's 2 GB limit." if bytes > Send::MAX_SEND_SIZE
+        raise PermanentError, "The downloaded file exceeded Campsend's 2 GB limit." if bytes > Send::MAX_SEND_SIZE
 
         digest.update(chunk)
         file.write(chunk)
