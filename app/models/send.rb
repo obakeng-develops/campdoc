@@ -2,6 +2,8 @@ class Send < ApplicationRecord
   ACCESS_LIFETIME = 30.days
   MAX_FILES = 20
   MAX_SEND_SIZE = 2.gigabytes
+  RESERVED_SLUGS = %w[access api d download files opened rails session shared sign-in sends up].freeze
+  SLUG_FORMAT = /\A[a-z0-9]+(?:-[a-z0-9]+)*\z/
 
   belongs_to :user
   has_secure_token :public_id
@@ -9,16 +11,20 @@ class Send < ApplicationRecord
   has_one :latest_revision, -> { order(number: :desc) }, class_name: "DeliveryRevision", inverse_of: :delivery
   has_many :send_events, inverse_of: :delivery, dependent: :delete_all
   enum :email_status, { pending: "pending", sent: "sent", failed: "failed" }, prefix: true, validate: true
+  before_destroy :retain_published_slug
 
   scope :available, -> { where.not(published_at: nil).where(canceled_at: nil, access_revoked_at: nil, access_expires_at: Time.current..).where.not(access_token_digest: nil) }
 
   normalizes :recipient_email, with: ->(email) { email.strip.downcase }
+  normalizes :slug, with: ->(slug) { slug.strip.downcase.presence }
 
   validates :recipient_email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :message, length: { maximum: 500 }
+  validates :slug, length: { maximum: 100 }, format: { with: SLUG_FORMAT }, exclusion: { in: RESERVED_SLUGS }, uniqueness: true, allow_nil: true
   validate :revision_is_valid
   validate :scheduled_at_is_future, if: :will_save_change_to_scheduled_at?
   validate :publication_state_is_consistent
+  validate :published_slug_is_immutable, if: :will_save_change_to_slug?
 
   scope :with_attached_files, -> { includes(latest_revision: { files_attachments: :blob }) }
 
@@ -89,9 +95,20 @@ class Send < ApplicationRecord
     raw_token
   end
 
-  def self.find_by_access_token(public_id, raw_token)
-    delivery = find_by(public_id: public_id, access_token_digest: digest(raw_token))
-    delivery if delivery&.access_active?
+  def delivery_identifier
+    slug.presence || public_id
+  end
+
+  def self.find_by_delivery_identifier(identifier)
+    find_by(slug: identifier) || find_by(public_id: identifier)
+  end
+
+  def self.find_by_delivery_identifier!(identifier)
+    find_by_delivery_identifier(identifier) || raise(ActiveRecord::RecordNotFound)
+  end
+
+  def access_token_valid?(raw_token)
+    access_active? && ActiveSupport::SecurityUtils.secure_compare(access_token_digest, Digest::SHA256.hexdigest(raw_token.to_s))
   end
 
   def access_active?
@@ -134,11 +151,6 @@ class Send < ApplicationRecord
     recipient_email.split("@").first.tr("._-", " ").titleize
   end
 
-  def self.digest(raw_token)
-    Digest::SHA256.hexdigest(raw_token.to_s)
-  end
-  private_class_method :digest
-
   private
     def files_revision
       return @initial_revision ||= delivery_revisions.build(number: 1) if new_record?
@@ -156,5 +168,16 @@ class Send < ApplicationRecord
 
     def publication_state_is_consistent
       errors.add(:base, "A delivery cannot be published and canceled") if published? && canceled?
+    end
+
+    def published_slug_is_immutable
+      errors.add(:slug, "cannot change after publication") if published_at_in_database.present?
+    end
+
+    def retain_published_slug
+      return unless published? && slug.present?
+
+      errors.add(:base, "Published delivery links cannot be deleted")
+      throw :abort
     end
 end

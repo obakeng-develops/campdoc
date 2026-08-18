@@ -2,6 +2,6 @@
 
 <% if @send.message.present? %>“<%= @send.message %>”
 
-<% end %><%= @file_count == 1 ? "View file" : "View files" %>: <%= delivery_url(public_id: @send.public_id, anchor: "token=#{@access_token}") %>
+<% end %><%= @file_count == 1 ? "View file" : "View files" %>: <%= delivery_url(public_id: @send.delivery_identifier, anchor: "token=#{@access_token}") %>
 
 This delivery was sent to <%= @send.recipient_email %>. Forwarding the full link shares access.

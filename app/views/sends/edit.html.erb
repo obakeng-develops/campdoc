@@ -20,6 +20,11 @@
     <%= form.email_field :recipient_email, required: true, autocomplete: "email" %>
   </div>
   <div class="field">
+    <%= form.label :slug, "Delivery link" %>
+    <%= form.text_field :slug, maxlength: 100, placeholder: "project-update", autocapitalize: "none", spellcheck: false %>
+    <small>Optional. Use lowercase letters, numbers, and hyphens. This is visible to recipients and cannot change after sending.</small>
+  </div>
+  <div class="field">
     <div class="label-row">
       <%= form.label :message, "Add a note" %>
       <span>Optional</span>

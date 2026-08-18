@@ -37,6 +37,15 @@ class ReceivedSendsFlowTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "Shared with me uses a delivery slug when present" do
+    @delivery.update_column(:slug, "shared-contract")
+    sign_in_as(@recipient)
+
+    get shared_files_path
+
+    assert_select "a.send-card[href='#{delivery_path(public_id: "shared-contract")}']"
+  end
+
   test "revoked and expired deliveries leave Shared with me" do
     revoked = create_delivery(filename: "revoked.txt")
     revoked.revoke_access!

@@ -36,6 +36,24 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     assert_equal [ 1 ], send_record.delivery_revisions.pluck(:number)
   end
 
+  test "sender claims a unique delivery slug" do
+    blob = create_uploaded_blob(@user, filename: "first.txt")
+    post sends_path, params: {
+      send: { recipient_email: "sam@example.com", slug: "Client-Update", files: [ blob.signed_id ] }
+    }
+
+    assert_equal "client-update", Send.last.slug
+
+    duplicate_blob = create_uploaded_blob(@user, filename: "second.txt")
+    assert_no_difference "Send.count" do
+      post sends_path, params: {
+        send: { recipient_email: "other@example.com", slug: "client-update", files: [ duplicate_blob.signed_id ] }
+      }
+    end
+    assert_response :unprocessable_content
+    assert_select ".form-errors", text: /Slug has already been taken/
+  end
+
   test "sender schedules a delivery in UTC" do
     blob = create_uploaded_blob(@user, filename: "scheduled.txt")
     scheduled_at = 2.days.from_now.change(usec: 0)
@@ -176,6 +194,31 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     assert send_record.send_events.downloaded.exists?
   end
 
+  test "slug identifies a delivery without replacing bearer authorization" do
+    send_record, token = create_send(slug: "project-update")
+
+    get delivery_path(public_id: send_record.slug)
+    assert_response :success
+    assert_select "h1", text: "sender@example.com sent you a delivery."
+
+    post delivery_access_path(public_id: send_record.slug), params: { token: "wrong" }
+    assert_response :not_found
+
+    post delivery_access_path(public_id: send_record.slug), params: { token: }
+    assert_redirected_to delivery_path(public_id: send_record.slug)
+    get delivery_path(public_id: send_record.slug)
+    assert_select ".delivery-file", count: 1
+
+    get delivery_path(public_id: send_record.public_id)
+    assert_response :success
+
+    assert_no_difference "Send.count" do
+      delete send_path(send_record)
+    end
+    assert_redirected_to send_path(send_record)
+    assert Send.exists?(send_record.id)
+  end
+
   test "recipient cannot access a delivery with the wrong token" do
     send_record, = create_send
     post delivery_access_path(public_id: send_record.public_id), params: { token: "not-the-token" }
@@ -216,6 +259,7 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     assert_select "input[type='datetime-local']"
     assert_select "input[type='hidden'][name='send[scheduled_at]']"
     assert_select "input[type='hidden'][name='send[schedule_synced]']"
+    assert_select "input[name='send[slug]'][maxlength='100']"
     assert_select "[data-upload-progress-target='error'][hidden]"
 
     content = "hello"
@@ -358,8 +402,8 @@ class SendFlowTest < ActionDispatch::IntegrationTest
       post delivery_access_path(public_id: send_record.public_id), params: { token: raw_token }
     end
 
-    def create_send
-      send_record = @user.sends.new(recipient_email: "sam@example.com", message: "For you.")
+    def create_send(slug: nil)
+      send_record = @user.sends.new(recipient_email: "sam@example.com", message: "For you.", slug:)
       token = send_record.issue_access_token
       send_record.files.attach(create_uploaded_blob(@user, content: file_fixture("sample.txt").read, filename: "sample.txt"))
       send_record.save!

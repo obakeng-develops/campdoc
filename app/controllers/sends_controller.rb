@@ -60,6 +60,11 @@ class SendsController < ApplicationController
   end
 
   def destroy
+    if @send.published? && @send.slug.present?
+      WideEvent.add(delivery_id: @send.id, delivery_operation: "delete_rejected")
+      return redirect_to @send, alert: "A published delivery link cannot be deleted. Revoke access instead."
+    end
+
     unless @send.published?
       WideEvent.add(delivery_id: @send.id, delivery_operation: "delete_rejected", scheduled_at: @send.scheduled_at&.iso8601(3))
       # ponytail: retain unpublished rows so stale delayed jobs can no-op against database state.
@@ -98,11 +103,11 @@ class SendsController < ApplicationController
     end
 
     def send_params
-      params.expect(send: [ :recipient_email, :message, :scheduled_at, files: [] ])
+      params.expect(send: [ :recipient_email, :message, :scheduled_at, :slug, files: [] ])
     end
 
     def update_send_params
-      params.expect(send: [ :recipient_email, :message, :scheduled_at ])
+      params.expect(send: [ :recipient_email, :message, :scheduled_at, :slug ])
     end
 
     def schedule_conversion_missing?
