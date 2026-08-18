@@ -69,14 +69,16 @@
             <% end %>
           </nav>
 
-          <%= render policy_usage if policy_usage %>
+          <div class="sidebar-footer">
+            <%= render policy_usage if policy_usage %>
 
-          <div class="sidebar-account">
-            <span class="avatar" aria-hidden="true"><%= current_user.email_address.first %></span>
-            <span class="sidebar-account__email"><%= current_user.email_address %></span>
-            <%= button_to session_path, method: :delete, class: "sidebar-signout", aria: { label: "Sign out" }, title: "Sign out" do %>
-              <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M8 4H4.5v12H8M12 6l4 4-4 4M7 10h9"/></svg>
-            <% end %>
+            <div class="sidebar-account">
+              <span class="avatar" aria-hidden="true"><%= current_user.email_address.first %></span>
+              <span class="sidebar-account__email"><%= current_user.email_address %></span>
+              <%= button_to session_path, method: :delete, class: "sidebar-signout", aria: { label: "Sign out" }, title: "Sign out" do %>
+                <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M8 4H4.5v12H8M12 6l4 4-4 4M7 10h9"/></svg>
+              <% end %>
+            </div>
           </div>
         </aside>
 

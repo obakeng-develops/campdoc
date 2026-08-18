@@ -8,6 +8,7 @@ Choose the guide that matches what you're doing:
 
 - **Tutorial:** [Run Campsend locally](docs/tutorials/getting-started.md)
 - **How-to guide:** [Deploy Campsend](docs/how-to/deploy.md)
+- **How-to guide:** [Load test Campsend locally](docs/how-to/load-test.md)
 - **Reference:** [Configuration](docs/reference/configuration.md)
 - **Reference:** [API stability](docs/reference/api-stability.md)
 - **Explanation:** [Delivery and storage security](docs/explanation/security-model.md)

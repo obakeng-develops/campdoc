@@ -10,7 +10,7 @@ class WideEvent < ActiveSupport::CurrentAttributes
         timestamp: Time.current.iso8601(3),
         service_name: "campsend",
         service_environment: Rails.env,
-        service_version: ENV["KAMAL_VERSION"],
+        service_version: ENV["KAMAL_VERSION"].presence || Campsend::VERSION,
         **fields
       }
     end

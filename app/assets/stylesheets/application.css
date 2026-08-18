@@ -152,7 +152,8 @@
   .sidebar-nav { display: grid; gap: var(--space-1); }
   .sidebar-link { color: var(--text-secondary); }
   .sidebar-link.active { background: var(--bg-tertiary); color: var(--text-primary); }
-  .sidebar-account { align-items: center; border-top: 1px solid var(--border-secondary); display: grid; gap: var(--space-2); grid-template-columns: auto minmax(0, 1fr) auto; margin-top: auto; padding: var(--space-4) var(--space-2) 0; }
+  .sidebar-footer { display: grid; margin-top: auto; }
+  .sidebar-account { align-items: center; border-top: 1px solid var(--border-secondary); display: grid; gap: var(--space-2); grid-template-columns: auto minmax(0, 1fr) auto; padding: var(--space-4) var(--space-2) 0; }
   .sidebar-account__email { color: var(--text-secondary); font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .sidebar-signout { align-items: center; background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--text-tertiary); cursor: pointer; display: flex; height: 2rem; justify-content: center; padding: 0; width: 2rem; }
   .mobile-header { display: none; }
@@ -323,6 +324,7 @@
   .compose-collections__heading a, .send-source-label { color: var(--text-tertiary); font-size: 0.75rem; }
 
   .compose-heading { display: grid; gap: var(--space-8); margin-bottom: var(--space-8); }
+  .compose-intro { color: var(--text-secondary); margin-top: var(--space-3); max-width: 48ch; }
   .back-link { align-items: center; color: var(--text-tertiary); display: inline-flex; font-size: 0.8125rem; gap: var(--space-2); width: fit-content; }
   .send-form { align-items: start; display: grid; gap: var(--space-6); grid-template-columns: minmax(0, 1.35fr) minmax(17rem, 0.8fr); }
   .send-files-column { display: grid; gap: var(--space-4); min-width: 0; }
@@ -367,6 +369,7 @@
   .library-picker input:focus-visible + label { outline: 2px solid var(--focus); outline-offset: 2px; }
   .send-details { align-content: start; align-self: start; background: var(--bg-primary); border: 1px solid var(--border-secondary); border-radius: var(--radius-xl); display: grid; gap: var(--space-5); padding: var(--space-6); }
   .privacy-note { color: var(--text-tertiary); font-size: 0.75rem; text-align: center; }
+  .upload-status { color: var(--text-tertiary); font-size: 0.75rem; text-align: center; }
   .access-summary { color: var(--text-tertiary); font-size: 0.75rem; }
   .schedule-field small, .schedule-summary { color: var(--text-tertiary); font-size: 0.75rem; }
   .schedule-form { background: var(--bg-primary); border: 1px solid var(--border-secondary); border-radius: var(--radius-xl); display: grid; gap: var(--space-5); max-width: 32rem; padding: var(--space-6); }
@@ -385,6 +388,12 @@
   .status-pill--scheduled { color: var(--focus); }
   .status-pill--failed, .status-pill--revoked, .status-pill--expired { color: var(--negative); }
   .status-pill--canceled { color: var(--text-tertiary); }
+  .first-delivery-complete { align-items: start; background: color-mix(in srgb, var(--positive) 7%, var(--bg-primary)); border: 1px solid color-mix(in srgb, var(--positive) 22%, var(--border-secondary)); border-radius: var(--radius-xl); display: grid; gap: var(--space-5); grid-template-columns: auto minmax(0, 1fr); margin-bottom: var(--space-8); padding: var(--space-6); transition: opacity var(--transition-enter), transform var(--transition-enter); }
+  .first-delivery-complete__mark { align-items: center; background: var(--positive); border-radius: 50%; color: #fff; display: flex; font-size: 1rem; height: 2.5rem; justify-content: center; width: 2.5rem; }
+  .first-delivery-complete h1 { font-size: clamp(1.5rem, 4vw, 2rem); }
+  .first-delivery-complete p:not(.eyebrow) { color: var(--text-secondary); margin-top: var(--space-3); max-width: 54ch; }
+  .first-delivery-complete__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-5); }
+  @starting-style { .first-delivery-complete { opacity: 0; transform: translateY(0.5rem); } }
   .send-detail { display: grid; gap: var(--space-8); grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.75fr); }
   .detail-files { display: grid; gap: var(--space-3); }
   .detail-files--grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
