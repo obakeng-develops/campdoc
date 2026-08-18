@@ -30,8 +30,6 @@ A sender session must be active before Campsend creates a direct-upload grant. E
 
 Direct uploads use short-lived signed storage requests. The bucket CORS policy should allow `PUT` from the Campsend origin and no broader browser access.
 
-Managed hosting reserves each upload against the uploader's plan before issuing the signed request. The reservation and quota check run while locking the user record so concurrent uploads cannot cross the limit. Unfinished uploads count toward usage until the daily cleanup removes their unattached blob records. Self-hosted installations do not apply account storage quotas.
-
 ## File downloads
 
 Campsend checks the sender or recipient session before every file request. After authorization it redirects to a five-minute Active Storage URL. The bucket remains private.
@@ -48,7 +46,7 @@ Google authorization does not sign a user into Campsend. An active Campsend sess
 
 Campsend receives selected file IDs and a short-lived access token. It encrypts the token before placing it in Solid Queue and does not store a refresh token. The import job asks Google for authoritative name, type, size, download permission, and checksum metadata. It constructs Drive API URLs itself and will not fetch a client-supplied URL.
 
-Each import becomes a private snapshot in Campsend's Active Storage service. Later edits, deletion, or permission changes in Drive do not change a completed snapshot. The snapshot belongs to the importing user, counts toward managed storage, and follows the same My Files, delivery, and deletion rules as a browser upload.
+Each import becomes a private snapshot in Campsend's Active Storage service. Later edits, deletion, or permission changes in Drive do not change a completed snapshot. The snapshot belongs to the importing user and follows the same My Files, delivery, and deletion rules as a browser upload.
 
 The first version accepts binary Drive files. It rejects native Google Workspace documents, folders, shortcuts, blocked downloads, and files over 2 GB. Downloads stream through temporary disk, must match Google's declared size and checksum, and are attached only after storage upload succeeds. Failed imports purge their blob reservation.
 

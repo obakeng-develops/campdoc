@@ -18,7 +18,7 @@ module Authentication
       return if session[:authenticated_at].to_i < SESSION_LIFETIME.ago.to_i
 
       @current_user ||= User.find_by(id: session[:user_id]).tap do |user|
-        WideEvent.add(user_id: user.id, user_plan: user.plan) if user
+        WideEvent.add(user_id: user.id, **Campsend.policy.telemetry_for(user)) if user
       end
     end
 

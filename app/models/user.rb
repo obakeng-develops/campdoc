@@ -1,8 +1,4 @@
 class User < ApplicationRecord
-  PLANS = %w[free pro].freeze
-  STORAGE_LIMITS = { "free" => 2.gigabytes, "pro" => 250.gigabytes }.freeze
-  MONTHLY_SEND_LIMITS = { "free" => 5, "pro" => nil }.freeze
-
   has_many :login_tokens, dependent: :delete_all
   has_many :google_drive_imports, dependent: :delete_all
   has_many :sends, dependent: :destroy
@@ -15,46 +11,20 @@ class User < ApplicationRecord
   validates :email_address, presence: true,
     format: { with: URI::MailTo::EMAIL_REGEXP },
     uniqueness: { case_sensitive: false }
-  validates :plan, inclusion: { in: PLANS }
-
-  StorageLimitExceeded = Class.new(StandardError)
-
   def storage_used
     uploaded_blobs.sum(:byte_size)
-  end
-
-  def storage_limit
-    STORAGE_LIMITS.fetch(plan)
   end
 
   def reserve_blob!(**attributes)
     with_lock do
       byte_size = attributes.fetch(:byte_size).to_i
-      if Rails.configuration.x.managed_hosting && storage_used + byte_size > storage_limit
-        raise StorageLimitExceeded
-      end
-
-      key = "users/#{id}/blobs/#{ActiveStorage::Blob.generate_unique_secure_token}"
-      ActiveStorage::Blob.create_before_direct_upload!(key: key, **attributes).tap do |blob|
-        blob.update!(uploader_id: id)
+      Campsend.policy.admit_storage(user: self, byte_size:) do
+        key = "users/#{id}/blobs/#{ActiveStorage::Blob.generate_unique_secure_token}"
+        ActiveStorage::Blob.create_before_direct_upload!(key: key, **attributes).tap do |blob|
+          blob.update!(uploader_id: id)
+        end
       end
     end
-  end
-
-  def monthly_send_limit
-    MONTHLY_SEND_LIMITS.fetch(plan)
-  end
-
-  def sends_this_month
-    send_usage_month == Time.current.beginning_of_month.to_date ? send_usage_count : 0
-  end
-
-  def record_send!
-    month = Time.current.beginning_of_month.to_date
-    update!(
-      send_usage_month: month,
-      send_usage_count: send_usage_month == month ? send_usage_count + 1 : 1
-    )
   end
 
   def retain_files(blobs)

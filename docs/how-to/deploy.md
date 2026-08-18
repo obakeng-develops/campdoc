@@ -8,7 +8,7 @@ Copy `.env.example` into your secret management system and set every required pr
 
 Generate a unique Rails master key for the installation. Do not commit secrets or a populated environment file.
 
-Campsend defaults to self-hosted mode, where the root page opens sign-in and managed storage and delivery limits are disabled.
+Campsend is unlimited by default. Trusted extensions can add account-level policy through the extension Gemfile hook.
 
 ## Choosing file storage
 

@@ -26,6 +26,6 @@ class SessionsController < ApplicationController
 
   def destroy
     reset_session
-    redirect_to(managed_hosting? ? root_path : new_session_path, notice: "You’re signed out.")
+    redirect_to(root_path, notice: "You’re signed out.")
   end
 end

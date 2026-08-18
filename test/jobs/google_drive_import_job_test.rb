@@ -51,16 +51,6 @@ class GoogleDriveImportJobTest < ActiveSupport::TestCase
     assert_match "access expired", @drive_import.error
   end
 
-  test "rejects imports that exceed managed storage" do
-    reserve_storage(@user, @user.storage_limit)
-
-    with_managed_hosting { stubbed_job.perform(@drive_import, @token) }
-
-    assert_equal "failed", @drive_import.reload.status
-    assert_match "Storage limit reached", @drive_import.error
-    assert_nil @drive_import.blob
-  end
-
   test "allows redirects only to Google download hosts" do
     job = GoogleDriveImportJob.new
 

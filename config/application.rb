@@ -1,6 +1,7 @@
 require_relative "boot"
 
 require "rails/all"
+require_relative "../lib/campsend/policy"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -13,7 +14,6 @@ module Campsend
 
     # Files are only exposed through Campsend's authorization and tracking endpoints.
     config.active_storage.draw_routes = false
-    config.x.managed_hosting = ENV["CAMPSEND_MANAGED"] == "true"
     config.x.google_drive.client_id = ENV["GOOGLE_DRIVE_CLIENT_ID"]
     config.x.google_drive.api_key = ENV["GOOGLE_DRIVE_API_KEY"]
     config.x.google_drive.app_id = ENV["GOOGLE_DRIVE_APP_ID"]

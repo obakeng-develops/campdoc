@@ -17,6 +17,8 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     delete session_path
+    assert_redirected_to root_path
+    follow_redirect!
     assert_redirected_to new_session_path
     follow_redirect!
     assert_response :success
@@ -124,58 +126,9 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_not ActiveStorage::Blob.exists?
   end
 
-  test "managed accounts see plan usage" do
-    user = User.create!(email_address: "sender@example.com")
-    create_uploaded_blob(user)
-
-    with_managed_hosting do
-      sign_in_as(user)
-      get files_path
-
-      assert_response :success
-      assert_select ".plan-usage", count: 2
-      assert_select ".plan-usage", text: /5 Bytes of 2 GB/
-      assert_select ".plan-usage", text: /0 of 5 deliveries sent this month/
-
-      user.update!(plan: "pro")
-      get files_path
-      assert_select ".plan-usage", text: /Pro/, count: 2
-      assert_select ".plan-usage", text: /250 GB/, count: 2
-      assert_select ".plan-usage", text: /deliveries sent this month/, count: 0
-    end
-  end
-
-  test "managed storage is reserved before direct upload" do
-    user = User.create!(email_address: "sender@example.com")
-    reserve_storage(user, user.storage_limit)
-
-    with_managed_hosting do
-      sign_in_as(user)
-
-      assert_no_difference "ActiveStorage::Blob.count" do
-        post rails_direct_uploads_path, params: { blob: blob_params }, as: :json
-      end
-      assert_response :unprocessable_content
-      assert_match "Storage limit reached", response.parsed_body.fetch("error")
-    end
-  end
-
-  test "managed Pro accounts have 250 GB of storage" do
-    user = User.create!(email_address: "sender@example.com", plan: "pro")
-    assert_equal 250.gigabytes, user.storage_limit
-    reserve_storage(user, user.storage_limit)
-
-    with_managed_hosting do
-      sign_in_as(user)
-      post rails_direct_uploads_path, params: { blob: blob_params }, as: :json
-
-      assert_response :unprocessable_content
-    end
-  end
-
   test "self-hosted accounts do not have aggregate storage quotas" do
     user = User.create!(email_address: "sender@example.com")
-    reserve_storage(user, user.storage_limit)
+    reserve_storage(user, 2.gigabytes)
     sign_in_as(user)
 
     assert_difference "ActiveStorage::Blob.count", 1 do
