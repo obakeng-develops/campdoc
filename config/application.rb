@@ -25,6 +25,8 @@ module Campsend
     ].all?(&:present?)
     config.x.recipient_delivery_header_partial = "shared/wordmark"
     config.x.extension_stylesheets = []
+    config.x.recipient_delivery_partials = []
+    config.x.sender_delivery_partials = []
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.

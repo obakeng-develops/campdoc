@@ -11,6 +11,8 @@ class Api::V1::DirectUploadsController < ActiveStorage::DirectUploadsController
     first_delivery = !current_user.sends.exists?
     WideEvent.add(blob_id: blob.id, upload_bytes: blob.byte_size, first_delivery:, upload_operation: "reserved")
     render json: direct_upload_json(blob)
+  rescue User::InvalidUploadSize => error
+    render json: { error: error.message }, status: :bad_request
   rescue Campsend::Policy::Denied => error
     WideEvent.add(outcome: error.outcome)
     render json: { error: error.message }, status: :unprocessable_content
