@@ -27,6 +27,7 @@ class User < ApplicationRecord
 
       Campsend.policy.admit_storage(user: self, byte_size:) do
         key = "users/#{id}/blobs/#{ActiveStorage::Blob.generate_unique_secure_token}"
+        attributes[:service_name] = Campsend.policy.storage_service_name_for(user: self)
         ActiveStorage::Blob.create_before_direct_upload!(key: key, **attributes).tap do |blob|
           blob.update!(uploader_id: id)
         end
