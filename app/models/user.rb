@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  class InvalidUploadSize < StandardError; end
   class UploadTooLarge < StandardError; end
 
   has_many :login_tokens, dependent: :delete_all
@@ -21,6 +22,7 @@ class User < ApplicationRecord
   def reserve_blob!(**attributes)
     with_lock do
       byte_size = attributes.fetch(:byte_size).to_i
+      raise InvalidUploadSize, "File size cannot be negative." if byte_size.negative?
       raise UploadTooLarge, "File exceeds Campsend's 2 GB limit." if byte_size > Send::MAX_SEND_SIZE
 
       Campsend.policy.admit_storage(user: self, byte_size:) do
