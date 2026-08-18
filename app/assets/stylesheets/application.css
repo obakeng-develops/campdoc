@@ -99,12 +99,20 @@
 }
 
 @layer base {
+  @font-face {
+    font-display: swap;
+    font-family: "Cal Sans UI";
+    font-style: normal;
+    font-weight: 300 700;
+    src: url("cal-sans-ui.woff2") format("woff2");
+  }
+
   html { font-size: 100%; text-size-adjust: none; }
 
   body {
     background: var(--bg-main);
     color: var(--text-primary);
-    font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: "Cal Sans UI", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     font-size: 0.9375rem;
     line-height: 1.45;
     -webkit-font-smoothing: antialiased;
