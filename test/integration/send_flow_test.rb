@@ -204,6 +204,7 @@ class SendFlowTest < ActionDispatch::IntegrationTest
 
     get delivery_path(public_id: send_record.public_id)
     assert_equal "shared/wordmark", Rails.configuration.x.recipient_delivery_header_partial
+    assert_empty Rails.configuration.x.sidebar_navigation_partials
     assert_select ".delivery-header .wordmark-logo", text: "Campsend"
     assert_select "form[data-turbo='false'][action='#{download_delivery_file_path(public_id: send_record.public_id, id: send_record.files.first.id)}']"
 
