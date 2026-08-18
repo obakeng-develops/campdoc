@@ -7,7 +7,7 @@
   </header>
 
   <section class="delivery-intro">
-    <p class="eyebrow">A delivery for <%= @send.recipient_name %></p>
+    <p class="eyebrow"><%= @send.latest_revision.collection_name.presence || "A delivery for #{@send.recipient_name}" %></p>
     <h1><%= @send.user.email_address %> sent you <%= pluralize(@send.files.size, "file") %>.</h1>
     <% if @send.message.present? %><blockquote>“<%= @send.message %>”</blockquote><% end %>
   </section>

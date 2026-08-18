@@ -2,6 +2,7 @@ class Sends::RevisionsController < ApplicationController
   def create
     delivery = current_user.sends.find(params[:send_id])
     return redirect_to delivery, alert: "Canceled deliveries cannot be updated." if delivery.canceled?
+    return redirect_to delivery, alert: "Collection deliveries update from their collection." if delivery.collection_id?
 
     attributes = params.expect(revision: [ :attachment_id, :file ])
     return head :bad_request unless attributes[:file].is_a?(String)

@@ -4,6 +4,7 @@ class Send < ApplicationRecord
   MAX_SEND_SIZE = 2.gigabytes
 
   belongs_to :user
+  belongs_to :collection, optional: true
   has_secure_token :public_id
   has_many :delivery_revisions, -> { order(number: :asc) }, inverse_of: :delivery, dependent: :destroy, autosave: true
   has_one :latest_revision, -> { order(number: :desc) }, class_name: "DeliveryRevision", inverse_of: :delivery
@@ -19,6 +20,7 @@ class Send < ApplicationRecord
   validate :revision_is_valid
   validate :scheduled_at_is_future, if: :will_save_change_to_scheduled_at?
   validate :publication_state_is_consistent
+  validate :collection_belongs_to_sender
 
   scope :with_attached_files, -> { includes(latest_revision: { files_attachments: :blob }) }
 
@@ -33,13 +35,21 @@ class Send < ApplicationRecord
   end
 
   def replace_file!(attachment_id, replacement_blob)
+    raise ActiveRecord::ReadOnlyRecord, "Collection deliveries follow their collection" if collection_id?
+
     with_lock do
       current = delivery_revisions.includes(files_attachments: :blob).order(number: :desc).first!
       replaced = current.files.attachments.find(attachment_id)
       blobs = current.files.attachments.map { |attachment| attachment == replaced ? replacement_blob : attachment.blob }
-      revision = delivery_revisions.create!(number: current.number + 1, files: blobs)
-      association(:latest_revision).reset
-      revision
+      append_revision!(blobs:)
+    end
+  end
+
+  def revise_from_collection!(source)
+    raise ActiveRecord::RecordNotFound unless collection_id == source.id && user_id == source.user_id
+
+    with_lock do
+      append_revision!(blobs: source.blobs.to_a, collection_name: source.name)
     end
   end
 
@@ -141,9 +151,19 @@ class Send < ApplicationRecord
 
   private
     def files_revision
-      return @initial_revision ||= delivery_revisions.build(number: 1) if new_record?
+      if new_record?
+        @initial_revision ||= delivery_revisions.build(number: 1, collection_name: collection&.name)
+        return @initial_revision
+      end
 
       latest_revision
+    end
+
+    def append_revision!(blobs:, collection_name: nil)
+      current = delivery_revisions.reorder(number: :desc).first!
+      delivery_revisions.create!(number: current.number + 1, files: blobs, collection_name:).tap do
+        association(:latest_revision).reset
+      end
     end
 
     def revision_is_valid
@@ -156,5 +176,9 @@ class Send < ApplicationRecord
 
     def publication_state_is_consistent
       errors.add(:base, "A delivery cannot be published and canceled") if published? && canceled?
+    end
+
+    def collection_belongs_to_sender
+      errors.add(:collection, "must belong to you") if collection && collection.user_id != user_id
     end
 end

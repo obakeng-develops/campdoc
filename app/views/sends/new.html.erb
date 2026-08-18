@@ -18,34 +18,53 @@
   <div class="form-errors" role="alert" data-upload-progress-target="error" hidden></div>
 
   <div class="send-files-column">
-    <div class="drop-zone" role="button" tabindex="0" aria-label="Choose files to send" data-file-drop-target="zone" data-action="dragover->file-drop#dragOver dragleave->file-drop#dragLeave drop->file-drop#drop click->file-drop#choose keydown.enter->file-drop#choose keydown.space->file-drop#choose">
-      <%= form.file_field :files, multiple: true, direct_upload: true, class: "visually-hidden", data: { file_drop_target: "input", action: "change->file-drop#changed" } %>
-      <div class="drop-prompt" data-file-drop-target="prompt">
-        <div class="drop-icon" aria-hidden="true">↑</div>
-        <strong>Drop files here</strong>
-        <span>or choose from your computer</span>
-        <small>Any file type. Up to 20 files, 2 GB total.</small>
-      </div>
-      <div class="selected-state" data-file-drop-target="state" hidden>
-        <div class="selected-files" data-file-drop-target="list" aria-live="polite"></div>
-        <button type="button" class="change-files" data-file-drop-target="change" data-action="file-drop#choose">Choose different files</button>
-      </div>
-    </div>
-
-    <% if @library_files.any? %>
-      <fieldset class="library-picker">
-        <legend class="visually-hidden">Recent files from My Files</legend>
-        <div class="library-picker__heading"><span>Recent files from My Files</span><%= link_to "View all My Files", files_path %></div>
-        <div>
-          <% @library_files.each do |file| %>
-            <%= check_box_tag "send[files][]", file.blob.signed_id, file.id == @selected_file_id, id: "library_file_#{file.id}" %>
-            <%= label_tag "library_file_#{file.id}" do %>
-              <span class="library-picker__file-icon"><%= file_kind(file.blob) %></span>
-              <span><strong><%= file.filename %></strong><small><%= number_to_human_size(file.byte_size) %></small></span>
-            <% end %>
-          <% end %>
+    <% if @collection %>
+      <%= form.hidden_field :collection_id, value: @collection.id %>
+      <section class="selected-collection">
+        <p class="eyebrow">Collection</p>
+        <h2><%= @collection.name %></h2>
+        <span><%= pluralize(@collection.blobs.size, "file") %> · <%= number_to_human_size(@collection.size_bytes) %></span>
+        <ul>
+          <% @collection.blobs.each do |blob| %><li><%= blob.filename %></li><% end %>
+        </ul>
+        <%= link_to "Choose separate files", new_send_path, class: "button button--quiet" %>
+      </section>
+    <% else %>
+      <% if @collections.any? %>
+        <section class="collection-picker">
+          <span>Or send a collection</span>
+          <div><% @collections.each do |collection| %><%= link_to collection.name, new_send_path(collection_id: collection.id), class: "button button--quiet" %><% end %></div>
+        </section>
+      <% end %>
+      <div class="drop-zone" role="button" tabindex="0" aria-label="Choose files to send" data-file-drop-target="zone" data-action="dragover->file-drop#dragOver dragleave->file-drop#dragLeave drop->file-drop#drop click->file-drop#choose keydown.enter->file-drop#choose keydown.space->file-drop#choose">
+        <%= form.file_field :files, multiple: true, direct_upload: true, class: "visually-hidden", data: { file_drop_target: "input", action: "change->file-drop#changed" } %>
+        <div class="drop-prompt" data-file-drop-target="prompt">
+          <div class="drop-icon" aria-hidden="true">↑</div>
+          <strong>Drop files here</strong>
+          <span>or choose from your computer</span>
+          <small>Any file type. Up to 20 files, 2 GB total.</small>
         </div>
-      </fieldset>
+        <div class="selected-state" data-file-drop-target="state" hidden>
+          <div class="selected-files" data-file-drop-target="list" aria-live="polite"></div>
+          <button type="button" class="change-files" data-file-drop-target="change" data-action="file-drop#choose">Choose different files</button>
+        </div>
+      </div>
+
+      <% if @library_files.any? %>
+        <fieldset class="library-picker">
+          <legend class="visually-hidden">Recent files from My Files</legend>
+          <div class="library-picker__heading"><span>Recent files from My Files</span><%= link_to "View all My Files", files_path %></div>
+          <div>
+            <% @library_files.each do |file| %>
+              <%= check_box_tag "send[files][]", file.blob.signed_id, file.id == @selected_file_id, id: "library_file_#{file.id}" %>
+              <%= label_tag "library_file_#{file.id}" do %>
+                <span class="library-picker__file-icon"><%= file_kind(file.blob) %></span>
+                <span><strong><%= file.filename %></strong><small><%= number_to_human_size(file.byte_size) %></small></span>
+              <% end %>
+            <% end %>
+          </div>
+        </fieldset>
+      <% end %>
     <% end %>
   </div>
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_18_110001) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_18_130001) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -31,6 +31,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_110001) do
     t.text "metadata"
     t.string "service_name", null: false
     t.integer "uploader_id"
+    t.index ["id", "uploader_id"], name: "index_active_storage_blobs_on_id_and_uploader_id", unique: true
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
     t.index ["uploader_id"], name: "index_active_storage_blobs_on_uploader_id"
   end
@@ -41,7 +42,35 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_110001) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "collection_files", force: :cascade do |t|
+    t.integer "blob_id", null: false
+    t.integer "collection_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "position", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["blob_id"], name: "index_collection_files_on_blob_id"
+    t.index ["collection_id", "blob_id"], name: "index_collection_files_on_collection_id_and_blob_id", unique: true
+    t.index ["collection_id", "position"], name: "index_collection_files_on_collection_id_and_position", unique: true
+    t.index ["collection_id"], name: "index_collection_files_on_collection_id"
+    t.index ["user_id"], name: "index_collection_files_on_user_id"
+    t.check_constraint "position > 0", name: "collection_files_positive_position"
+  end
+
+  create_table "collections", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "removed_at"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["id", "user_id"], name: "index_collections_on_id_and_user_id", unique: true
+    t.index ["user_id", "name"], name: "index_collections_on_user_id_and_name", unique: true, where: "removed_at IS NULL"
+    t.index ["user_id"], name: "index_collections_on_user_id"
+    t.check_constraint "length(trim(name)) BETWEEN 1 AND 100", name: "collections_name_length"
+  end
+
   create_table "delivery_revisions", force: :cascade do |t|
+    t.string "collection_name"
     t.datetime "created_at", null: false
     t.integer "number", null: false
     t.integer "send_id", null: false
@@ -94,6 +123,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_110001) do
     t.datetime "access_revoked_at"
     t.string "access_token_digest"
     t.datetime "canceled_at"
+    t.integer "collection_id"
     t.datetime "created_at", null: false
     t.string "email_status", default: "pending", null: false
     t.text "message"
@@ -106,6 +136,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_110001) do
     t.integer "user_id", null: false
     t.index ["access_token_digest"], name: "index_sends_on_access_token_digest", unique: true
     t.index ["canceled_at", "published_at", "scheduled_at"], name: "index_sends_on_canceled_at_and_published_at_and_scheduled_at"
+    t.index ["collection_id"], name: "index_sends_on_collection_id"
     t.index ["public_id"], name: "index_sends_on_public_id", unique: true
     t.index ["published_at"], name: "index_sends_on_published_at"
     t.index ["recipient_email"], name: "index_sends_on_recipient_email"
@@ -123,10 +154,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_110001) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_blobs", "users", column: "uploader_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "collection_files", "active_storage_blobs", column: ["blob_id", "user_id"], primary_key: ["id", "uploader_id"]
+  add_foreign_key "collection_files", "collections", column: ["collection_id", "user_id"], primary_key: ["id", "user_id"]
+  add_foreign_key "collection_files", "users"
+  add_foreign_key "collections", "users"
   add_foreign_key "delivery_revisions", "sends"
   add_foreign_key "google_drive_imports", "active_storage_blobs", column: "blob_id", on_delete: :nullify
   add_foreign_key "google_drive_imports", "users"
   add_foreign_key "login_tokens", "users"
   add_foreign_key "send_events", "sends"
+  add_foreign_key "sends", "collections", column: ["collection_id", "user_id"], primary_key: ["id", "user_id"]
   add_foreign_key "sends", "users"
 end

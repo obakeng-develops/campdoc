@@ -2,6 +2,7 @@ class User < ApplicationRecord
   has_many :login_tokens, dependent: :delete_all
   has_many :google_drive_imports, dependent: :delete_all
   has_many :sends, dependent: :destroy
+  has_many :collections, dependent: :destroy
   has_many :received_sends, class_name: "Send", foreign_key: :recipient_email, primary_key: :email_address
   has_many :uploaded_blobs, class_name: "ActiveStorage::Blob", foreign_key: :uploader_id, inverse_of: false
   has_many_attached :files

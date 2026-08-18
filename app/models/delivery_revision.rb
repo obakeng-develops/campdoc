@@ -3,6 +3,7 @@ class DeliveryRevision < ApplicationRecord
   has_many_attached :files
 
   validates :number, numericality: { only_integer: true, greater_than: 0 }, uniqueness: { scope: :send_id }
+  validates :collection_name, length: { maximum: 100 }, allow_nil: true
   validate :files_are_attached
   validate :files_are_within_limits
   validate :files_belong_to_sender
