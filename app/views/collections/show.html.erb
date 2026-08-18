@@ -1,12 +1,15 @@
 <% content_for :title, "#{@collection.name} · Campsend" %>
 
 <div class="detail-heading">
-  <%= link_to collections_path, class: "back-link" do %><span aria-hidden="true">←</span> Collections<% end %>
+  <div class="detail-heading__title">
+    <%= link_to collections_path, class: "back-link" do %><span aria-hidden="true">←</span> Collections<% end %>
+    <h1><%= @collection.name %></h1>
+  </div>
   <%= link_to "Send collection", new_send_path(collection_id: @collection.id), class: "button button--primary" if @collection.blobs.any? %>
 </div>
 
 <section class="collection-detail">
-  <div class="collection-detail__heading">
+  <div class="collection-settings">
     <%= form_with model: @collection, class: "collection-rename" do |form| %>
       <div class="field">
         <%= form.label :name, "Collection name" %>
@@ -14,7 +17,13 @@
       </div>
       <%= form.submit "Rename", class: "button" %>
     <% end %>
-    <%= button_to "Remove collection", collection_path(@collection), method: :delete, class: "button button--quiet", form: { data: { turbo_confirm: "Remove this collection? Existing deliveries will keep their latest files." } } %>
+    <div class="collection-settings__remove">
+      <div>
+        <strong>Remove collection</strong>
+        <span>Existing deliveries will keep their latest files.</span>
+      </div>
+      <%= button_to "Remove", collection_path(@collection), method: :delete, class: "button button--quiet", form: { data: { turbo_confirm: "Remove this collection? Existing deliveries will keep their latest files." } } %>
+    </div>
   </div>
 
   <% if @available_files.any? %>

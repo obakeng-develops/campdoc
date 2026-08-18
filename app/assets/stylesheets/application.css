@@ -6,7 +6,7 @@
   body { min-height: 100vh; }
   img, svg { display: block; max-width: 100%; }
   [hidden] { display: none; }
-  button, input, textarea { font: inherit; }
+  button, input, select, textarea { font: inherit; }
   button, a { -webkit-tap-highlight-color: transparent; }
 }
 
@@ -116,12 +116,12 @@
   h2 { font-size: 1.25rem; font-weight: 650; }
   strong { font-weight: 600; }
 
-  :is(a, button, input, textarea):focus-visible {
+  :is(a, button, input, select, textarea):focus-visible {
     outline: 2px solid var(--focus);
     outline-offset: 2px;
   }
 
-  input, textarea {
+  input, select, textarea {
     width: 100%;
     border: 1px solid var(--border-primary);
     border-radius: var(--radius-sm);
@@ -132,7 +132,7 @@
   }
 
   input::placeholder, textarea::placeholder { color: var(--text-quaternary); }
-  input:focus, textarea:focus { border-color: var(--focus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 15%, transparent); outline: none; }
+  input:focus, select:focus, textarea:focus { border-color: var(--focus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 15%, transparent); outline: none; }
   textarea { min-height: 6.5rem; resize: vertical; }
 }
 
@@ -223,12 +223,13 @@
   .auth-form { display: grid; gap: var(--space-4); }
   .fine-print { color: var(--text-quaternary); font-size: 0.75rem; margin-top: var(--space-6); text-align: center; }
 
-  .field { display: grid; gap: var(--space-2); }
+  .field { display: grid; gap: var(--space-2); min-width: 0; }
   .field label { font-size: 0.8125rem; font-weight: 600; }
   .label-row { align-items: center; display: flex; justify-content: space-between; }
   .label-row span { color: var(--text-quaternary); font-size: 0.75rem; }
 
   .page-heading, .detail-heading { align-items: center; display: flex; justify-content: space-between; margin-bottom: var(--space-8); }
+  .detail-heading__title { display: grid; gap: var(--space-3); }
   .eyebrow { color: var(--text-tertiary); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; margin-bottom: var(--space-2); text-transform: uppercase; }
 
   .send-stream { display: grid; gap: var(--space-3); }
@@ -308,7 +309,11 @@
   .collection-card > div, .collection-members li > div { display: grid; }
   .collection-card span, .collection-members span, .selected-collection > span { color: var(--text-tertiary); font-size: 0.75rem; }
   .collection-detail { display: grid; gap: var(--space-6); }
-  .collection-detail__heading { align-items: end; display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr) auto; }
+  .collection-settings { background: var(--bg-primary); border: 1px solid var(--border-secondary); border-radius: var(--radius-lg); }
+  .collection-settings .collection-rename { border: 0; }
+  .collection-settings__remove { align-items: center; border-top: 1px solid var(--border-secondary); display: flex; gap: var(--space-4); justify-content: space-between; padding: var(--space-4); }
+  .collection-settings__remove > div { display: grid; }
+  .collection-settings__remove span { color: var(--text-tertiary); font-size: 0.75rem; }
   .selected-collection { background: var(--bg-primary); border: 1px solid var(--border-secondary); border-radius: var(--radius-xl); min-height: 31rem; padding: var(--space-6); }
   .selected-collection > ul { display: grid; gap: var(--space-2); list-style: none; margin: var(--space-6) 0; }
   .selected-collection > ul li { border-bottom: 1px solid var(--border-secondary); padding-bottom: var(--space-2); }
@@ -462,6 +467,10 @@
   .file-replacement { align-items: stretch; flex-direction: column; }
   .file-replacement .button { width: 100%; }
   .library-picker > div { grid-template-columns: 1fr; }
+  .collection-create, .collection-rename, .collection-add-file { align-items: stretch; grid-template-columns: 1fr; }
+  .collection-create .button, .collection-rename .button, .collection-add-file .button { width: 100%; }
+  .collection-settings__remove { align-items: stretch; flex-direction: column; }
+  .collection-settings__remove .button { width: 100%; }
   .delivery-intro { margin-top: var(--space-12); }
   .delivery-file__footer { align-items: stretch; flex-direction: column; }
   .delivery-file__footer .button { width: 100%; }
