@@ -152,7 +152,8 @@
   .sidebar-nav { display: grid; gap: var(--space-1); }
   .sidebar-link { color: var(--text-secondary); }
   .sidebar-link.active { background: var(--bg-tertiary); color: var(--text-primary); }
-  .sidebar-account { align-items: center; border-top: 1px solid var(--border-secondary); display: grid; gap: var(--space-2); grid-template-columns: auto minmax(0, 1fr) auto; margin-top: auto; padding: var(--space-4) var(--space-2) 0; }
+  .sidebar-footer { display: grid; margin-top: auto; }
+  .sidebar-account { align-items: center; border-top: 1px solid var(--border-secondary); display: grid; gap: var(--space-2); grid-template-columns: auto minmax(0, 1fr) auto; padding: var(--space-4) var(--space-2) 0; }
   .sidebar-account__email { color: var(--text-secondary); font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .sidebar-signout { align-items: center; background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--text-tertiary); cursor: pointer; display: flex; height: 2rem; justify-content: center; padding: 0; width: 2rem; }
   .mobile-header { display: none; }

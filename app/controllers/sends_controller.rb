@@ -43,7 +43,7 @@ class SendsController < ApplicationController
       DeliveryEmailJob.enqueue(@send)
       notice = @send.scheduled? ? "Delivery scheduled." : "We’re emailing the delivery link to #{@send.recipient_email}."
       session[:first_delivery_completed_id] = @send.id if @first_delivery
-      redirect_to send_path(@send, onboarding: ("complete" if @first_delivery)), notice: notice
+      redirect_to send_path(@send, onboarding: ("complete" if @first_delivery)), notice: (notice unless @first_delivery)
     else
       WideEvent.add(first_delivery: true, onboarding_event: "first_delivery_failed") if @first_delivery
       set_send_sources

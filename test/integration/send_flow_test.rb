@@ -25,6 +25,7 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to send_path(send_record, onboarding: "complete")
     follow_redirect!
     assert_response :success
+    assert_select ".flash", text: /emailing the delivery link/, count: 0
     assert_select ".first-delivery-complete", text: /Your delivery is on its way/
     assert_select "meta[http-equiv='refresh'][content='3;url=#{send_path(send_record)}']"
     assert_select "a[href='#{new_send_path}']", text: "Send another"
