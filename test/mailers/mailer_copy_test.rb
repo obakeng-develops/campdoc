@@ -36,4 +36,15 @@ class MailerCopyTest < ActionMailer::TestCase
     assert_equal "sender@example.com sent you 2 files", mail.subject
     assert_includes mail.text_part.body.decoded, "View files:"
   end
+
+  test "delivery email uses a sender-chosen slug" do
+    sender = User.create!(email_address: "sender@example.com")
+    delivery = sender.sends.new(recipient_email: "sam@example.com", slug: "client-files", files: [ create_uploaded_blob(sender) ])
+    token = delivery.issue_access_token
+    delivery.save!
+
+    mail = DeliveryMailer.with(send: delivery, access_token: token).files_ready
+
+    assert_includes mail.text_part.body.decoded, "/d/client-files#token="
+  end
 end

@@ -8,7 +8,7 @@
     <h1><%= @send.user.email_address %> sent you a delivery.</h1>
     <p>Continue to view the files. This delivery is available until <%= @send.access_expires_at.to_date.to_fs(:long) %>.</p>
   </div>
-  <%= form_with url: delivery_access_path(public_id: @send.public_id), class: "auth-form" do |form| %>
+  <%= form_with url: delivery_access_path(public_id: @send.delivery_identifier), class: "auth-form" do |form| %>
     <%= form.hidden_field :token, data: { secret_fragment_target: "input" } %>
     <%= form.submit "View files", class: "button button--primary button--wide", disabled: true, data: { secret_fragment_target: "submit" } %>
   <% end %>

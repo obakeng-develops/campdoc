@@ -52,6 +52,9 @@
         <% end %>
       </p>
     <% end %>
+    <% if @send.slug.present? %>
+      <p class="access-summary">Delivery path: <strong>/d/<%= @send.slug %></strong></p>
+    <% end %>
     <% if @send.message.present? %><blockquote>“<%= @send.message %>”</blockquote><% end %>
 
     <ol class="event-ledger" aria-label="Delivery activity">
@@ -88,8 +91,10 @@
           <%= button_to "Restore access and email a new link", rotate_access_send_path(@send), class: "button", form: { data: { turbo_confirm: "Restore recipient access and email a new link?" } } %>
         <% end %>
       <% end %>
-      <% if @send.published? %>
+      <% if @send.published? && @send.slug.blank? %>
         <%= button_to "Delete delivery", send_path(@send), method: :delete, class: "button button--quiet", form: { data: { turbo_confirm: "Delete this delivery and its activity? Files kept in My Files will remain." } } %>
+      <% elsif @send.published? && @send.slug.present? %>
+        <span class="fine-print">Published delivery paths cannot be deleted or reused.</span>
       <% end %>
     </div>
   </div>

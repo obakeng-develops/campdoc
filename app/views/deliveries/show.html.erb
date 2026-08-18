@@ -1,6 +1,6 @@
 <% content_for :title, "Files from #{@send.user.email_address} · Campsend" %>
 
-<div class="delivery-page" data-controller="delivery-open" data-delivery-open-url-value="<%= delivery_opened_path(public_id: @send.public_id) %>">
+<div class="delivery-page" data-controller="delivery-open" data-delivery-open-url-value="<%= delivery_opened_path(public_id: @send.delivery_identifier) %>">
   <header class="delivery-header">
     <div class="auth-brand"><%= render "shared/wordmark" %></div>
     <span>Available until <%= @send.access_expires_at.strftime("%b %-d, %Y") %></span>
@@ -17,14 +17,14 @@
       <article class="delivery-file">
         <div class="delivery-file__preview">
           <% if previewable_image?(file) %>
-            <%= image_tag delivery_file_path(public_id: @send.public_id, id: file.id), alt: file.filename.to_s %>
+            <%= image_tag delivery_file_path(public_id: @send.delivery_identifier, id: file.id), alt: file.filename.to_s %>
           <% else %>
             <div class="file-glyph file-glyph--hero"><span><%= file_kind(file) %></span></div>
           <% end %>
         </div>
         <div class="delivery-file__footer">
           <div><strong><%= file.filename %></strong><span><%= number_to_human_size(file.byte_size) %></span></div>
-          <%= button_to "Download", download_delivery_file_path(public_id: @send.public_id, id: file.id), class: "button button--primary", form: { data: { turbo: false } } %>
+          <%= button_to "Download", download_delivery_file_path(public_id: @send.delivery_identifier, id: file.id), class: "button button--primary", form: { data: { turbo: false } } %>
         </div>
       </article>
     <% end %>
