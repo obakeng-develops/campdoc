@@ -19,6 +19,7 @@ class WideEventTest < ActionDispatch::IntegrationTest
     assert_equal true, event["main"]
     assert_equal "campsend", event["service_name"]
     assert_equal "test", event["service_environment"]
+    assert_equal Campsend::VERSION, event["service_version"]
     assert_equal "GET", event["method"]
     assert_equal "/files", event["path"]
     assert_equal 200, event["status"]
