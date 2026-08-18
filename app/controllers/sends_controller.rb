@@ -146,7 +146,7 @@ class SendsController < ApplicationController
     end
 
     def set_send_sources
-      @collections = current_user.collections.active.includes(:blobs).order(:name)
+      @collections = current_user.collections.active.joins(:collection_files).distinct.includes(:blobs).order(:name)
       @collection ||= @collections.find { |collection| collection.id.to_s == (params[:collection_id] || params.dig(:send, :collection_id)).to_s }
       files = current_user.files.attachments.includes(:blob).order(created_at: :desc)
       selected_file = files.find_by(id: params[:file_id])

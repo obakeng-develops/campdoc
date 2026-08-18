@@ -14,9 +14,15 @@ class CollectionsFlowTest < ActionDispatch::IntegrationTest
     end
     collection = Collection.last
 
+    get new_send_path
+    assert_select "a.collection-card", text: /Client files/, count: 0
+
     post collection_files_path(collection), params: { attachment_id: file.id }
     assert_redirected_to collection_path(collection)
     assert_equal %w[contract.txt], collection.reload.blobs.map { |blob| blob.filename.to_s }
+
+    get new_send_path
+    assert_select "a.collection-card", text: /Client files/
 
     patch collection_path(collection), params: { collection: { name: "Final files" } }
     assert_equal "Final files", collection.reload.name

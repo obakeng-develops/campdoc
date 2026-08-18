@@ -4,7 +4,7 @@
   <%= link_to files_path, class: "back-link" do %><span aria-hidden="true">←</span> Back to My Files<% end %>
   <div>
     <p class="eyebrow">New delivery</p>
-    <h1>Choose files to send.</h1>
+    <h1><%= @collection ? "Send #{@collection.name}." : "Choose what to send." %></h1>
   </div>
 </div>
 
@@ -31,10 +31,24 @@
       </section>
     <% else %>
       <% if @collections.any? %>
-        <section class="collection-picker">
-          <span>Or send a collection</span>
-          <div><% @collections.each do |collection| %><%= link_to collection.name, new_send_path(collection_id: collection.id), class: "button button--quiet" %><% end %></div>
+        <section class="compose-collections">
+          <div class="compose-collections__heading">
+            <strong>Send a collection</strong>
+            <%= link_to "Manage collections", collections_path %>
+          </div>
+          <div class="collection-list">
+            <% @collections.each do |collection| %>
+              <%= link_to new_send_path(collection_id: collection.id), class: "collection-card collection-card--compact" do %>
+                <div>
+                  <strong><%= collection.name %></strong>
+                  <span><%= pluralize(collection.blobs.size, "file") %> · <%= number_to_human_size(collection.size_bytes) %></span>
+                </div>
+                <span aria-hidden="true">→</span>
+              <% end %>
+            <% end %>
+          </div>
         </section>
+        <p class="send-source-label">Or send separate files</p>
       <% end %>
       <div class="drop-zone" role="button" tabindex="0" aria-label="Choose files to send" data-file-drop-target="zone" data-action="dragover->file-drop#dragOver dragleave->file-drop#dragLeave drop->file-drop#drop click->file-drop#choose keydown.enter->file-drop#choose keydown.space->file-drop#choose">
         <%= form.file_field :files, multiple: true, direct_upload: true, class: "visually-hidden", data: { file_drop_target: "input", action: "change->file-drop#changed" } %>
@@ -86,7 +100,7 @@
       <%= form.text_area :message, rows: 3, maxlength: 500, placeholder: "Add context for the recipient" %>
     </div>
     <%= render "schedule_fields", form: form %>
-    <%= form.submit "Send files", class: "button button--primary button--wide button--send", data: { upload_progress_target: "submit" } %>
+    <%= form.submit @collection ? "Send collection" : "Send files", class: "button button--primary button--wide button--send", data: { upload_progress_target: "submit" } %>
     <p class="privacy-note"><span aria-hidden="true">⌁</span> The link expires after 30 days. Anyone with the full link can open it.</p>
   </div>
 <% end %>
