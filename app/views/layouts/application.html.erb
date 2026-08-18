@@ -24,7 +24,10 @@
     <link rel="apple-touch-icon" href="/icon.png">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
-    <%= stylesheet_link_tag :app, *Rails.configuration.x.extension_stylesheets, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <% Rails.configuration.x.extension_stylesheets.each do |stylesheet| %>
+      <%= stylesheet_link_tag stylesheet, "data-turbo-track": "reload" %>
+    <% end %>
   </head>
 
   <% app_shell = authenticated? && controller_name != "home" %>
