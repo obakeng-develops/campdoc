@@ -10,11 +10,13 @@ Campsend stores a SHA-256 digest of the token. The link expires after 15 minutes
 
 ## Delivery links
 
-Recipient links use the same fragment exchange pattern. A successful exchange stores the delivery public ID in the recipient's encrypted browser session. The browser can keep up to ten delivery grants.
+Recipient links use the same fragment exchange pattern. A sender may choose a public delivery slug, but the slug only identifies the delivery and never grants access. Slugs are visible to recipients and must not contain secrets. A successful exchange stores the random delivery public ID in the recipient's encrypted browser session. The browser can keep up to ten delivery grants.
 
 A signed-in user can also discover active deliveries addressed to their normalized account email in Shared with me. The matching account may open those deliveries without the bearer token. Recipients without accounts can continue using the complete delivery link, and a signed-in account with a different email gains no additional access.
 
 Delivery links expire after 30 days. A sender can revoke one or rotate it by emailing a fresh token. Rotation and email delivery happen in one locked database transaction, so an SMTP failure preserves the previous working link.
+
+Published slugs cannot be changed, deleted, or reused. A sender can revoke recipient access while the durable path continues to resolve to the generic unavailable page.
 
 Known expired and revoked deliveries return a generic unavailable page without exposing recipient details. Unknown delivery IDs continue to use the standard not-found response.
 

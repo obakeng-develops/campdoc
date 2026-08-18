@@ -80,7 +80,7 @@ class DeliveryEmailJobTest < ActiveSupport::TestCase
 
     assert_raises(RuntimeError) { DeliveryAccessEmailJob.new.perform(@delivery) }
 
-    assert Send.find_by_access_token(@delivery.public_id, original_token)
+    assert @delivery.reload.access_token_valid?(original_token)
     assert_equal "sent", @delivery.reload.status
     assert @delivery.email_status_failed?
   ensure

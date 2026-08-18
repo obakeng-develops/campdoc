@@ -37,6 +37,35 @@ class SendTest < ActiveSupport::TestCase
     assert_not send_record.access_active?
   end
 
+  test "normalizes and resolves an optional delivery slug" do
+    send_record = create_send(slug: " Project-Update ")
+
+    assert_equal "project-update", send_record.slug
+    assert_equal "project-update", send_record.delivery_identifier
+    assert_equal send_record, Send.find_by_delivery_identifier("project-update")
+    assert_equal send_record, Send.find_by_delivery_identifier(send_record.public_id)
+  end
+
+  test "rejects unsafe reserved and duplicate slugs" do
+    assert_not build_send(slug: "project update").valid?
+    assert_not build_send(slug: "files").valid?
+
+    create_send(slug: "project-update")
+    duplicate = build_send(slug: "project-update")
+    assert_not duplicate.valid?
+    assert_includes duplicate.errors[:slug], "has already been taken"
+  end
+
+  test "published slugs cannot change or be deleted" do
+    send_record = create_send(slug: "project-update")
+    send_record.record_event!(:sent)
+
+    assert_not send_record.update(slug: "new-path")
+    assert_includes send_record.errors[:slug], "cannot change after publication"
+    assert_not send_record.destroy
+    assert Send.exists?(send_record.id)
+  end
+
   test "display status prioritizes email and access state" do
     send_record = create_send
     assert_equal "sending", send_record.display_status
@@ -161,10 +190,15 @@ class SendTest < ActiveSupport::TestCase
   end
 
   private
-    def create_send
-      send_record = @user.sends.new(recipient_email: "sam@example.com")
+    def build_send(slug: nil)
+      send_record = @user.sends.new(recipient_email: "sam@example.com", slug:)
       send_record.issue_access_token
       send_record.files.attach(create_uploaded_blob(@user))
+      send_record
+    end
+
+    def create_send(slug: nil)
+      send_record = build_send(slug:)
       send_record.save!
       send_record
     end

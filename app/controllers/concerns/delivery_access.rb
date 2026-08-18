@@ -7,7 +7,7 @@ module DeliveryAccess
 
   private
     def find_delivery
-      Send.with_attached_files.find_by!(public_id: params[:public_id])
+      Send.with_attached_files.find_by_delivery_identifier!(params[:public_id])
     end
 
     def require_delivery_access

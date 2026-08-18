@@ -132,6 +132,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_130001) do
     t.datetime "published_at"
     t.string "recipient_email", null: false
     t.datetime "scheduled_at"
+    t.string "slug"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["access_token_digest"], name: "index_sends_on_access_token_digest", unique: true
@@ -140,6 +141,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_130001) do
     t.index ["public_id"], name: "index_sends_on_public_id", unique: true
     t.index ["published_at"], name: "index_sends_on_published_at"
     t.index ["recipient_email"], name: "index_sends_on_recipient_email"
+    t.index ["slug"], name: "index_sends_on_slug", unique: true
     t.index ["user_id"], name: "index_sends_on_user_id"
     t.check_constraint "published_at IS NULL OR canceled_at IS NULL", name: "sends_publication_state"
   end

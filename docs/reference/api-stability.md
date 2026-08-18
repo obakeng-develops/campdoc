@@ -17,7 +17,7 @@ Controlled failures return JSON in the form `{"error":"message"}` with an approp
 
 ## Durable links
 
-Delivery URLs under `/d/:public_id` and sign-in URLs under `/sign-in/:public_id` are unversioned public contracts. Campsend does not change or reuse a published identifier. New behavior must preserve previously issued links.
+Delivery URLs under `/d/:identifier` and sign-in URLs under `/sign-in/:public_id` are unversioned public contracts. A delivery identifier can be its random public ID or an optional sender-chosen slug. Previously issued public-ID links remain valid. Campsend does not change, delete, or reuse a published slug.
 
 ## Browser routes
 
