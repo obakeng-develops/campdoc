@@ -195,6 +195,7 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal "private, no-store", response.headers["Cache-Control"]
     assert_select "h1", text: "sender@example.com sent you a delivery."
+    assert_select ".auth-brand .wordmark-logo", text: "Campsend"
     assert_select "[data-secret-fragment-target='message'][hidden]", text: /link is incomplete/
     assert_not send_record.send_events.opened.exists?
 
@@ -202,6 +203,8 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to delivery_path(public_id: send_record.public_id)
 
     get delivery_path(public_id: send_record.public_id)
+    assert_equal "shared/wordmark", Rails.configuration.x.recipient_delivery_header_partial
+    assert_select ".delivery-header .wordmark-logo", text: "Campsend"
     assert_select "form[data-turbo='false'][action='#{download_delivery_file_path(public_id: send_record.public_id, id: send_record.files.first.id)}']"
 
     post delivery_opened_path(public_id: send_record.public_id)

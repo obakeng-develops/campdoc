@@ -23,6 +23,7 @@ module Campsend
       config.x.google_drive.api_key,
       config.x.google_drive.app_id
     ].all?(&:present?)
+    config.x.recipient_delivery_header_partial = "shared/wordmark"
     config.x.extension_stylesheets = []
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do

@@ -2,7 +2,7 @@
 
 <div class="delivery-page" data-controller="delivery-open" data-delivery-open-url-value="<%= delivery_opened_path(public_id: @send.delivery_identifier) %>">
   <header class="delivery-header">
-    <div class="auth-brand"><%= render "shared/wordmark" %></div>
+    <div class="auth-brand"><%= render Rails.configuration.x.recipient_delivery_header_partial, delivery: @send, large: false %></div>
     <span>Available until <%= @send.access_expires_at.strftime("%b %-d, %Y") %></span>
   </header>
 

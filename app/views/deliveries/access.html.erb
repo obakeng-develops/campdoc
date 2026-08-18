@@ -2,7 +2,7 @@
 
 <section class="auth-card" data-controller="secret-fragment">
   <div class="auth-brand">
-    <%= render "shared/wordmark", large: true %>
+    <%= render Rails.configuration.x.recipient_delivery_header_partial, delivery: @send, large: true %>
   </div>
   <div class="auth-copy">
     <h1><%= @send.user.email_address %> sent you a delivery.</h1>
