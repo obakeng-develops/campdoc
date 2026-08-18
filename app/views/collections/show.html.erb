@@ -1,0 +1,57 @@
+<% content_for :title, "#{@collection.name} · Campsend" %>
+
+<div class="detail-heading">
+  <div class="detail-heading__title">
+    <%= link_to collections_path, class: "back-link" do %><span aria-hidden="true">←</span> Collections<% end %>
+    <h1><%= @collection.name %></h1>
+  </div>
+  <%= link_to "Send collection", new_send_path(collection_id: @collection.id), class: "button button--primary" if @collection.blobs.any? %>
+</div>
+
+<section class="collection-detail">
+  <div class="collection-settings">
+    <%= form_with model: @collection, class: "collection-rename" do |form| %>
+      <div class="field">
+        <%= form.label :name, "Collection name" %>
+        <%= form.text_field :name, required: true, maxlength: 100 %>
+      </div>
+      <%= form.submit "Rename", class: "button" %>
+    <% end %>
+    <div class="collection-settings__remove">
+      <div>
+        <strong>Remove collection</strong>
+        <span>Existing deliveries will keep their latest files.</span>
+      </div>
+      <%= button_to "Remove", collection_path(@collection), method: :delete, class: "button button--quiet", form: { data: { turbo_confirm: "Remove this collection? Existing deliveries will keep their latest files." } } %>
+    </div>
+  </div>
+
+  <% if @available_files.any? %>
+    <%= form_with url: collection_files_path(@collection), class: "collection-add-file" do |form| %>
+      <div class="field">
+        <%= form.label :attachment_id, "Add from My Files" %>
+        <%= form.select :attachment_id, @available_files.map { |file| [ "#{file.filename} (#{number_to_human_size(file.byte_size)})", file.id ] }, { include_blank: "Choose a file" }, { required: true } %>
+      </div>
+      <%= form.submit "Add file", class: "button button--primary" %>
+    <% end %>
+  <% end %>
+
+  <% if @collection.collection_files.any? %>
+    <ol class="collection-members">
+      <% @collection.collection_files.includes(:blob).each do |collection_file| %>
+        <li>
+          <div>
+            <strong><%= collection_file.blob.filename %></strong>
+            <span><%= number_to_human_size(collection_file.blob.byte_size) %></span>
+          </div>
+          <%= button_to "Remove", collection_file_path(@collection, collection_file), method: :delete, class: "button button--quiet" %>
+        </li>
+      <% end %>
+    </ol>
+  <% else %>
+    <section class="empty-state empty-state--compact">
+      <h2>No files in this collection.</h2>
+      <p>Add files from My Files before creating a delivery.</p>
+    </section>
+  <% end %>
+</section>

@@ -10,6 +10,9 @@ Rails.application.routes.draw do
     get :download, on: :member
     get :preview, on: :member
   end
+  resources :collections, only: %i[index create show update destroy] do
+    resources :files, only: %i[create destroy], module: :collections
+  end
   get "shared", to: "received_sends#index", as: :shared_files
 
   resources :sends, only: %i[index new create show edit update destroy] do

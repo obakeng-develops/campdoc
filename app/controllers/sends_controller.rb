@@ -8,16 +8,24 @@ class SendsController < ApplicationController
 
   def new
     @send = current_user.sends.new
-    set_library_files
+    set_send_sources
   end
 
   def create
     return head :bad_request if Array(params.dig(:send, :files)).any? { |file| !file.is_a?(String) }
 
-    @send = current_user.sends.new(send_params)
+    attributes = send_params
+    collection_id = attributes.delete(:collection_id)
+    @send = current_user.sends.new(attributes)
+    if collection_id.present?
+      return head :bad_request if Array(attributes[:files]).compact_blank.any?
+
+      @collection = current_user.collections.active.find(collection_id)
+      @send.collection = @collection
+    end
     if schedule_conversion_missing?
       @send.errors.add(:scheduled_at, "could not be converted to UTC. Refresh and try again")
-      set_library_files
+      set_send_sources
       return render :new, status: :unprocessable_entity
     end
 
@@ -29,7 +37,7 @@ class SendsController < ApplicationController
       notice = @send.scheduled? ? "Delivery scheduled." : "We’re emailing the delivery link to #{@send.recipient_email}."
       redirect_to @send, notice: notice
     else
-      set_library_files
+      set_send_sources
       render :new, status: :unprocessable_entity
     end
   end
@@ -103,7 +111,7 @@ class SendsController < ApplicationController
     end
 
     def send_params
-      params.expect(send: [ :recipient_email, :message, :scheduled_at, :slug, files: [] ])
+      params.expect(send: [ :recipient_email, :message, :scheduled_at, :slug, :collection_id, files: [] ])
     end
 
     def update_send_params
@@ -115,6 +123,19 @@ class SendsController < ApplicationController
     end
 
     def save_send
+      if @collection
+        return @collection.with_lock do
+          raise ActiveRecord::RecordNotFound if @collection.removed_at?
+
+          @send.files = @collection.blobs.to_a
+          admit_delivery
+        end
+      end
+
+      admit_delivery
+    end
+
+    def admit_delivery
       current_user.with_lock do
         Campsend.policy.admit_delivery(user: current_user) { @send.save }
       rescue Campsend::Policy::Denied => error
@@ -124,7 +145,9 @@ class SendsController < ApplicationController
       end
     end
 
-    def set_library_files
+    def set_send_sources
+      @collections = current_user.collections.active.joins(:collection_files).distinct.includes(:blobs).order(:name)
+      @collection ||= @collections.find { |collection| collection.id.to_s == (params[:collection_id] || params.dig(:send, :collection_id)).to_s }
       files = current_user.files.attachments.includes(:blob).order(created_at: :desc)
       selected_file = files.find_by(id: params[:file_id])
       @library_files = [ selected_file, *files.where.not(id: selected_file&.id).limit(11) ].compact

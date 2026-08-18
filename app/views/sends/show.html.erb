@@ -20,7 +20,7 @@
           <strong><%= file.filename %></strong>
           <span><%= number_to_human_size(file.byte_size) %></span>
         </div>
-        <% unless @send.canceled? %>
+        <% unless @send.canceled? || @send.collection_id? %>
           <%= form_with url: send_revisions_path(@send), scope: :revision, class: "file-replacement" do |form| %>
             <%= form.hidden_field :attachment_id, value: file.id %>
             <%= form.file_field :file, direct_upload: true, required: true, aria: { label: "Replacement for #{file.filename}" } %>
@@ -36,6 +36,9 @@
       <span class="avatar avatar--large" aria-hidden="true"><%= @send.recipient_name.first %></span>
       <div><span>Sent to</span><strong><%= @send.recipient_email %></strong></div>
     </div>
+    <% if @send.latest_revision.collection_name.present? %>
+      <p class="access-summary">Collection: <strong><%= @send.latest_revision.collection_name %></strong><% if @send.collection && !@send.collection.removed_at? %> · <%= link_to "Manage collection", @send.collection %><% end %></p>
+    <% end %>
     <% if @send.scheduled? %>
       <p class="schedule-summary">Scheduled for <time datetime="<%= @send.scheduled_at.iso8601 %>" data-controller="local-time"><%= @send.scheduled_at.to_fs(:long) %> UTC</time>.</p>
     <% elsif @send.canceled? %>
@@ -110,7 +113,7 @@
       <% @revisions.each do |revision| %>
         <li>
           <div>
-            <strong>Version <%= revision.number %></strong>
+            <strong>Version <%= revision.number %><%= " · #{revision.collection_name}" if revision.collection_name.present? %></strong>
             <time datetime="<%= revision.created_at.iso8601 %>"><%= revision.created_at.strftime("%b %-d, %Y at %-I:%M %p") %></time>
           </div>
           <ul>

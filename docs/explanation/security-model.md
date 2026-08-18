@@ -38,6 +38,8 @@ Campsend checks the sender or recipient session before every file request. After
 
 Files in Shared with me remain attached to the sender's delivery. They are not copied into the recipient's library or counted as recipient-owned storage.
 
+Collections contain ordered files from one sender's My Files library. Composite database foreign keys prevent a collection or collection-backed delivery from crossing user ownership. Each collection update creates an immutable delivery revision, so recipients see the latest files at the same URL while senders retain earlier versions. Removing a collection leaves existing delivery revisions intact.
+
 Deleting a delivery removes its recipient access and activity. A blob remains stored while it is kept in My Files or another delivery, and it is purged after its final attachment is removed.
 
 Only Active Storage's web-safe image types can render inline for recipients. Other formats download as attachments or are rejected from recipient previews. This prevents an uploaded active document from running as Campsend content.

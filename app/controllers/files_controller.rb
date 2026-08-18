@@ -31,7 +31,13 @@ class FilesController < ApplicationController
   end
 
   def destroy
-    @file.destroy!
+    current_user.with_lock do
+      if CollectionFile.joins(:collection).exists?(blob_id: @file.blob_id, collections: { removed_at: nil })
+        return redirect_to files_path, alert: "Remove this file from its collection first."
+      end
+
+      @file.destroy!
+    end
     redirect_to files_path, notice: "Removed from My Files."
   end
 

@@ -1,0 +1,38 @@
+<% content_for :title, "Collections · Campsend" %>
+
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Your library</p>
+    <h1>Collections</h1>
+  </div>
+</div>
+
+<%= form_with model: @collection, class: "collection-create" do |form| %>
+  <% if @collection.errors.any? %>
+    <div class="form-errors"><%= @collection.errors.full_messages.to_sentence %></div>
+  <% end %>
+  <div class="field">
+    <%= form.label :name, "Collection name" %>
+    <%= form.text_field :name, required: true, maxlength: 100, placeholder: "Brand assets" %>
+  </div>
+  <%= form.submit "Create collection", class: "button button--primary" %>
+<% end %>
+
+<% if @collections.any? %>
+  <div class="collection-list">
+    <% @collections.each do |collection| %>
+      <%= link_to collection, class: "collection-card" do %>
+        <div>
+          <strong><%= collection.name %></strong>
+          <span><%= pluralize(collection.blobs.size, "file") %> · <%= number_to_human_size(collection.size_bytes) %></span>
+        </div>
+        <span aria-hidden="true">→</span>
+      <% end %>
+    <% end %>
+  </div>
+<% else %>
+  <section class="empty-state empty-state--compact">
+    <h2>No collections yet.</h2>
+    <p>Group files you send together. Updating a collection updates its deliveries without changing their links.</p>
+  </section>
+<% end %>

@@ -55,6 +55,10 @@
               <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M3.5 5.5h5l1.5 2h6.5v8h-13z"/></svg>
               <span>My Files</span>
             <% end %>
+            <%= link_to collections_path, class: class_names("sidebar-link", active: controller_name == "collections"), aria: { current: ("page" if controller_name == "collections") } do %>
+              <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M3.5 6.5h5l1.5 2h6.5v7h-13zM5 4.5h5l1.5 2"/></svg>
+              <span>Collections</span>
+            <% end %>
             <%= link_to shared_files_path, class: class_names("sidebar-link", active: controller_name == "received_sends"), aria: { current: ("page" if controller_name == "received_sends") } do %>
               <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M3.5 5.5h13v10h-13zM6 8.5l4 3 4-3"/></svg>
               <span>Shared with me</span>
@@ -86,6 +90,7 @@
               <summary aria-label="Open navigation"><span aria-hidden="true">•••</span></summary>
               <nav class="mobile-menu__panel" aria-label="Main navigation">
                 <%= link_to "My Files", files_path %>
+                <%= link_to "Collections", collections_path %>
                 <%= link_to "Shared with me", shared_files_path %>
                 <%= link_to "Sent", sends_path %>
                 <%= render policy_usage if policy_usage %>
