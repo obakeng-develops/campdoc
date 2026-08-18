@@ -23,7 +23,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
     assert_select "h1", text: "Sign in or start free."
-    assert_select ".auth-feedback--notice", text: "You’re signed out."
+    assert_select ".auth-feedback", count: 0
 
     post consume_sign_in_path(public_id: login_token.public_id), params: { token: raw_token }
     assert_redirected_to new_session_path
