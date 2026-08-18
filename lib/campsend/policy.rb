@@ -17,6 +17,9 @@ module Campsend
       yield
     end
 
+    def storage_service_name_for(user:)
+    end
+
     def usage_for(user)
     end
 
