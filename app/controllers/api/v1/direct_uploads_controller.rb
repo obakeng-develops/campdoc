@@ -8,7 +8,8 @@ class Api::V1::DirectUploadsController < ActiveStorage::DirectUploadsController
     end
 
     blob = current_user.reserve_blob!(**blob_args)
-    WideEvent.add(blob_id: blob.id, upload_bytes: blob.byte_size)
+    first_delivery = !current_user.sends.exists?
+    WideEvent.add(blob_id: blob.id, upload_bytes: blob.byte_size, first_delivery:, upload_operation: "reserved")
     render json: direct_upload_json(blob)
   rescue Campsend::Policy::Denied => error
     WideEvent.add(outcome: error.outcome)

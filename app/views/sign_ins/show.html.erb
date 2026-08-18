@@ -6,11 +6,11 @@
   </div>
   <div class="auth-copy">
     <h1>Sign in as <%= @login_token.user.email_address %>?</h1>
-    <p>Continue only if you requested this link.</p>
+    <p><%= @login_token.intent == "send" ? "Your delivery is ready to continue. Only proceed if you requested this link." : "Continue only if you requested this link." %></p>
   </div>
   <%= form_with url: consume_sign_in_path(public_id: @login_token.public_id), class: "auth-form" do |form| %>
     <%= form.hidden_field :token, data: { secret_fragment_target: "input" } %>
-    <%= form.submit "Continue to Campsend", class: "button button--primary button--wide", disabled: true, data: { secret_fragment_target: "submit" } %>
+    <%= form.submit @login_token.intent == "send" ? "Continue your delivery" : "Continue to Campsend", class: "button button--primary button--wide", disabled: true, data: { secret_fragment_target: "submit" } %>
   <% end %>
   <p class="fine-print" data-secret-fragment-target="message" hidden>This link is incomplete. Request a new sign-in link.</p>
 </section>

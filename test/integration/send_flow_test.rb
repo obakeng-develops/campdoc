@@ -22,11 +22,14 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     end
 
     send_record = Send.last
-    assert_redirected_to send_path(send_record)
+    assert_redirected_to send_path(send_record, onboarding: "complete")
     follow_redirect!
     assert_response :success
+    assert_select ".first-delivery-complete", text: /Your delivery is on its way/
+    assert_select "meta[http-equiv='refresh'][content='3;url=#{send_path(send_record)}']"
+    assert_select "a[href='#{new_send_path}']", text: "Send another"
+    assert_select "a[href='#{files_path}']", text: "Go to My Files"
     assert_select ".status-pill--sending", text: "Sending"
-    assert_select "meta[http-equiv='refresh'][content='3']", count: 1
     assert_select "form.file-replacement[action='#{send_revisions_path(send_record)}']" do
       assert_select "input[type='file'][required]"
       assert_select "input[type='submit'][value='Replace file']"
@@ -34,6 +37,22 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     assert_nil send_record.status
     assert_equal "sample.txt", send_record.files.first.filename.to_s
     assert_equal [ 1 ], send_record.delivery_revisions.pluck(:number)
+
+    get send_path(send_record, onboarding: "complete")
+    assert_select ".first-delivery-complete", count: 0
+  end
+
+  test "returning senders do not see first-delivery completion" do
+    first, = create_send
+    blob = create_uploaded_blob(@user, filename: "second.txt")
+
+    post sends_path, params: { send: { recipient_email: "sam@example.com", files: [ blob.signed_id ] } }
+
+    assert_redirected_to send_path(Send.last)
+    follow_redirect!
+    assert_select ".first-delivery-complete", count: 0
+    assert_select "meta[http-equiv='refresh'][content='3;url=#{send_path(Send.last)}']"
+    assert Send.exists?(first.id)
   end
 
   test "sender claims a unique delivery slug" do
@@ -71,7 +90,7 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     send_record = Send.last
     assert_equal scheduled_at, send_record.scheduled_at
     assert_nil send_record.published_at
-    assert_redirected_to send_path(send_record)
+    assert_redirected_to send_path(send_record, onboarding: "complete")
     follow_redirect!
     assert_select ".status-pill--scheduled", text: "Scheduled"
     assert_select "meta[http-equiv='refresh']", count: 0

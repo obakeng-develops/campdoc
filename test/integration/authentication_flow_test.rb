@@ -93,6 +93,26 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_send_path
   end
 
+  test "send intent explains and resumes the delivery flow" do
+    post session_path, params: { email_address: "sender@example.com", intent: "send" }
+    follow_redirect!
+
+    assert_select "h1", text: "Check your inbox."
+    assert_select ".auth-copy", text: /continue your delivery/
+
+    login_token, = LoginToken.issue_for(User.last, intent: "send")
+    get sign_in_path(public_id: login_token.public_id)
+    assert_select "input[type='submit'][value='Continue your delivery']"
+  end
+
+  test "pending sign-in copy follows the issued link intent" do
+    post session_path, params: { email_address: "sender@example.com" }
+
+    get new_session_path(intent: "send")
+
+    assert_select ".auth-copy", text: /continue your delivery/, count: 0
+  end
+
   test "direct upload grants require a signed-in sender" do
     post rails_direct_uploads_path, params: { blob: blob_params }, as: :json
 

@@ -3,8 +3,9 @@
 <div class="compose-heading">
   <%= link_to files_path, class: "back-link" do %><span aria-hidden="true">←</span> Back to My Files<% end %>
   <div>
-    <p class="eyebrow">New delivery</p>
+    <p class="eyebrow"><%= @first_delivery ? "Your first delivery" : "New delivery" %></p>
     <h1><%= @collection ? "Send #{@collection.name}." : "Choose what to send." %></h1>
+    <% if @first_delivery %><p class="compose-intro">Choose your files, add a recipient, and send. We’ll save the files in My Files so you can reuse them later.</p><% end %>
   </div>
 </div>
 
@@ -83,6 +84,7 @@
   </div>
 
   <div class="send-details">
+    <% if @first_delivery %><p class="eyebrow">Recipient and access</p><% end %>
     <div class="field">
       <%= form.label :recipient_email, "Who’s this for?" %>
       <%= form.email_field :recipient_email, required: true, autocomplete: "email", placeholder: "sam@example.com" %>
@@ -101,6 +103,7 @@
     </div>
     <%= render "schedule_fields", form: form %>
     <%= form.submit @collection ? "Send collection" : "Send files", class: "button button--primary button--wide button--send", data: { upload_progress_target: "submit" } %>
+    <p class="upload-status" role="status" aria-live="polite" data-upload-progress-target="status" hidden></p>
     <p class="privacy-note"><span aria-hidden="true">⌁</span> The link expires after 30 days. Anyone with the full link can open it.</p>
   </div>
 <% end %>

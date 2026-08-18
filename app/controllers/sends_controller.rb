@@ -8,12 +8,18 @@ class SendsController < ApplicationController
 
   def new
     @send = current_user.sends.new
+    @first_delivery = !current_user.sends.exists?
+    if @first_delivery && !session[:first_composer_viewed]
+      session[:first_composer_viewed] = true
+      WideEvent.add(onboarding_event: "first_composer_viewed")
+    end
     set_send_sources
   end
 
   def create
     return head :bad_request if Array(params.dig(:send, :files)).any? { |file| !file.is_a?(String) }
 
+    @first_delivery = !current_user.sends.exists?
     attributes = send_params
     collection_id = attributes.delete(:collection_id)
     @send = current_user.sends.new(attributes)
@@ -31,12 +37,15 @@ class SendsController < ApplicationController
 
     if save_send
       blobs = @send.files.blobs.to_a
-      WideEvent.add(delivery_id: @send.id, delivery_operation: @send.scheduled? ? "scheduled" : "created", scheduled_at: @send.scheduled_at&.iso8601(3), file_count: blobs.size, send_bytes: blobs.sum(&:byte_size))
+      onboarding_duration_ms = ((Time.current.to_i - session.delete(:send_intent_started_at).to_i) * 1000 if @first_delivery && session[:send_intent_started_at])
+      WideEvent.add(delivery_id: @send.id, delivery_operation: @send.scheduled? ? "scheduled" : "created", scheduled_at: @send.scheduled_at&.iso8601(3), file_count: blobs.size, send_bytes: blobs.sum(&:byte_size), first_delivery: @first_delivery, onboarding_event: ("first_delivery_completed" if @first_delivery), onboarding_duration_ms:)
       current_user.retain_files(blobs)
       DeliveryEmailJob.enqueue(@send)
       notice = @send.scheduled? ? "Delivery scheduled." : "We’re emailing the delivery link to #{@send.recipient_email}."
-      redirect_to @send, notice: notice
+      session[:first_delivery_completed_id] = @send.id if @first_delivery
+      redirect_to send_path(@send, onboarding: ("complete" if @first_delivery)), notice: notice
     else
+      WideEvent.add(first_delivery: true, onboarding_event: "first_delivery_failed") if @first_delivery
       set_send_sources
       render :new, status: :unprocessable_entity
     end
@@ -44,6 +53,7 @@ class SendsController < ApplicationController
 
   def show
     @revisions = @send.delivery_revisions.includes(files_attachments: :blob).order(number: :desc)
+    @first_delivery_complete = params[:onboarding] == "complete" && session.delete(:first_delivery_completed_id).to_i == @send.id
   end
 
   def edit
@@ -137,6 +147,7 @@ class SendsController < ApplicationController
 
     def admit_delivery
       current_user.with_lock do
+        @first_delivery = !current_user.sends.exists?
         Campsend.policy.admit_delivery(user: current_user) { @send.save }
       rescue Campsend::Policy::Denied => error
         WideEvent.add(outcome: error.outcome)

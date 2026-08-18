@@ -1,12 +1,17 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["error", "submit"]
+  static targets = ["error", "status", "submit"]
   static values = { finalText: String }
 
   connect() {
     this.originalText = this.submitTarget.value
     this.progress = new Map()
+    this.failedUploads = new Set()
+  }
+
+  disconnect() {
+    clearTimeout(this.slowTimer)
   }
 
   start(event) {
@@ -14,7 +19,14 @@ export default class extends Controller {
       .reduce((total, input) => total + input.files.length, 0)
     this.progress.set(event.detail.id, 0)
     this.errorTarget.hidden = true
+    if (this.hasStatusTarget) {
+      this.statusTarget.hidden = false
+      this.statusTarget.textContent = "Uploading files…"
+    }
     this.submitTarget.disabled = true
+    this.slowTimer ||= setTimeout(() => {
+      if (this.hasStatusTarget) this.statusTarget.textContent = "Still uploading. Large files can take a few minutes; keep this page open."
+    }, 8000)
     this.update()
   }
 
@@ -24,19 +36,28 @@ export default class extends Controller {
   }
 
   end(event) {
+    if (this.failedUploads.delete(event.detail.id)) return
+
     this.progress.set(event.detail.id, 100)
     this.update()
 
     if ([...this.progress.values()].filter((value) => value === 100).length === this.totalUploads) {
+      clearTimeout(this.slowTimer)
+      this.slowTimer = null
       this.submitTarget.disabled = false
       this.submitTarget.value = this.hasFinalTextValue ? this.finalTextValue : this.originalText
+      if (this.hasStatusTarget) this.statusTarget.textContent = "Upload complete. Saving files…"
     }
   }
 
   error(event) {
     event.preventDefault()
-    this.errorTarget.textContent = `${event.detail.file.name}: ${event.detail.error}`
+    this.failedUploads.add(event.detail.id)
+    this.errorTarget.textContent = `We couldn’t upload ${event.detail.file.name}. ${event.detail.error} Choose the file and try again.`
     this.errorTarget.hidden = false
+    clearTimeout(this.slowTimer)
+    this.slowTimer = null
+    if (this.hasStatusTarget) this.statusTarget.hidden = true
     this.submitTarget.disabled = false
     this.submitTarget.value = this.originalText
     this.progress.clear()

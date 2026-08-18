@@ -1,5 +1,21 @@
 <% content_for :title, "Delivery to #{@send.recipient_name} · Campsend" %>
-<% content_for :head do %><meta http-equiv="refresh" content="3"><% end if @send.email_status_pending? && !@send.scheduled? %>
+<% content_for :head do %><meta http-equiv="refresh" content="3;url=<%= send_path(@send) %>"><% end if @send.email_status_pending? && !@send.scheduled? %>
+
+<% if @first_delivery_complete %>
+  <section class="first-delivery-complete" role="status">
+    <span class="first-delivery-complete__mark" aria-hidden="true">✓</span>
+    <div>
+      <p class="eyebrow">First delivery</p>
+      <h1><%= @send.scheduled? ? "Your delivery is scheduled." : "Your delivery is on its way." %></h1>
+      <p><%= @send.scheduled? ? "We’ll email #{@send.recipient_email} at the scheduled time. Their link will stay active for 30 days." : "We’re emailing #{@send.recipient_email} now. Their link will stay active for 30 days." %></p>
+      <div class="first-delivery-complete__actions">
+        <%= link_to "View delivery", "#delivery-details", class: "button button--primary" %>
+        <%= link_to "Send another", new_send_path, class: "button" %>
+        <%= link_to "Go to My Files", files_path, class: "button button--quiet" %>
+      </div>
+    </div>
+  </section>
+<% end %>
 
 <div class="detail-heading">
   <%= link_to sends_path, class: "back-link" do %><span aria-hidden="true">←</span> Sent<% end %>
@@ -7,7 +23,7 @@
   <span class="status-pill status-pill--<%= status %>"><%= status.titleize %></span>
 </div>
 
-<section class="send-detail">
+<section class="send-detail" id="delivery-details">
   <div class="detail-files <%= "detail-files--grid" if @send.files.size > 1 %>">
     <% @send.files.each do |file| %>
       <div class="detail-file">
