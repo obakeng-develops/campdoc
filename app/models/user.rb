@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  class UploadTooLarge < StandardError; end
+
   has_many :login_tokens, dependent: :delete_all
   has_many :google_drive_imports, dependent: :delete_all
   has_many :sends, dependent: :destroy
@@ -19,6 +21,8 @@ class User < ApplicationRecord
   def reserve_blob!(**attributes)
     with_lock do
       byte_size = attributes.fetch(:byte_size).to_i
+      raise UploadTooLarge, "File exceeds Campsend's 2 GB limit." if byte_size > Send::MAX_SEND_SIZE
+
       Campsend.policy.admit_storage(user: self, byte_size:) do
         key = "users/#{id}/blobs/#{ActiveStorage::Blob.generate_unique_secure_token}"
         ActiveStorage::Blob.create_before_direct_upload!(key: key, **attributes).tap do |blob|

@@ -119,6 +119,10 @@
   </div>
 </section>
 
+<% Rails.configuration.x.sender_delivery_partials.each do |partial| %>
+  <%= render partial, delivery: @send %>
+<% end %>
+
 <% if @revisions.many? %>
   <section class="revision-history" aria-labelledby="revision-history-title">
     <div class="revision-history__heading">

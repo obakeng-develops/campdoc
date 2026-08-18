@@ -412,6 +412,23 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     assert_response :unsupported_media_type
   end
 
+  test "rotating a delivery token invalidates its browser grant" do
+    send_record, token = create_send
+    file = send_record.files.first
+    authorize_delivery(send_record, token)
+
+    get delivery_file_path(public_id: send_record.public_id, id: file.id)
+    assert_response :unsupported_media_type
+
+    new_token = send_record.issue_access_token!
+    get delivery_file_path(public_id: send_record.public_id, id: file.id)
+    assert_response :not_found
+
+    authorize_delivery(send_record, new_token)
+    get delivery_file_path(public_id: send_record.public_id, id: file.id)
+    assert_response :unsupported_media_type
+  end
+
   private
     def sign_in_as(user)
       login_token, raw_token = LoginToken.issue_for(user)

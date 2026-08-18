@@ -16,7 +16,7 @@ module DeliveryAccess
     end
 
     def grant_delivery_access(delivery)
-      session[:delivery_accesses] = (delivery_accesses + [ delivery.public_id ]).uniq.last(10)
+      session[:delivery_accesses] = (delivery_accesses + [ delivery_access_key(delivery) ]).uniq.last(10)
     end
 
     def delivery_accesses
@@ -24,7 +24,11 @@ module DeliveryAccess
     end
 
     def delivery_access_granted?(delivery)
-      delivery_accesses.include?(delivery.public_id) || authenticated? && current_user.email_address == delivery.recipient_email
+      delivery_accesses.include?(delivery_access_key(delivery)) || authenticated? && current_user.email_address == delivery.recipient_email
+    end
+
+    def delivery_access_key(delivery)
+      Digest::SHA256.hexdigest("#{delivery.public_id}:#{delivery.access_token_digest}")
     end
 
     def set_private_cache

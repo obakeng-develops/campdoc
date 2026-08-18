@@ -30,5 +30,9 @@
     <% end %>
   </div>
 
+  <% Rails.configuration.x.recipient_delivery_partials.each do |partial| %>
+    <%= render partial, delivery: @send %>
+  <% end %>
+
   <p class="delivery-footnote">This delivery was sent to <%= @send.recipient_email %>. Forwarding the full link shares access.</p>
 </div>
