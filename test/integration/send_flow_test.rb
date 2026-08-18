@@ -104,26 +104,6 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "canceling a scheduled delivery keeps its quota reservation" do
-    blob = create_uploaded_blob(@user)
-
-    with_managed_hosting do
-      post sends_path, params: {
-        send: { recipient_email: "later@example.com", files: [ blob.signed_id ], scheduled_at: 2.days.from_now.iso8601 }
-      }
-      send_record = Send.last
-
-      post cancel_send_path(send_record)
-
-      assert_redirected_to send_path(send_record)
-      assert send_record.reload.canceled?
-      assert_equal 1, @user.reload.sends_this_month
-      assert_no_difference -> { ActionMailer::Base.deliveries.size } do
-        DeliveryEmailJob.perform_now(send_record)
-      end
-    end
-  end
-
   test "published deliveries cannot be edited or canceled" do
     send_record, = create_send
 
@@ -289,32 +269,6 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     assert_select ".form-errors", text: /could not be converted to UTC/
   end
 
-  test "managed Free accounts are limited to five deliveries each month" do
-    blob = create_uploaded_blob(@user)
-
-    with_managed_hosting do
-      5.times do
-        post sends_path, params: { send: { recipient_email: "sam@example.com", files: [ blob.signed_id ] } }
-        assert_response :redirect
-      end
-      delete send_path(@user.sends.first)
-
-      assert_no_difference "Send.count" do
-        post sends_path, params: { send: { recipient_email: "sam@example.com", files: [ blob.signed_id ] } }
-      end
-      assert_response :unprocessable_content
-      assert_select ".form-errors", text: /includes 5 deliveries each month/
-
-      travel 1.month do
-        sign_in_as(@user)
-        assert_difference "Send.count", 1 do
-          post sends_path, params: { send: { recipient_email: "sam@example.com", files: [ blob.signed_id ] } }
-        end
-        assert_response :redirect
-      end
-    end
-  end
-
   test "failed delivery email has a clear retry state" do
     send_record, = create_send
     send_record.update!(email_status: "failed")
@@ -350,20 +304,6 @@ class SendFlowTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to send_path(send_record)
-  end
-
-  test "managed Pro accounts have unlimited deliveries" do
-    @user.update!(plan: "pro")
-    blob = create_uploaded_blob(@user)
-
-    with_managed_hosting do
-      assert_difference "Send.count", 6 do
-        6.times do
-          post sends_path, params: { send: { recipient_email: "sam@example.com", files: [ blob.signed_id ] } }
-          assert_response :redirect
-        end
-      end
-    end
   end
 
   test "deleting a delivery removes access but keeps library files" do

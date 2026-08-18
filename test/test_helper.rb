@@ -17,13 +17,5 @@ module ActiveSupport
         content_type: content_type
       ).tap { |blob| blob.update!(uploader_id: user.id) }
     end
-
-    def with_managed_hosting
-      previous_value = Rails.configuration.x.managed_hosting
-      Rails.configuration.x.managed_hosting = true
-      yield
-    ensure
-      Rails.configuration.x.managed_hosting = previous_value
-    end
   end
 end

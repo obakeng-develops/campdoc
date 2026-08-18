@@ -110,16 +110,12 @@ class SendsController < ApplicationController
     end
 
     def save_send
-      return @send.save unless managed_hosting?
-
       current_user.with_lock do
-        limit = current_user.monthly_send_limit
-        if limit && current_user.sends_this_month >= limit
-          @send.errors.add(:base, "Your Free plan includes #{limit} deliveries each month.")
-          false
-        else
-          @send.save.tap { |saved| current_user.record_send! if saved }
-        end
+        Campsend.policy.admit_delivery(user: current_user) { @send.save }
+      rescue Campsend::Policy::Denied => error
+        WideEvent.add(outcome: error.outcome)
+        @send.errors.add(:base, error.message)
+        false
       end
     end
 

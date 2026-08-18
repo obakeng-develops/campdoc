@@ -28,8 +28,7 @@
   </head>
 
   <% app_shell = authenticated? && controller_name != "home" %>
-  <% storage_used = current_user.storage_used if app_shell && managed_hosting? %>
-  <% sends_used = current_user.sends_this_month if app_shell && managed_hosting? %>
+  <% policy_usage = Campsend.policy.usage_for(current_user) if app_shell %>
   <body class="<%= app_shell ? "app-body" : "guest-body" %>">
     <% if flash.any? && controller_name != "sessions" %>
       <div class="flash-stack" aria-live="polite">
@@ -66,7 +65,7 @@
             <% end %>
           </nav>
 
-          <%= render "layouts/plan_usage", storage_used: storage_used, sends_used: sends_used if managed_hosting? %>
+          <%= render policy_usage if policy_usage %>
 
           <div class="sidebar-account">
             <span class="avatar" aria-hidden="true"><%= current_user.email_address.first %></span>
@@ -89,7 +88,7 @@
                 <%= link_to "My Files", files_path %>
                 <%= link_to "Shared with me", shared_files_path %>
                 <%= link_to "Sent", sends_path %>
-                <%= render "layouts/plan_usage", storage_used: storage_used, sends_used: sends_used if managed_hosting? %>
+                <%= render policy_usage if policy_usage %>
                 <%= button_to "Sign out", session_path, method: :delete, class: "button button--quiet" %>
               </nav>
             </details>

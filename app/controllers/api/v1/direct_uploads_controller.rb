@@ -10,9 +10,9 @@ class Api::V1::DirectUploadsController < ActiveStorage::DirectUploadsController
     blob = current_user.reserve_blob!(**blob_args)
     WideEvent.add(blob_id: blob.id, upload_bytes: blob.byte_size)
     render json: direct_upload_json(blob)
-  rescue User::StorageLimitExceeded
-    WideEvent.add(outcome: "storage_limit")
-    render json: { error: "Storage limit reached. Remove files before uploading more." }, status: :unprocessable_content
+  rescue Campsend::Policy::Denied => error
+    WideEvent.add(outcome: error.outcome)
+    render json: { error: error.message }, status: :unprocessable_content
   end
 
   private

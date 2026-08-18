@@ -24,7 +24,7 @@ class WideEventTest < ActionDispatch::IntegrationTest
     assert_equal 200, event["status"]
     assert_equal "success", event["outcome"]
     assert_equal user.id, event["user_id"]
-    assert_equal "free", event["user_plan"]
+    assert_not event.key?("user_plan")
     assert event["request_id"].present?
     assert event["duration_ms"].is_a?(Numeric)
   end

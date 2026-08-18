@@ -164,13 +164,6 @@
   .mobile-menu__panel > a { border-radius: var(--radius-sm); color: var(--text-secondary); font-size: 0.8125rem; padding: 0.65rem 0.75rem; }
   .mobile-menu__panel form { border-top: 1px solid var(--border-secondary); margin-top: var(--space-1); padding-top: var(--space-1); }
   .mobile-menu__panel .button { justify-content: flex-start; width: 100%; }
-  .plan-usage { border-top: 1px solid var(--border-secondary); color: var(--text-tertiary); display: grid; font-size: 0.7rem; gap: var(--space-2); padding: var(--space-4) var(--space-2); }
-  .site-sidebar > .plan-usage { margin-top: auto; }
-  .site-sidebar > .plan-usage + .sidebar-account { margin-top: 0; }
-  .plan-usage__heading { align-items: baseline; display: flex; gap: var(--space-2); justify-content: space-between; }
-  .plan-usage__heading strong { color: var(--text-primary); }
-  .plan-usage meter { accent-color: var(--brand); height: 0.45rem; width: 100%; }
-  .mobile-menu__panel .plan-usage { margin: var(--space-1) 0; }
   .app-main { margin: 0 auto; max-width: 52rem; padding: var(--space-12) var(--space-6) 6rem; width: 100%; }
   .guest-main { min-height: 100vh; }
   .guest-body:has(.auth-card) .guest-main { align-items: center; display: flex; justify-content: center; padding: var(--space-6); }

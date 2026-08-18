@@ -98,8 +98,9 @@ class GoogleDriveImportJob < ApplicationJob
         checksum: checksum,
         content_type: metadata["mimeType"]
       )
-    rescue User::StorageLimitExceeded
-      raise PermanentError, "Storage limit reached. Remove files before importing more."
+    rescue Campsend::Policy::Denied => error
+      WideEvent.add(outcome: error.outcome)
+      raise PermanentError, error.message
     end
 
     def download(drive_import, metadata, token)

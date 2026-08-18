@@ -9,7 +9,6 @@ Trusted distributions can add private Rails engines at bundle time by setting `C
 | Variable | Required | Description |
 | --- | --- | --- |
 | `APP_HOST` | Yes | Public hostname used in links and host authorization. Do not include the protocol. |
-| `CAMPSEND_MANAGED` | No | Enables managed plan limits when `true`. Defaults to `false`. |
 | `ACTIVE_STORAGE_SERVICE` | Yes | `local` or `s3`. |
 | `RAILS_MASTER_KEY` | For encrypted credentials | Decrypts `config/credentials.yml.enc`. |
 | `RAILS_LOG_LEVEL` | No | Rails log level. Defaults to `info`. |
@@ -65,18 +64,6 @@ Campsend requests the non-sensitive `drive.file` scope. It can read files the us
 | Maximum delivery size | 2 GB |
 | Stored recipient access grants per browser session | 10 |
 
-## Managed plans
-
-Managed accounts default to the Free plan with 2 GB of storage and five deliveries per calendar month. Pro accounts have 250 GB of storage and unlimited deliveries. Storage includes each blob uploaded by the account once, even when the file appears in My Files and several deliveries.
-
-Billing is not connected yet. An operator can grant Pro access from the Rails console:
-
-```ruby
-User.find_by!(email_address: "person@example.com").update!(plan: "pro")
-```
-
-Self-hosted installations ignore managed plan limits.
-
 ## Scheduled work
 
 Production runs `SecurityCleanupJob` every day at 3am. It removes expired login tokens, old Drive import statuses, and unattached uploads older than one day. Solid Queue removes finished jobs every hour at minute 12.
@@ -85,6 +72,6 @@ Scheduled deliveries use Solid Queue delayed jobs. Keep a queue worker running w
 
 ## Wide events
 
-Campsend emits one JSON wide event at the end of each application request and background job. Request events include the request ID, route, status, duration, authenticated user ID and plan, plus delivery or upload context added during processing. Job events include the job ID, class, queue, outcome, duration, and relevant domain IDs. Health checks and static assets are excluded.
+Campsend emits one JSON wide event at the end of each application request and background job. Request events include the request ID, route, status, duration, authenticated user ID, plus delivery or upload context added during processing. Job events include the job ID, class, queue, outcome, duration, and relevant domain IDs. Health checks and static assets are excluded.
 
 The events are written to standard output through the Rails logger. They contain user and record IDs but exclude email addresses, access tokens, file names, and exception messages. `KAMAL_VERSION`, when present, is recorded as `service_version` so incidents can be grouped by deployment.
