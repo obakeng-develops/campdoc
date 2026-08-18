@@ -26,7 +26,7 @@ class User < ApplicationRecord
       raise UploadTooLarge, "File exceeds Campsend's 2 GB limit." if byte_size > Send::MAX_SEND_SIZE
 
       Campsend.policy.admit_storage(user: self, byte_size:) do
-        key = "users/#{id}/blobs/#{ActiveStorage::Blob.generate_unique_secure_token}"
+        key = "#{Campsend.policy.storage_key_prefix_for(user: self)}/#{ActiveStorage::Blob.generate_unique_secure_token}"
         attributes[:service_name] = Campsend.policy.storage_service_name_for(user: self)
         ActiveStorage::Blob.create_before_direct_upload!(key: key, **attributes).tap do |blob|
           blob.update!(uploader_id: id)

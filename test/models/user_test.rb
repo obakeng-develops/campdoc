@@ -27,6 +27,10 @@ class UserTest < ActiveSupport::TestCase
       def storage_service_name_for(user:)
         "alternate_test"
       end
+
+      def storage_key_prefix_for(user:)
+        "accounts/#{user.id}/files"
+      end
     end.new
     original_policy = Campsend.policy
     Campsend.policy = policy
@@ -39,6 +43,7 @@ class UserTest < ActiveSupport::TestCase
     )
 
     assert_equal "alternate_test", blob.service_name
+    assert blob.key.start_with?("accounts/#{user.id}/files/")
     assert_equal user.id, blob.uploader_id
   ensure
     Campsend.policy = original_policy

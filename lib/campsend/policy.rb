@@ -20,6 +20,10 @@ module Campsend
     def storage_service_name_for(user:)
     end
 
+    def storage_key_prefix_for(user:)
+      "users/#{user.id}/blobs"
+    end
+
     def usage_for(user)
     end
 
