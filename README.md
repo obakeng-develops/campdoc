@@ -15,6 +15,8 @@ Choose the guide that matches what you're doing:
 
 ## Contributing
 
+Start with the lode in [`docs/lode/`](docs/lode/). [Terminology](docs/lode/terminology.md) and [practices](docs/lode/practices.md) cover the naming, the extension seam, and the compromises that are deliberate.
+
 Run the project checks before opening a pull request:
 
 ```sh
