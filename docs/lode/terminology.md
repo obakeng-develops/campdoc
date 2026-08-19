@@ -65,6 +65,6 @@ Read `display_status` when you're rendering. Don't recompute any of the three in
 
 **Shared with me**: `ReceivedSendsController` at `/shared`. Deliveries addressed to the signed-in account's normalized email.
 
-**Policy**: `Campsend.policy`, the extension seam. See [practices](practices.md).
+**Policy**: `Campsend.policy`, the extension point. See [practices](practices.md).
 
 **Wide event**: the one structured log line per request. See [practices](practices.md).

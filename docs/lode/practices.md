@@ -14,7 +14,7 @@ Behavior that both distributions need lands here first. Managed then adopts it b
 
 Managed never patches files under `core/`. So if you're working in managed and you want to edit something in `core/`, stop. That diff gets discarded on the next `git submodule update`, and it never reaches a self-hoster. Open a PR here instead.
 
-## Extending through the policy seam
+## Extending through Campsend.policy
 
 `lib/campsend/policy.rb` is the only sanctioned extension point. Every method here is a no-op or a neutral default, and managed subclasses it.
 
@@ -26,7 +26,7 @@ end
 
 Core calls `Campsend.policy.admit_delivery(user:) { ... }` and stays ignorant of plans, quotas and billing. So core carries no `if managed?`, no plan names, no price checks, no engine constants.
 
-When core needs a new extension point, add a neutral method to `Policy` and call it. That's what the `feat/*-policy` and `feat/*-seam` branch names are about: `feat/storage-service-policy`, `feat/storage-key-prefix-policy`, `feat/delivery-header-seam`, `feat/sidebar-navigation-seam`. Follow the naming.
+When core needs a new extension point, add a neutral method to `Policy` and call it. Name the branch after the thing it opens up, as in `feat/storage-service-policy` and `feat/storage-key-prefix-policy`.
 
 A policy that refuses raises `Campsend::Policy::Denied`. It carries a `message` for the user and an `outcome` for machines. Callers rescue it, add `outcome` to the wide event, then render the message. `Api::V1::DirectUploadsController#create` is the reference.
 
