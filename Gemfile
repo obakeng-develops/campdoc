@@ -40,7 +40,10 @@ gem "kamal", require: false
 gem "thruster", require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
-gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 2.0"
+# image_processing 2.0 dropped its backend dependencies, so the vips backend is explicit now.
+# Active Storage requires it at boot, and it needs the libvips system library present.
+gem "ruby-vips", "~> 2.0"
 # Store production uploads in Cloudflare R2 through its S3-compatible API.
 gem "aws-sdk-s3", require: false
 
