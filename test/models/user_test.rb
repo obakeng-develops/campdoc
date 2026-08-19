@@ -1,6 +1,14 @@
 require "test_helper"
 
 class UserTest < ActiveSupport::TestCase
+  test "strips email subaddressing so +tags cannot create duplicate accounts" do
+    user = User.create!(email_address: "sender+tag@example.com")
+    assert_equal "sender@example.com", user.email_address
+
+    duplicate = User.find_or_create_by!(email_address: "sender+other@example.com")
+    assert_equal user.id, duplicate.id
+  end
+
   test "blob reservations enforce the file size limit" do
     user = User.create!(email_address: "sender@example.com")
 

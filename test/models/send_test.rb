@@ -5,6 +5,15 @@ class SendTest < ActiveSupport::TestCase
     @user = User.create!(email_address: "sender@example.com")
   end
 
+  test "strips email subaddressing from recipient email" do
+    send_record = @user.sends.new(recipient_email: "sam+tag@example.com")
+    send_record.issue_access_token
+    send_record.files.attach(create_uploaded_blob(@user))
+    send_record.save!
+
+    assert_equal "sam@example.com", send_record.recipient_email
+  end
+
   test "requires a recipient and file" do
     send_record = @user.sends.new
     send_record.issue_access_token

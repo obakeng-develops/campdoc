@@ -16,7 +16,7 @@ class Send < ApplicationRecord
 
   scope :available, -> { where.not(published_at: nil).where(canceled_at: nil, access_revoked_at: nil, access_expires_at: Time.current..).where.not(access_token_digest: nil) }
 
-  normalizes :recipient_email, with: ->(email) { email.strip.downcase }
+  normalizes :recipient_email, with: ->(email) { email.strip.downcase.sub(/\+[^@]+/, "") }
   normalizes :slug, with: ->(slug) { slug.strip.downcase.presence }
 
   validates :recipient_email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }

@@ -10,7 +10,7 @@ class User < ApplicationRecord
   has_many :uploaded_blobs, class_name: "ActiveStorage::Blob", foreign_key: :uploader_id, inverse_of: false
   has_many_attached :files
 
-  normalizes :email_address, with: ->(email) { email.strip.downcase }
+  normalizes :email_address, with: ->(email) { email.strip.downcase.sub(/\+[^@]+/, "") }
 
   validates :email_address, presence: true,
     format: { with: URI::MailTo::EMAIL_REGEXP },
