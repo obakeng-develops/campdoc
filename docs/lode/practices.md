@@ -34,6 +34,12 @@ A policy that refuses raises `Campsend::Policy::Denied`. It carries a `message` 
 
 Observability here is a single structured line per request, not scattered logging. `WideEvent` is a `CurrentAttributes` store. Middleware starts it and emits it, and handlers add fields along the way.
 
+The reason is triage. One event per unit of work means one row describes what the system did: who asked, what it decided, what it called, what came back, and how long it took. Nobody reconstructs a story from five lines that happen to share a request id.
+
+That row is also the handover. Someone who has never read this code, or a model handed the logs, should be able to say what happened without opening a file. Write fields that name the operation rather than the code path, and include the identifiers that let a reader follow the story outward: the user, and any id a third party will know it by too. A field that only makes sense to whoever wrote the line above it has missed the point.
+
+Scattered logging pushes that work onto whoever is debugging at the time. A wide event does it once, while the author still knows what matters.
+
 ```ruby
 WideEvent.add(delivery_id: @send.id, delivery_operation: "created", file_count: blobs.size, first_delivery:)
 ```
