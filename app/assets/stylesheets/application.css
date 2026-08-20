@@ -219,7 +219,7 @@
   .auth-feedback--alert .auth-feedback__marker { background: var(--negative); }
   .auth-feedback + .auth-copy { margin-top: var(--space-6); }
   .auth-copy { margin: var(--space-10) 0 var(--space-8); }
-  .auth-copy h1 { font-size: 2rem; }
+  .auth-copy h1 { font-size: 2rem; overflow-wrap: anywhere; }
   .auth-copy p { color: var(--text-secondary); margin-top: var(--space-3); max-width: 36ch; }
   .auth-form { display: grid; gap: var(--space-4); }
   .fine-print { color: var(--text-quaternary); font-size: 0.75rem; margin-top: var(--space-6); text-align: center; }
