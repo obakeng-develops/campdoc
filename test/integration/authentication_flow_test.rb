@@ -171,6 +171,22 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_select "body.app-body", count: 0
   end
 
+  test "a delivery page never wears the shell of the account viewing it" do
+    sender = User.create!(email_address: "sender-shell@example.com")
+    sign_in_as(sender)
+    send = sender.sends.new(recipient_email: "alex@example.com", message: "Hello")
+    send.issue_access_token
+    send.files.attach(create_uploaded_blob(sender, filename: "sample.txt"))
+    send.save!
+    send.record_event!(:sent)
+
+    get delivery_path(public_id: send.public_id)
+
+    assert_response :success
+    assert_select "body.guest-body"
+    assert_select ".site-sidebar", count: 0
+  end
+
   private
     def sign_in_as(user)
       login_token, raw_token = LoginToken.issue_for(user)
