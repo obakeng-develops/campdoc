@@ -30,7 +30,9 @@
     <% end %>
   </head>
 
-  <% app_shell = authenticated? && controller_name != "home" %>
+  <%# sign_ins asks who you are, so it never wears the shell of whoever is already signed in.
+      sessions needs no entry here: it redirects an authenticated visitor away. %>
+  <% app_shell = authenticated? && !%w[home sign_ins].include?(controller_name) %>
   <% policy_usage = Campsend.policy.usage_for(current_user) if app_shell %>
   <body class="<%= app_shell ? "app-body" : "guest-body" %>">
     <% if flash.any? && controller_name != "sessions" %>
