@@ -15,6 +15,10 @@ module Campsend
 
     # Files are only exposed through Campsend's authorization and tracking endpoints.
     config.active_storage.draw_routes = false
+    # Campsend serves original blobs and derives no image variants, so the vips
+    # processor stays off. Turning it back on means restoring image_processing and
+    # ruby-vips, and installing libvips wherever the application boots.
+    config.active_storage.variant_processor = :disabled
     config.x.google_drive.client_id = ENV["GOOGLE_DRIVE_CLIENT_ID"]
     config.x.google_drive.api_key = ENV["GOOGLE_DRIVE_API_KEY"]
     config.x.google_drive.app_id = ENV["GOOGLE_DRIVE_APP_ID"]
