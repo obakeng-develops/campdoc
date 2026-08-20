@@ -157,6 +157,20 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "the sign-in page never renders the shell of an already signed-in user" do
+    signed_in = User.create!(email_address: "signed-in@example.com")
+    other = User.create!(email_address: "other@example.com")
+    sign_in_as(signed_in)
+
+    login_token, _raw = LoginToken.issue_for(other)
+    get sign_in_path(public_id: login_token.public_id)
+
+    assert_response :success
+    assert_select "body.guest-body"
+    assert_select ".site-sidebar", count: 0
+    assert_select "body.app-body", count: 0
+  end
+
   private
     def sign_in_as(user)
       login_token, raw_token = LoginToken.issue_for(user)
