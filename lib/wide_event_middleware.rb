@@ -24,7 +24,11 @@ class WideEventMiddleware
     end
     [ status, headers, body ]
   rescue => error
-    WideEvent.add(status: 500, outcome: "error")
+    # Not 500 unconditionally. Rails renders many exceptions as a 4xx, so hardcoding it
+    # reported a status the client never received and made ordinary rejections
+    # indistinguishable from faults in the one place used to tell them apart.
+    status = ActionDispatch::ExceptionWrapper.status_code_for_exception(error.class.name)
+    WideEvent.add(status: status, outcome: outcome(status))
     WideEvent.add_error(error)
     raise
   ensure
