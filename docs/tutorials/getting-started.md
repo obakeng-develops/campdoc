@@ -4,7 +4,7 @@ This tutorial gets Campsend running and walks through one file delivery.
 
 ## Before you start
 
-You'll need Ruby 3.3.4, SQLite 3, and libvips.
+You'll need Ruby 3.3.4 and SQLite 3.
 
 ## Setting up the application
 
